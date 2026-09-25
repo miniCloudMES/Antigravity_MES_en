@@ -281,3 +281,6 @@ uwsgi --ini uwsgi.ini
 ## Developers
 
 - GitHub: [miniCloudMES/Antigravity_MES](https://github.com/miniCloudMES/Antigravity_MES)
+
+# Demo Site
+Demo site:[miniMES English Demo](https://photodramatic-luka-protragedy.ngrok-free.dev/)
