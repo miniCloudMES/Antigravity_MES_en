@@ -1,0 +1,24 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Delete BOM - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 text-center p-5">
+            <div class="mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:3rem;"></i>
+            </div>
+            <h4 class="fw-bold mb-2">Delete this BOM?</h4>
+            <p class="text-muted mb-1">You are about to delete the following BOM and all of its items:</p>
+            <p class="fw-bold fs-5 mb-4">{{ object.product.name }} (Version {{ object.version }})</p>
+            <p class="text-danger small mb-4">This action cannot be undone. All related items will be deleted as well.</p>
+            <form method="post" class="d-flex gap-3 justify-content-center">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger rounded-pill px-5">Confirm Delete</button>
+                <a href="{% url 'bom-list' %}" class="btn btn-outline-secondary rounded-pill px-5">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

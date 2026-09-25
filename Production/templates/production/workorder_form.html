@@ -1,0 +1,186 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}{{ form_title }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-header bg-light border-0 pt-4 pb-3">
+                <h4 class="fw-bold text-center"><i class="bi bi-plus-circle-fill text-primary me-2"></i>{{ form_title }}</h4>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Work Order No. <span class="text-danger">*</span></label>
+                            {{ form.order_number }}
+                            <div id="wo-number-feedback"></div>
+                            {% if form.order_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.order_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Customer</label>
+                            {{ form.customer }}
+                            {% if form.customer.errors %}
+                                <div class="text-danger small mt-1">{{ form.customer.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Lot No.</label>
+                            {{ form.lot_number }}
+                            <div class="text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i>Leave blank to auto-generate from the work order number
+                            </div>
+                            {% if form.lot_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.lot_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Product <span class="text-danger">*</span></label>
+                            {{ form.product }}
+                            {% if form.product.errors %}
+                                <div class="text-danger small mt-1">{{ form.product.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Quantity <span class="text-danger">*</span></label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                                <div class="text-danger small mt-1">{{ form.quantity.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Work Order Type <span class="text-danger">*</span></label>
+                            {{ form.type }}
+                            {% if form.type.errors %}
+                                <div class="text-danger small mt-1">{{ form.type.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Source <span class="text-danger">*</span></label>
+                            {{ form.source }}
+                            {% if form.source.errors %}
+                                <div class="text-danger small mt-1">{{ form.source.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Planned Start Date <span class="text-danger">*</span></label>
+                            {{ form.planned_start_date }}
+                            {% if form.planned_start_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.planned_start_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Planned End Date <span class="text-danger">*</span></label>
+                            {{ form.planned_end_date }}
+                            {% if form.planned_end_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.planned_end_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Actual Start Date</label>
+                            {{ form.actual_start_date }}
+                            {% if form.actual_start_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.actual_start_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Actual End Date</label>
+                            {{ form.actual_end_date }}
+                            {% if form.actual_end_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.actual_end_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'workorder-list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            {% if object %}Update{% else %}Save{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const woNumberInput = document.getElementById('id_order_number');
+        const woFeedback = document.getElementById('wo-number-feedback');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const CURRENT_PK = '{{ object.pk|default:"" }}';
+        let woTimer = null;
+        let isWoValid = {% if object %}true{% else %}false{% endif %};
+
+        function setWoFeedback(state, msg) {
+            const icons = { ok: '✅', error: '❌', checking: '⏳', '': '' };
+            const colors = { ok: 'text-success', error: 'text-danger', checking: 'text-secondary', '': '' };
+            woFeedback.className = `small mt-1 d-flex align-items-center gap-1 ${colors[state]}`;
+            woFeedback.innerHTML = state ? `<span>${icons[state]}</span><span>${msg}</span>` : '';
+            isWoValid = (state === 'ok');
+            if (submitBtn) submitBtn.disabled = !isWoValid && woNumberInput && woNumberInput.value.length > 0;
+        }
+
+        function checkWoNumber(val) {
+            if (!val) {
+                setWoFeedback('', '');
+                return;
+            }
+            setWoFeedback('checking', 'Checking\u2026');
+            const url = `{% url 'check-workorder-number' %}?order_number=${encodeURIComponent(val)}${CURRENT_PK ? '&pk=' + CURRENT_PK : ''}`;
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => setWoFeedback(data.available ? 'ok' : 'error', data.message))
+                .catch(() => setWoFeedback('', ''));
+        }
+
+        if (woNumberInput) {
+            woNumberInput.addEventListener('input', () => {
+                clearTimeout(woTimer);
+                setWoFeedback('', '');
+                woTimer = setTimeout(() => checkWoNumber(woNumberInput.value.trim()), 400);
+            });
+            woNumberInput.addEventListener('blur', () => {
+                clearTimeout(woTimer);
+                checkWoNumber(woNumberInput.value.trim());
+            });
+            if (woNumberInput.value.trim()) {
+                checkWoNumber(woNumberInput.value.trim());
+            }
+        }
+
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                if (woNumberInput && woNumberInput.value.trim() && !isWoValid) {
+                    e.preventDefault();
+                    woNumberInput.focus();
+                    setWoFeedback('error', 'Please correct the work order number');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

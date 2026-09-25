@@ -1,0 +1,137 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Production Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-cpu me-2" style="color:var(--lin-accent);"></i>Production Management</h2>
+        <p class="text-muted mb-0" style="font-size:13px;">Manage work orders, track production progress and related resources.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-3">
+        <i class="bi bi-arrow-left me-1"></i>Back to Main Dashboard
+    </a>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                    <i class="bi bi-card-list" style="color:var(--lin-accent);font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold" style="font-size:20px;">{{ total_workorders }}</div>
+                    <div class="text-muted" style="font-size:12px;">Total Work Orders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(245,166,35,0.1);">
+                    <i class="bi bi-clock-history" style="color:var(--lin-yellow);font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold" style="font-size:20px;">{{ pending_workorders }}</div>
+                    <div class="text-muted" style="font-size:12px;">Pending</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                    <i class="bi bi-gear-wide-connected" style="color:var(--lin-accent);font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold" style="font-size:20px;">{{ in_progress_workorders }}</div>
+                    <div class="text-muted" style="font-size:12px;">In Progress</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(16,185,129,0.1);">
+                    <i class="bi bi-check-circle-fill" style="color:var(--lin-green);font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold" style="font-size:20px;">{{ completed_workorders }}</div>
+                    <div class="text-muted" style="font-size:12px;">Completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(16,185,129,0.1);">
+                        <i class="bi bi-list-check" style="color:var(--lin-green);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Work Order Management</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Create, edit and track the status of all work orders.</p>
+                <a href="{% url 'workorder-list' %}" class="btn btn-outline-primary px-3 w-100">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                        <i class="bi bi-diagram-2" style="color:var(--lin-accent);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Bill of Materials (BOM)</h5>
+                </div>
+                <p class="text-muted mb-2" style="font-size:13px;">Define the component composition and quantities of finished products.</p>
+                <p class="text-muted mb-4" style="font-size:12.5px;">
+                    Total <strong style="color:var(--lin-text);">{{ total_boms }}</strong> BOM records,
+                    <strong style="color:var(--lin-green);">{{ active_boms }}</strong> active.
+                </p>
+                <a href="{% url 'bom-list' %}" class="btn btn-outline-primary px-3 w-100">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                        <i class="bi bi-signpost-split" style="color:var(--lin-accent);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Process Cards</h5>
+                </div>
+                <p class="text-muted mb-2" style="font-size:13px;">Define the standard process for each product: personnel, equipment, material, documents and QC requirements.</p>
+                <p class="text-muted mb-4" style="font-size:12.5px;">
+                    <strong style="color:var(--lin-text);">{{ process_card_count }}</strong> product(s) have a defined process.
+                </p>
+                <a href="{% url 'process-card-list' %}" class="btn btn-outline-primary px-3 w-100">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:var(--lin-surface-alt);">
+                        <i class="bi bi-graph-up-arrow" style="color:var(--lin-text-muted);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Production Report</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">View good/defect/loss quantities per station, work order flow and overall loss analysis.</p>
+                <a href="{% url 'production-report' %}" class="btn btn-outline-primary px-3 w-100">View Report</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

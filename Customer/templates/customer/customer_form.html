@@ -1,0 +1,128 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}{{ form_title }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-header bg-light border-0 pt-4 pb-3">
+                <h4 class="fw-bold text-center"><i class="bi bi-plus-circle-fill text-primary me-2"></i>{{ form_title }}</h4>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="post" id="customer-form">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Customer ID <span class="text-danger">*</span></label>
+                            {{ form.customer_id }}
+                            <div id="cust-id-feedback" class="small mt-1 d-flex align-items-center gap-1" style="min-height:1.4em"></div>
+                            <div class="text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i>Rule: At least 3 chars. Letters, numbers, underscore (_), and hyphen (-) only. E.g. CUST-2024-001
+                            </div>
+                            {% if form.customer_id.errors %}
+                                <div class="text-danger small mt-1">{{ form.customer_id.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Customer Name <span class="text-danger">*</span></label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Contact Person</label>
+                            {{ form.contact_person }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Phone</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tax ID</label>
+                            {{ form.tax_id }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Address</label>
+                            {{ form.address }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'customer:customer-list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" id="cust-submit-btn" class="btn btn-primary rounded-pill px-4">
+                            {% if object %}Save Changes{% else %}Save{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const input = document.getElementById('{{ form.customer_id.id_for_label }}');
+    const feedback = document.getElementById('cust-id-feedback');
+    const submitBtn = document.getElementById('cust-submit-btn');
+    const CURRENT_PK = '{{ object.pk|default:"" }}';
+    let valid = {% if object %}true{% else %}false{% endif %};
+    let timer = null;
+
+    function setFeedback(state, msg) {
+        const icons = { ok: '✅', error: '❌', checking: '⏳', '': '' };
+        const colors = { ok: 'text-success', error: 'text-danger', checking: 'text-secondary', '': '' };
+        feedback.className = `small mt-1 d-flex align-items-center gap-1 ${colors[state]}`;
+        feedback.innerHTML = state ? `<span>${icons[state]}</span><span>${msg}</span>` : '';
+        valid = (state === 'ok');
+        if (submitBtn) submitBtn.disabled = !valid && input && input.value.length > 0;
+    }
+
+    function checkId(val) {
+        if (!val) { setFeedback('', ''); return; }
+        if (val.length < 3) { setFeedback('error', 'Must be at least 3 characters'); return; }
+        if (!/^[A-Za-z0-9_\-]+$/.test(val)) { setFeedback('error', 'Special characters or spaces not allowed'); return; }
+        setFeedback('checking', 'Checking...');
+        const url = `{% url 'customer:check-customer-id' %}?customer_id=${encodeURIComponent(val)}${CURRENT_PK ? '&pk=' + CURRENT_PK : ''}`;
+        fetch(url).then(r => r.json()).then(d => setFeedback(d.available ? 'ok' : 'error', d.message));
+    }
+
+    if (input && feedback) {
+        input.addEventListener('input', () => {
+            clearTimeout(timer);
+            setFeedback('', '');
+            timer = setTimeout(() => checkId(input.value.trim()), 400);
+        });
+        input.addEventListener('blur', () => {
+            clearTimeout(timer);
+            checkId(input.value.trim());
+        });
+        if (input.value.trim()) checkId(input.value.trim());
+    }
+
+    document.getElementById('customer-form').addEventListener('submit', (e) => {
+        if (input && input.value.trim() && !valid) {
+            e.preventDefault();
+            input.focus();
+        }
+    });
+})();
+</script>
+{% endblock %}

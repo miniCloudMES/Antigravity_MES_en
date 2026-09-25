@@ -1,0 +1,207 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}File Library - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-folder2-open me-2" style="color:var(--lin-accent);"></i>File Library</h2>
+            <p class="text-muted mb-0" style="font-size:13px;">Centralized management of system files, supporting upload, download, and categorization.</p>
+        </div>
+        <div>
+            {% if can_manage %}
+            <a href="{% url 'filelibrary:file-category-list' %}" class="btn btn-outline-secondary px-3 me-2">
+                <i class="bi bi-tags me-1"></i>Categories
+            </a>
+            {% endif %}
+            {% if can_upload %}
+            <a href="{% url 'filelibrary:file-upload' %}" class="btn btn-primary px-3">
+                <i class="bi bi-cloud-arrow-up me-1"></i>Upload File
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Filter Row -->
+<div class="row mb-3">
+    <div class="col-12">
+        <form method="get" class="d-flex gap-2 flex-wrap align-items-center">
+            <input type="text" name="q" value="{{ q }}" class="form-control" style="max-width:240px;" placeholder="Search file name...">
+            <select name="category" class="form-select" style="max-width:200px;" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.pk }}" {% if selected_category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }} ({{ cat.file_count }})</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-primary px-4">Filter</button>
+            {% if q or selected_category %}
+                <a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary px-3">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Incomplete Transcode Warning -->
+{% if pending_videos and can_manage %}
+<div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 mb-3">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <strong>{{ pending_videos|length }} video(s) not yet completed transcoding:</strong>
+    <span class="small">
+        {% for f in pending_videos %}{{ f.title }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    </span>
+    <form method="post" action="{% url 'filelibrary:retry-transcode' %}" class="d-inline ms-auto">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3" onclick="return confirm('Are you sure you want to restart transcoding for these videos?');">
+            <i class="bi bi-arrow-repeat"></i> Retry Transcode
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>File Name</th>
+                        <th>Category</th>
+                        <th>Size</th>
+                        <th>Status</th>
+                        <th>Uploaded By</th>
+                        <th>Upload Time</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in files %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if f.is_image %}
+                                <a href="{% url 'filelibrary:file-preview' f.pk %}" class="me-2 image-preview-link" title="Click to preview image" data-title="{{ f.title }}" data-download="{% url 'filelibrary:file-download' f.pk %}">
+                                    <img src="{% url 'filelibrary:file-preview' f.pk %}" alt="{{ f.title }}" loading="lazy"
+                                         style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid var(--lin-border, #e5e7eb);"
+                                         onerror="this.style.display='none'">
+                                </a>
+                                {% else %}
+                                <i class="bi {{ f.file_icon }} me-2 {{ f.file_icon_color }}" style="font-size:1.4rem;"></i>
+                                {% endif %}
+                                <div>
+                                    <span class="fw-semibold">{{ f.title }}</span>
+                                    {% if f.description %}
+                                    <small class="d-block text-muted">{{ f.description|truncatechars:60 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if f.category %}
+                            <span class="badge bg-secondary">{{ f.category.name }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ f.size_display }}</td>
+                        <td>
+                            {% if f.is_video %}
+                                {% if f.video_status == 'PENDING' %}
+                                <span class="badge bg-secondary">Awaiting Transcode</span>
+                                {% elif f.video_status == 'PROCESSING' %}
+                                <span class="badge bg-info">Transcoding...</span>
+                                {% elif f.video_status == 'COMPLETED' %}
+                                <span class="badge bg-success">Transcoded 720p</span>
+                                {% elif f.video_status == 'FAILED' %}
+                                <span class="badge bg-danger" title="{{ f.video_error|default:'' }}">Transcode Failed</span>
+                                {% endif %}
+                                {% if f.video_status != 'COMPLETED' and can_manage %}
+                                <form method="post" action="{% url 'filelibrary:retry-transcode-one' f.pk %}" class="d-inline ms-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning px-2 py-0" title="Retry Transcode">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>{{ f.uploaded_by.username|default:"-" }}</td>
+                        <td class="text-muted small">{{ f.created_at|date:"Y-m-d H:i" }}</td>
+                        <td class="text-end">
+                            {% if f.is_video and f.video_status == 'COMPLETED' and f.video_standard %}
+                            <a href="{% url 'filelibrary:file-video-play' f.pk %}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="Play (720p/H.264)">
+                                <i class="bi bi-play-circle"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'filelibrary:file-download' f.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="Download Original">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% if can_manage %}
+                            <a href="{% url 'filelibrary:file-edit' f.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="post" action="{% url 'filelibrary:file-delete' f.pk %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete file \'{{ f.title }}\'?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>No files found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="imagePreviewModalLabel">
+                    <i class="bi bi-image text-primary me-2"></i><span id="preview-title">Image Preview</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3 text-center">
+                <img id="preview-image" src="" alt="Image Preview" class="img-fluid rounded" style="max-height:70vh;">
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <a href="#" id="preview-download" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="bi bi-download me-1"></i>Download Original
+                </a>
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('imagePreviewModal');
+    const previewImg = document.getElementById('preview-image');
+    const previewTitle = document.getElementById('preview-title');
+    const previewDownload = document.getElementById('preview-download');
+
+    document.querySelectorAll('.image-preview-link').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            previewImg.src = link.getAttribute('href');
+            previewTitle.textContent = link.getAttribute('data-title') || 'Image Preview';
+            previewDownload.href = link.getAttribute('data-download') || '#';
+            new bootstrap.Modal(modal).show();
+        });
+    });
+});
+</script>
+{% endblock %}

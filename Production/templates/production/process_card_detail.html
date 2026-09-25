@@ -1,0 +1,102 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Process Card - {{ product.name }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-signpost-split text-primary me-2"></i>{{ product.name }} Process Card</h2>
+            <p class="text-muted mb-0" style="font-size:13px;">Product ID: <code>{{ product.product_id }}</code> &nbsp;Steps: <span class="badge bg-primary rounded-pill">{{ steps|length }}</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if is_manager %}
+            <a href="{% url 'process-card-edit' product.pk %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-pencil me-1"></i>Edit Process Card
+            </a>
+            {% endif %}
+            <a href="{% url 'process-card-list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+{% for step in steps %}
+<div class="card shadow-sm border-0 mb-3" style="border-radius:16px;border-left:4px solid var(--lin-accent) !important;">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">
+            <span class="badge bg-primary rounded-pill me-2">Step {{ step.step_number }}</span>
+            {{ step.name }}
+            {% if step.standard_time_minutes %}
+            <span class="badge bg-light text-dark border ms-2"><i class="bi bi-clock me-1"></i>{{ step.standard_time_minutes }} min</span>
+            {% endif %}
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="text-muted small mb-1"><i class="bi bi-people me-1"></i>Personnel Position</div>
+                <div>
+                    {% if step.personnel %}
+                    <span class="badge bg-light text-dark border">{{ step.personnel.name }}</span>
+                    {% else %}-{% endif %}
+                    {% if step.personnel_requirement %}
+                    <small class="d-block text-muted">{{ step.personnel_requirement }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small mb-1"><i class="bi bi-pc-display me-1"></i>Equipment</div>
+                <div>
+                    {% if step.equipment %}
+                    <a href="{% url 'equipment-detail' step.equipment.pk %}" class="text-decoration-none">
+                        {{ step.equipment.equipment_id }} - {{ step.equipment.name }}
+                    </a>
+                    {% else %}-{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small mb-1"><i class="bi bi-box-seam me-1"></i>Material</div>
+                <div>
+                    {% if step.material %}
+                    {{ step.material.material_id }} - {{ step.material.name }}
+                    {% else %}-{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small mb-1"><i class="bi bi-file-earmark-text me-1"></i>Reference Document (SOP)</div>
+                <div>
+                    {% if step.document %}
+                    <a href="{% url 'document-detail' step.document.pk %}" target="_blank" class="link-primary">
+                        <i class="bi bi-file-earmark-text me-1"></i>{{ step.document.title }}{% if step.document.code %} ({{ step.document.code }}){% endif %}
+                    </a>
+                    {% else %}-{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small mb-1"><i class="bi bi-clipboard-check me-1"></i>QC Requirements</div>
+                <div>{{ step.qc_requirements|default:"-" }}</div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small mb-1"><i class="bi bi-tools me-1"></i>Process Guidelines</div>
+                <div class="rich-text">{{ step.description|default:"-"|safe }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="card shadow-sm border-0">
+    <div class="card-body text-center text-muted py-5">
+        <i class="bi bi-signpost-split fs-2 d-block mb-2"></i>No process steps have been defined for this product
+        {% if is_manager %}
+        <div class="mt-3">
+            <a href="{% url 'process-card-edit' product.pk %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg me-1"></i>Create Process Card
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

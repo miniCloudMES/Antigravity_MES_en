@@ -1,0 +1,109 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Customer Dashboard - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-person-vcard-fill text-primary me-2"></i>Customers</h2>
+            <p class="text-muted mb-0">Customer overview and quick access.</p>
+        </div>
+        <div>
+            {% if is_manager %}
+            <a href="{% url 'customer:customer-add' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg"></i> New Customer
+            </a>
+            {% endif %}
+            <a href="{% url 'customer:customer-list' %}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">
+                <i class="bi bi-list-ul"></i> Customer List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Customers</div>
+                <div class="fw-bold mt-1">{{ total_customers }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Active</div>
+                <div class="fw-bold mt-1 text-success">{{ active_customers }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Inactive</div>
+                <div class="fw-bold mt-1 text-secondary">{{ inactive_customers }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Recently Added</div>
+                <div class="fw-bold mt-1">{{ recent_customers }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-light border-0 py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-people text-primary me-2"></i>Recently Added Customers</h5>
+            <a href="{% url 'customer:customer-list' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Customer Name</th>
+                    <th>Contact Person</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in recent_customer_list %}
+                <tr>
+                    <td><code>{{ customer.customer_id }}</code></td>
+                    <td class="fw-semibold">{{ customer.name }}</td>
+                    <td>{{ customer.contact_person|default:"-" }}</td>
+                    <td>{{ customer.phone|default:"-" }}</td>
+                    <td>
+                        {% if customer.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'customer:customer-detail' customer.pk %}" class="btn btn-sm btn-outline-primary me-1" title="View"><i class="bi bi-eye"></i></a>
+                        {% if is_manager %}
+                        <a href="{% url 'customer:customer-edit' customer.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">No customers found. Click New Customer to add one.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

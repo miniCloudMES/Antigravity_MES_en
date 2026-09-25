@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'Images/favicon.png' %}" type="image/png">
+    <title>Video Playback - {{ f.title }} - miniMES System</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/font/bootstrap-icons.css' %}">
+    <style>
+        body { background: #0b0d12; color: #e5e7eb; min-height: 100vh; display: flex; flex-direction: column; }
+        .player-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        video { max-width: 100%; max-height: calc(100vh - 140px); border-radius: 12px; background: #000; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
+        .topbar { display: flex; align-items: center; gap: 12px; padding: 14px 24px; border-bottom: 1px solid #1f2430; background: #11141c; }
+        .topbar .title { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .badge-720p { background: rgba(94,106,210,0.2); color: #9aa3ff; border: 1px solid rgba(94,106,210,0.4); }
+        .status-box { text-align: center; padding: 60px 20px; }
+        .status-box i { font-size: 4rem; color: #5e6ad2; }
+        .btn-icon { border-radius: 10px; padding: 6px 14px; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary btn-icon" title="Back to File Library">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <span class="title flex-grow-1"><i class="bi bi-play-circle text-success me-2"></i>{{ f.title }}</span>
+        <span class="badge badge-720p"><i class="bi bi-hdd me-1"></i>720p · H.264</span>
+    </div>
+
+    {% if not_ready %}
+    <div class="player-wrap">
+        <div class="status-box">
+            {% if f.video_status == 'PROCESSING' %}
+            <i class="bi bi-arrow-repeat"></i>
+            <h4 class="mt-3 fw-bold">Video Transcoding...</h4>
+            <p class="text-muted">The system is converting the video to 720p / H.264 / MP4 in the background. Please refresh this page shortly.</p>
+            {% elif f.video_status == 'FAILED' %}
+            <i class="bi bi-exclamation-triangle text-danger"></i>
+            <h4 class="mt-3 fw-bold">Transcoding Failed</h4>
+            <p class="text-muted">{{ f.video_error|default:"Unable to transcode this video." }}</p>
+            {% else %}
+            <i class="bi bi-hourglass-split"></i>
+            <h4 class="mt-3 fw-bold">Awaiting Transcoding</h4>
+            <p class="text-muted">This video has not yet completed standardized transcoding.</p>
+            {% endif %}
+            <div class="mt-4">
+                <button class="btn btn-outline-light rounded-pill px-4" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <a href="{% url 'filelibrary:file-download' f.pk %}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">
+                    <i class="bi bi-download me-1"></i>Download Original
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="player-wrap">
+        <video id="player" controls autoplay preload="metadata"
+               src="{% url 'filelibrary:file-standard-download' f.pk %}?play=1"></video>
+    </div>
+    {% endif %}
+
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

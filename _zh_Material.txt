@@ -1,0 +1,20 @@
+Material\tests.py#12#"""Material模組：列表需登入、新增僅限 admin/manager。
+Material\tests.py#14#注意：Material 有資料搬遷種子資料（MAT-001~005、MAT-T9 等），
+Material\tests.py#15#因此斷言一律以「相對變化」為準，不可假設資料表為空。
+Material\tests.py#20#self.category = MaterialCategory.objects.create(name='原料')
+Material\tests.py#31#'name': '測試Material',
+Material\tests.py#45#'name': '測試Material',
+Material\tests.py#52## 新建MaterialStock一律為 0，Inbound須透過Stock交易留下紀錄
+Material\tests.py#56#"""表單已移除Stock欄位，即使 POST 帶 stock_quantity 也不可寫入。"""
+Material\tests.py#60#'name': '測試Material二',
+Material\tests.py#70#"""EditMaterial時不得改動StockQuantity。"""
+Material\tests.py#72#material_id='MAT-N03', name='測試Material三',
+Material\tests.py#78#'name': '測試Material三（改名）',
+Material\tests.py#86#self.assertEqual(mat.name, '測試Material三（改名）')
+Material\tests.py#90#"""Edit頁僅顯示唯讀Stock，不提供可Edit的Stock欄位。"""
+Material\tests.py#92#material_id='MAT-N04', name='測試Material四',
+Material\tests.py#103#"""MaterialStock交易清單：日期區間篩選、單一項目檢視、合計。"""
+Material\tests.py#110#self.category = MaterialCategory.objects.create(name='篩選Test Category')
+Material\tests.py#143#"""從Material列表點進來的 ?material=<pk> 只顯示該Material。"""
+Material\tests.py#156#"""日期區間之外（未來）不得出現任何資料。"""
+Material\tests.py#173#"""Material列表每列要有可點的交易紀錄連結。"""

@@ -1,0 +1,24 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Delete Work Order - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 text-center" style="border-radius: 16px;">
+            <div class="card-body p-5">
+                <h4 class="fw-bold">Confirm Delete</h4>
+                <p class="text-muted">Are you sure you want to delete work order <strong>{{ workorder.order_number }}</strong>?</p>
+                <p class="text-danger">This action cannot be undone!</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                        <a href="{% url 'workorder-list' %}" class="btn btn-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Confirm Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

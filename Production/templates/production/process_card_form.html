@@ -1,0 +1,190 @@
+{% extends "orgnization/base.html" %}
+{% load static %}
+
+{% block title %}Edit Process Card - {{ product.name }} - miniMES System{% endblock %}
+
+{% block content %}
+<link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
+<style>
+    .quill-wrap .quill-input { display: none; }
+    .quill-editor { min-height: 140px; border-radius: 0 0 8px 8px; }
+    .quill-editor .ql-editor { min-height: 120px; }
+</style>
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-signpost-split text-primary me-2"></i>Edit Process Card</h2>
+            <p class="text-muted mb-0" style="font-size:13px;">Product: <strong>{{ product.name }}</strong> (<code>{{ product.product_id }}</code>) &mdash; Fill in the process guidelines for each step in order.</p>
+        </div>
+        <a href="{% url 'process-card-detail' product.pk %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i>Back to Process Card
+        </a>
+    </div>
+</div>
+
+<form method="post" id="process-card-form">
+    {% csrf_token %}
+    {{ form.as_hidden }}
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-muted mb-0"><i class="bi bi-list-ol me-1"></i>Step Details (in order)</h6>
+            <button type="button" class="btn btn-sm btn-outline-info rounded-pill" id="add-step-btn">
+                <i class="bi bi-plus-circle me-1"></i>Add Step
+            </button>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+            <div id="formset-container">
+                {% for step_form in formset %}
+                <div class="step-row row g-2 align-items-start mb-3 p-3 border rounded" style="background:rgba(94,106,210,0.03);">
+                    {{ step_form.id }}
+                    <div class="col-md-1">
+                        <label class="form-label fw-semibold small">Order<span class="text-danger">*</span></label>
+                        {{ step_form.step_number }}
+                        {% if step_form.step_number.errors %}<div class="text-danger small">{{ step_form.step_number.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">Step Name<span class="text-danger">*</span></label>
+                        {{ step_form.name }}
+                        {% if step_form.name.errors %}<div class="text-danger small">{{ step_form.name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">Personnel Position</label>
+                        {{ step_form.personnel }}
+                        {% if step_form.personnel.errors %}<div class="text-danger small">{{ step_form.personnel.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold small">Equipment</label>
+                        {{ step_form.equipment }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold small">Material</label>
+                        {{ step_form.material }}
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        {% if step_form.DELETE %}
+                        <div class="form-check mb-2" title="Check to delete this row">
+                            {{ step_form.DELETE }}
+                            <label class="form-check-label text-danger small" for="{{ step_form.DELETE.id_for_label }}">
+                                <i class="bi bi-trash"></i>
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold small">Process Guidelines</label>
+                        <div class="quill-wrap">
+                            {{ step_form.description }}
+                            <div class="quill-editor"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Reference Document</label>
+                        {{ step_form.document }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">Personnel Notes</label>
+                        {{ step_form.personnel_requirement }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">QC Requirements</label>
+                        {{ step_form.qc_requirements }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">Standard Time (min)</label>
+                        {{ step_form.standard_time_minutes }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a href="{% url 'process-card-detail' product.pk %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+        <button type="submit" class="btn btn-primary rounded-pill px-5">
+            <i class="bi bi-check-circle me-1"></i>Save Process Card
+        </button>
+    </div>
+</form>
+
+<script src="{% static 'vendor/quill/quill.js' %}"></script>
+<script>
+(function () {
+    const container = document.getElementById('formset-container');
+    const prefix = '{{ formset.prefix }}';
+    const totalForms = document.getElementById('id_' + prefix + '-TOTAL_FORMS');
+    const addBtn = document.getElementById('add-step-btn');
+
+    // Initialize the Quill editor for a single wrapper
+    function initQuill(wrap) {
+        const textarea = wrap.querySelector('textarea.quill-input');
+        const editorEl = wrap.querySelector('.quill-editor');
+        if (!textarea || !editorEl || editorEl.dataset.quillReady) return;
+
+        const quill = new Quill(editorEl, {
+            theme: 'snow',
+            placeholder: 'Enter process guidelines...',
+            modules: {
+                toolbar: [
+                    [{ header: [2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    [{ align: [] }],
+                    [{ color: [] }, { background: [] }],
+                    ['blockquote', 'code-block'],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+        // Load existing content (Django textarea value)
+        if (textarea.value) {
+            quill.clipboard.dangerouslyPasteHTML(textarea.value);
+        }
+        // Sync back to the textarea when editing (form submission relies on it)
+        quill.on('text-change', function () {
+            textarea.value = quill.root.innerHTML;
+        });
+        editorEl.dataset.quillReady = '1';
+    }
+
+    // Initialize all existing rows
+    container.querySelectorAll('.step-row .quill-wrap').forEach(initQuill);
+
+    if (addBtn && container.querySelector('.step-row')) {
+        addBtn.addEventListener('click', function () {
+            const rows = container.querySelectorAll('.step-row');
+            const idx = rows.length;
+            const template = rows[rows.length - 1].cloneNode(true);
+            template.querySelectorAll('[name],[id],[for]').forEach(el => {
+                ['name', 'id', 'for'].forEach(attr => {
+                    if (el.getAttribute(attr)) {
+                        el.setAttribute(attr, el.getAttribute(attr).replace(new RegExp(prefix + '-\\d+-'), prefix + '-' + idx + '-'));
+                    }
+                });
+                if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                    if (el.type === 'checkbox') {
+                        el.checked = false;
+                    } else {
+                        el.value = '';
+                    }
+                }
+            });
+            // Remove Quill-generated elements from the clone to avoid conflicts
+            template.querySelectorAll('.ql-toolbar, .ql-container, .ql-clipboard').forEach(el => el.remove());
+            const newWrap = template.querySelector('.quill-wrap');
+            if (newWrap) {
+                const editorEl = newWrap.querySelector('.quill-editor');
+                if (editorEl) delete editorEl.dataset.quillReady;
+            }
+            container.appendChild(template);
+            totalForms.value = idx + 1;
+            if (newWrap) initQuill(newWrap);
+        });
+    }
+})();
+</script>
+{% endblock %}

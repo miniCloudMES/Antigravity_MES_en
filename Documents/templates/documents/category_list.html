@@ -1,0 +1,74 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Category Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold"><i class="bi bi-tags text-primary me-2"></i>Category Management</h2>
+        <p class="text-muted">Manage the categories used to organize system documents.</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <a href="{% url 'documents-dashboard' %}" class="btn btn-outline-secondary rounded-pill me-2">
+            <i class="bi bi-arrow-left me-1"></i>Back to Document Center
+        </a>
+        {% if is_manager %}
+        <a href="{% url 'category-create' %}" class="btn btn-primary rounded-pill">
+            <i class="bi bi-plus-circle me-1"></i>New Category
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        {% if categories %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" style="width: 30%;">Category Name</th>
+                        <th scope="col" style="width: 40%;">Category Description</th>
+                        <th scope="col" style="width: 15%;">Documents</th>
+                        <th scope="col" style="width: 15%;" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in categories %}
+                    <tr>
+                        <td class="fw-bold">{{ cat.name }}</td>
+                        <td class="text-muted">{{ cat.description|default:"—" }}</td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
+                                {{ cat.documents.count }} document(s)
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            {% if is_manager %}
+                            <a href="{% url 'category-edit' cat.pk %}" class="btn btn-sm btn-outline-warning rounded-circle me-1" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'category-delete' cat.pk %}" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-tags-fill fs-1 d-block mb-3 text-secondary"></i>
+            <p class="mb-0">No document categories yet.</p>
+            {% if is_manager %}
+            <a href="{% url 'category-create' %}" class="btn btn-primary rounded-pill mt-3">
+                <i class="bi bi-plus-circle me-1"></i>Create the first category
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

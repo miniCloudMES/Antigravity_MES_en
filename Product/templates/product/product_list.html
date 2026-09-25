@@ -1,0 +1,348 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Product List - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="bi bi-box-seam text-primary me-2"></i>Product List</h2>
+        <div>
+            <a href="{% url 'product-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            {% if is_manager %}
+            <a href="{% url 'product-add' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg"></i> Add Product
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="row mb-3">
+    <div class="col-12">
+        <form method="get" class="d-flex gap-2 flex-wrap align-items-center">
+            <input type="text" name="search" value="{{ search }}" class="form-control" style="max-width:240px;" placeholder="Search by ID or name…">
+            <select name="category" class="form-select" style="max-width:200px;">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.pk }}" {% if selected_category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-primary rounded-pill px-4">Filter</button>
+            {% if search or selected_category %}
+                <a href="{% url 'product-list' %}" class="btn btn-outline-secondary rounded-pill px-3">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Image</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Specification</th>
+                                <th>Version</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Related</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in products %}
+                            <tr>
+                                <td>
+                                    {% if p.image %}
+                                    <img src="{{ p.image.url }}" alt="{{ p.name }}" class="rounded shadow-sm"
+                                         style="width:44px;height:44px;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform 0.2s;"
+                                         onmouseover="this.style.transform='scale(1.1)'"
+                                         onmouseout="this.style.transform='scale(1)'"
+                                         data-bs-toggle="modal" data-bs-target="#proPhotoModal" title="Click to preview product"
+                                         data-photo-url="{{ p.image.url }}"
+                                         data-p-name="{{ p.name }}"
+                                         data-p-id="{{ p.product_id }}"
+                                         data-p-category="{{ p.category.name }}"
+                                         data-p-unit="{{ p.get_unit_display }}"
+                                         data-p-spec="{{ p.spec|default:'' }}"
+                                         data-p-drawing="{{ p.drawing_no|default:'' }}"
+                                         data-p-version="{{ p.version|default:'' }}"
+                                         data-p-status="{% if p.is_active %}1{% else %}0{% endif %}"
+                                         data-p-stock="{{ p.stock_quantity }}"
+                                         data-p-minstock="{{ p.min_stock|default:'' }}"
+                                         data-p-lowstock="{% if p.is_low_stock %}1{% else %}0{% endif %}"
+                                         data-p-bom="{% if p.bom_count %}1{% else %}0{% endif %}"
+                                         data-p-workorder="{{ p.workorder_count|default:0 }}"
+                                         data-p-notes="{{ p.notes|default:'' }}">
+                                    {% else %}
+                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted"
+                                         style="width:44px;height:44px;border-radius:8px;cursor:pointer;transition:transform 0.2s;"
+                                         onmouseover="this.style.transform='scale(1.1)'"
+                                         onmouseout="this.style.transform='scale(1)'"
+                                         data-bs-toggle="modal" data-bs-target="#proPhotoModal" title="Click to preview product"
+                                         data-photo-url=""
+                                         data-p-name="{{ p.name }}"
+                                         data-p-id="{{ p.product_id }}"
+                                         data-p-category="{{ p.category.name }}"
+                                         data-p-unit="{{ p.get_unit_display }}"
+                                         data-p-spec="{{ p.spec|default:'' }}"
+                                         data-p-drawing="{{ p.drawing_no|default:'' }}"
+                                         data-p-version="{{ p.version|default:'' }}"
+                                         data-p-status="{% if p.is_active %}1{% else %}0{% endif %}"
+                                         data-p-stock="{{ p.stock_quantity }}"
+                                         data-p-minstock="{{ p.min_stock|default:'' }}"
+                                         data-p-lowstock="{% if p.is_low_stock %}1{% else %}0{% endif %}"
+                                         data-p-bom="{% if p.bom_count %}1{% else %}0{% endif %}"
+                                         data-p-workorder="{{ p.workorder_count|default:0 }}"
+                                         data-p-notes="{{ p.notes|default:'' }}">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td><code>{{ p.product_id }}</code></td>
+                                <td class="fw-semibold">{{ p.name }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ p.category.name }}</span></td>
+                                <td class="text-muted small">{{ p.spec|default:"-" }}</td>
+                                <td><span class="badge bg-secondary">{{ p.version|default:"-" }}</span></td>
+                                <td>
+                                    <span class="badge {% if p.is_low_stock %}bg-danger{% else %}bg-success{% endif %}">{{ p.stock_quantity }}</span>
+                                    {% if p.is_low_stock %}<i class="bi bi-exclamation-triangle-fill text-warning" title="Low stock warning"></i>{% endif %}
+                                </td>
+                                <td>
+                                    {% if p.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small">
+                                    {% if p.bom_count %}<span class="badge bg-info text-dark" title="BOM">BOM</span>{% endif %}
+                                    {% if p.workorder_count %}<span class="badge bg-warning text-dark" title="Work orders">WO×{{ p.workorder_count }}</span>{% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Preview"
+                                            data-bs-toggle="modal" data-bs-target="#proPhotoModal"
+                                            data-photo-url="{% if p.image %}{{ p.image.url }}{% endif %}"
+                                            data-p-name="{{ p.name }}"
+                                            data-p-id="{{ p.product_id }}"
+                                            data-p-category="{{ p.category.name }}"
+                                            data-p-unit="{{ p.get_unit_display }}"
+                                            data-p-spec="{{ p.spec|default:'' }}"
+                                            data-p-drawing="{{ p.drawing_no|default:'' }}"
+                                            data-p-version="{{ p.version|default:'' }}"
+                                            data-p-status="{% if p.is_active %}1{% else %}0{% endif %}"
+                                            data-p-stock="{{ p.stock_quantity }}"
+                                            data-p-minstock="{{ p.min_stock|default:'' }}"
+                                            data-p-lowstock="{% if p.is_low_stock %}1{% else %}0{% endif %}"
+                                            data-p-bom="{% if p.bom_count %}1{% else %}0{% endif %}"
+                                            data-p-workorder="{{ p.workorder_count|default:0 }}"
+                                            data-p-notes="{{ p.notes|default:'' }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <a href="{% url 'product-quick-transaction' p.pk %}" class="btn btn-sm btn-outline-success me-1" title="Stock Adjustment">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                    </a>
+                                    <a href="{% url 'product-stock-transaction-list' %}?product={{ p.pk }}" class="btn btn-sm btn-outline-info me-1" title="Transaction History">
+                                        <i class="bi bi-clock-history"></i>
+                                    </a>
+                                    <a href="{% url 'process-card-detail' p.pk %}" class="btn btn-sm btn-outline-primary me-1" title="Process Card">
+                                        <i class="bi bi-signpost-split"></i>
+                                    </a>
+                                    {% if is_manager %}
+                                    <a href="{% url 'product-edit' p.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'product-delete' p.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-5">
+                                    <i class="bi bi-box-seam fs-2 d-block mb-2"></i>No products found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+<!-- Product Image Preview Modal -->
+<div class="modal fade" id="proPhotoModal" tabindex="-1" aria-labelledby="proPhotoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="proPhotoModalLabel">Product Image</h5>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-4">
+          <div class="col-md-6 text-center">
+            <img src="" id="proModalImagePreview" class="img-fluid rounded shadow-sm d-none" alt="Product image" style="max-height: 55vh; object-fit: contain;">
+            <div id="proModalNoImage" class="d-flex align-items-center justify-content-center bg-light text-muted d-none rounded" style="min-height: 250px;">
+              <div class="text-center">
+                <i class="bi bi-box-seam fs-1 mb-2 d-block"></i>
+                <span>No image has been uploaded for this product yet</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h4 class="fw-bold text-primary mb-3" id="proModalName"></h4>
+            <table class="table table-sm table-borderless mb-0">
+              <tbody>
+                <tr>
+                  <th class="text-muted fw-semibold" style="width:110px;">Product ID</th>
+                  <td id="proModalId" class="fw-bold text-primary"></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Category</th>
+                  <td><span id="proModalCategory" class="badge bg-light text-dark border"></span></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Unit</th>
+                  <td id="proModalUnit"></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Specification</th>
+                  <td id="proModalSpec"></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Drawing No.</th>
+                  <td id="proModalDrawing"></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Version</th>
+                  <td><span id="proModalVersion" class="badge bg-secondary"></span></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Stock Quantity</th>
+                  <td>
+                    <span id="proModalStock" class="badge fs-6"></span>
+                    <small id="proModalMinStock" class="text-muted ms-1"></small>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Status</th>
+                  <td><span id="proModalStatus" class="badge"></span></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Related</th>
+                  <td id="proModalRelation"></td>
+                </tr>
+                <tr>
+                  <th class="text-muted fw-semibold">Notes</th>
+                  <td id="proModalNotes" class="small text-muted"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const photoModal = document.getElementById('proPhotoModal');
+        if (photoModal) {
+            const setText = function (el, value, fallback) {
+                el.textContent = (value && value.trim()) ? value : (fallback || '-');
+            };
+
+            photoModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                if (!button) return;
+
+                const imgUrl = button.getAttribute('data-photo-url');
+                const imgPreview = photoModal.querySelector('#proModalImagePreview');
+                const noImage = photoModal.querySelector('#proModalNoImage');
+                if (imgUrl) {
+                    imgPreview.src = imgUrl;
+                    imgPreview.classList.remove('d-none');
+                    noImage.classList.add('d-none');
+                } else {
+                    imgPreview.src = '';
+                    imgPreview.classList.add('d-none');
+                    noImage.classList.remove('d-none');
+                }
+
+                setText(photoModal.querySelector('#proModalName'), button.getAttribute('data-p-name'));
+                setText(photoModal.querySelector('#proModalId'), button.getAttribute('data-p-id'));
+                setText(photoModal.querySelector('#proModalCategory'), button.getAttribute('data-p-category'));
+                setText(photoModal.querySelector('#proModalUnit'), button.getAttribute('data-p-unit'));
+                setText(photoModal.querySelector('#proModalSpec'), button.getAttribute('data-p-spec'));
+                setText(photoModal.querySelector('#proModalDrawing'), button.getAttribute('data-p-drawing'));
+                setText(photoModal.querySelector('#proModalVersion'), button.getAttribute('data-p-version'));
+
+                // Stock + low-stock warning
+                const stockBadge = photoModal.querySelector('#proModalStock');
+                stockBadge.textContent = button.getAttribute('data-p-stock');
+                stockBadge.className = 'badge fs-6';
+                stockBadge.classList.add(button.getAttribute('data-p-lowstock') === '1' ? 'bg-danger' : 'bg-success');
+                if (button.getAttribute('data-p-lowstock') === '1') {
+                    stockBadge.innerHTML += ' <i class="bi bi-exclamation-triangle-fill text-warning" title="Low stock warning"></i>';
+                }
+                const minStockEl = photoModal.querySelector('#proModalMinStock');
+                const minStockVal = button.getAttribute('data-p-minstock');
+                minStockEl.textContent = minStockVal ? ('/ Safety stock ' + minStockVal) : '';
+
+                // Status
+                const statusBadge = photoModal.querySelector('#proModalStatus');
+                if (button.getAttribute('data-p-status') === '1') {
+                    statusBadge.textContent = 'Active';
+                    statusBadge.className = 'badge bg-success';
+                } else {
+                    statusBadge.textContent = 'Inactive';
+                    statusBadge.className = 'badge bg-secondary';
+                }
+
+                // BOM / work order relations
+                const relation = photoModal.querySelector('#proModalRelation');
+                relation.innerHTML = '';
+                if (button.getAttribute('data-p-bom') === '1') {
+                    relation.innerHTML += '<span class="badge bg-info text-dark me-1" title="BOM">BOM</span>';
+                }
+                const woCount = parseInt(button.getAttribute('data-p-workorder') || '0', 10);
+                if (woCount > 0) {
+                    relation.innerHTML += '<span class="badge bg-warning text-dark me-1" title="Work orders">WO×' + woCount + '</span>';
+                }
+                if (!relation.innerHTML) {
+                    relation.innerHTML = '<span class="text-muted">-</span>';
+                }
+
+                // Notes
+                setText(photoModal.querySelector('#proModalNotes'), button.getAttribute('data-p-notes'));
+            });
+        }
+    });
+</script>
+{% endblock %}

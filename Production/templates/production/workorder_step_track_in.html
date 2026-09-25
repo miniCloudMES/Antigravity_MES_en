@@ -1,0 +1,69 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Track In - {{ step.name }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-box-arrow-in-right text-info me-2"></i>Track In</h2>
+            <p class="text-muted mb-0">
+                Work Order: <strong>{{ step.work_order.order_number }}</strong>;
+                Step: <strong>{{ step.step_number }}. {{ step.name }}</strong>
+                {% if step.equipment %}; Equipment: <strong>{{ step.equipment.name }}</strong>{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'workorder-detail' step.work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to Work Order Detail
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:16px;">
+    <div class="card-body">
+        {% if prev_step and prev_step.status == 'COMPLETED' %}
+        <div class="alert alert-light mb-4">
+            <strong><i class="bi bi-arrow-right-circle me-1 text-primary"></i>Previous station "{{ prev_step.name }}" transferred:</strong>
+            Good <strong>{{ prev_step.good_quantity|default:0 }}</strong>,
+            Defect <strong>{{ prev_step.defect_quantity|default:0 }}</strong>
+            &rarr; Suggested received quantity <strong>{{ prev_step.passed_quantity }}</strong>
+            {% if prev_step.track_out_note %}
+            <br><small class="text-muted"><i class="bi bi-chat-left-text me-1"></i>Previous station track out note: {{ prev_step.track_out_note }}</small>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if step.description %}
+        <div class="alert alert-light mb-4">
+            <strong><i class="bi bi-signpost-split me-1"></i>Process Guidelines:</strong>
+            <div class="mt-2">{{ step.description|safe }}</div>
+        </div>
+        {% endif %}
+
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-1"></i>On track in, confirm this station's received quantity and record any issues found (appearance defects, material shortage, previous-station problems, etc.).
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label text-muted small">Received Quantity</label>
+                    {{ form.received_quantity }}
+                    <div class="form-text">Actual quantity received at this station (pre-filled from the previous station)</div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Track In Note / Condition</label>
+                    {{ form.track_in_note }}
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-info rounded-pill px-4">
+                        <i class="bi bi-box-arrow-in-right"></i> Confirm Track In
+                    </button>
+                    <a href="{% url 'workorder-detail' step.work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

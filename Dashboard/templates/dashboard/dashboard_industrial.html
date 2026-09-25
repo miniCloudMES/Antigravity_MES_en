@@ -1,0 +1,327 @@
+{% extends "orgnization/base.html" %}
+{% load static %}
+
+{% block title %}Industrial Dashboard - miniMES System{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'vendor/inter/inter.css' %}">
+
+<style>
+/* ═══════════════ Industrial Data-Dense Dashboard (ui-ux-pro-max design system) ═══════════════
+   Style: Data-Dense Dashboard | Palette: #1E40AF Blue + #F59E0B Amber | Fonts: Fira Sans / Fira Code (fallback Inter + monospace) */
+.dash-ind {
+    --ind-primary: #1E40AF;
+    --ind-secondary: #3B82F6;
+    --ind-cta: #F59E0B;
+    --ind-bg: #F8FAFC;
+    --ind-surface: #FFFFFF;
+    --ind-border: #E2E8F0;
+    --ind-text: #1E3A8A;
+    --ind-muted: #64748B;
+    --ind-green: #22C55E;
+    --ind-red: #EF4444;
+    --ind-font: 'Fira Sans', 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
+    --ind-mono: 'Fira Code', Consolas, 'Courier New', monospace;
+    background: var(--ind-bg);
+    border: 1px solid var(--ind-border);
+    border-radius: 12px;
+    padding: 20px;
+    font-family: var(--ind-font);
+    color: var(--ind-text);
+}
+.dash-ind h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; margin: 0; color: var(--ind-text); }
+.dash-ind .ind-sub { font-size: 12.5px; color: var(--ind-muted); margin: 2px 0 0; }
+.dash-ind .ind-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.dash-ind .ind-section-title { font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ind-muted); margin: 18px 0 8px; }
+
+/* ── KPI Cards (Data-Dense) ── */
+.dash-ind .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.dash-ind .kpi-card {
+    background: var(--ind-surface);
+    border: 1px solid var(--ind-border);
+    border-top: 3px solid var(--ind-primary);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dash-ind .kpi-card:hover { border-color: var(--ind-primary); box-shadow: 0 2px 10px rgba(30, 64, 175, 0.10); }
+.dash-ind .kpi-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--ind-muted); }
+.dash-ind .kpi-value { font-family: var(--ind-mono); font-size: 22px; font-weight: 600; color: var(--ind-text); line-height: 1.2; margin-top: 2px; }
+.dash-ind .kpi-value small { font-family: var(--ind-font); font-size: 11px; color: var(--ind-muted); font-weight: 500; }
+.dash-ind .kpi-card.accent-amber { border-top-color: var(--ind-cta); }
+.dash-ind .kpi-card.accent-blue { border-top-color: var(--ind-secondary); }
+.dash-ind .kpi-card.accent-green { border-top-color: var(--ind-green); }
+.dash-ind .kpi-card.accent-red { border-top-color: var(--ind-red); }
+
+/* ── Chart Section ── */
+.dash-ind .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dash-ind .ind-card { background: var(--ind-surface); border: 1px solid var(--ind-border); border-radius: 8px; }
+.dash-ind .ind-card .ind-card-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid var(--ind-border);
+    font-size: 13px; font-weight: 600; color: var(--ind-text);
+}
+.dash-ind .ind-card .ind-card-head .bi { color: var(--ind-primary); }
+.dash-ind .ind-card .ind-card-body { padding: 12px 14px; }
+
+/* ── Data Table (Data-Dense) ── */
+.dash-ind .ind-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.dash-ind .ind-table thead th {
+    text-align: left; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.5px;
+    color: var(--ind-muted); font-weight: 600; padding: 8px 10px; border-bottom: 2px solid var(--ind-border);
+}
+.dash-ind .ind-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--ind-border); color: var(--ind-text); }
+.dash-ind .ind-table tbody tr { cursor: pointer; transition: background 0.15s; }
+.dash-ind .ind-table tbody tr:hover { background: #F1F5F9; }
+.dash-ind .ind-table tbody tr:last-child td { border-bottom: none; }
+.dash-ind .ind-num { font-family: var(--ind-mono); }
+.dash-ind .ind-muted { color: var(--ind-muted); }
+
+/* ── Status Badges ── */
+.dash-ind .ind-badge { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+.dash-ind .ind-badge.b-amber { background: #FEF3C7; color: #B45309; }
+.dash-ind .ind-badge.b-blue { background: #DBEAFE; color: #1D4ED8; }
+.dash-ind .ind-badge.b-green { background: #DCFCE7; color: #15803D; }
+.dash-ind .ind-badge.b-slate { background: #F1F5F9; color: #475569; }
+.dash-ind .ind-badge.b-red { background: #FEE2E2; color: #B91C1C; }
+
+/* ── Module Shortcuts ── */
+.dash-ind .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.dash-ind .module-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px; border: 1px solid var(--ind-border); border-radius: 8px;
+    background: var(--ind-surface); color: var(--ind-text);
+    text-decoration: none; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.dash-ind .module-link .bi { font-size: 17px; color: var(--ind-primary); width: 20px; text-align: center; }
+.dash-ind .module-link:hover { border-color: var(--ind-primary); background: #EFF6FF; }
+
+/* ── Template Switch Button ── */
+.dash-ind .switch-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--ind-border); background: var(--ind-surface);
+    color: var(--ind-muted); font-size: 12px; font-weight: 500;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+.dash-ind .switch-btn:hover { color: var(--ind-primary); border-color: var(--ind-primary); }
+
+@media (max-width: 768px) {
+    .dash-ind { padding: 12px; }
+    .dash-ind .chart-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="dash-ind">
+    <!-- Title + Template Switch -->
+    <div class="ind-head">
+        <div>
+            <h1><i class="bi bi-speedometer2 me-2" style="color:var(--ind-cta);"></i>Industrial Dashboard</h1>
+            <p class="ind-sub">Data-Dense Operations Overview · Welcome back, {{ user.username }}</p>
+        </div>
+        <form method="post" action="{% url 'dashboard-template-switch' %}">
+            {% csrf_token %}
+            <input type="hidden" name="template" value="classic">
+            <button type="submit" class="switch-btn" title="Switch to Classic View"><i class="bi bi-layout-text-window-reverse"></i> Classic View</button>
+        </form>
+    </div>
+
+    <!-- KPI Card Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card accent-blue" onclick="location.href='{% url 'workorder-list' %}'" title="View Work Orders">
+            <div class="kpi-label">Total Orders</div>
+            <div class="kpi-value">{{ total_workorders|default:0 }}</div>
+        </div>
+        <div class="kpi-card accent-amber" onclick="location.href='{% url 'workorder-list' %}?status=PENDING'" title="View Pending Orders">
+            <div class="kpi-label">Pending</div>
+            <div class="kpi-value">{{ pending_workorders|default:0 }}</div>
+        </div>
+        <div class="kpi-card accent-blue" onclick="location.href='{% url 'workorder-list' %}?status=IN_PROGRESS'" title="View In-Progress Orders">
+            <div class="kpi-label">In Progress</div>
+            <div class="kpi-value">{{ in_progress_workorders|default:0 }}</div>
+        </div>
+        <div class="kpi-card accent-green" onclick="location.href='{% url 'workorder-list' %}?status=COMPLETED'" title="View Completed Orders">
+            <div class="kpi-label">Completed</div>
+            <div class="kpi-value">{{ completed_workorders|default:0 }}</div>
+        </div>
+        <div class="kpi-card accent-red" onclick="location.href='{% url 'workorder-list' %}?status=PENDING'" title="View Overdue Orders">
+            <div class="kpi-label">Overdue</div>
+            <div class="kpi-value">{{ overdue_workorders|default:0 }}</div>
+        </div>
+        <div class="kpi-card accent-amber" onclick="location.href='{% url 'material-dashboard' %}'" title="View Inventory">
+            <div class="kpi-label">Low Stock</div>
+            <div class="kpi-value">{{ low_stock_count|default:0 }} <small>/ {{ total_materials|default:0 }}</small></div>
+        </div>
+        <div class="kpi-card accent-blue" onclick="location.href='{% url 'documents-dashboard' %}'" title="View Pending Documents">
+            <div class="kpi-label">Pending Docs</div>
+            <div class="kpi-value">{{ pending_documents|default:0 }}</div>
+        </div>
+        <div class="kpi-card accent-green" onclick="location.href='{% url 'documents-dashboard' %}'" title="View Approved Documents">
+            <div class="kpi-label">Approved Docs</div>
+            <div class="kpi-value">{{ approved_documents|default:0 }}</div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="ind-section-title"><i class="bi bi-graph-up me-1"></i>Production Analytics</div>
+    <div class="chart-grid">
+        <div class="ind-card">
+            <div class="ind-card-head"><i class="bi bi-pie-chart"></i>Work Order Status Distribution</div>
+            <div class="ind-card-body">
+                <canvas id="indWoChart" style="max-height:260px;"></canvas>
+            </div>
+        </div>
+        <div class="ind-card">
+            <div class="ind-card-head"><i class="bi bi-bar-chart"></i>Document Review Status</div>
+            <div class="ind-card-body">
+                <canvas id="indDocChart" style="max-height:260px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="ind-section-title"><i class="bi bi-list-check me-1"></i>Recent Work Orders</div>
+    <div class="ind-card">
+        <div class="ind-card-body" style="padding: 0;">
+            <table class="ind-table">
+                <thead>
+                    <tr>
+                        <th>Order No.</th>
+                        <th>Product</th>
+                        <th>Customer</th>
+                        <th class="ind-num">Qty</th>
+                        <th>Target End</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wo in recent_workorders %}
+                    <tr onclick="location.href='{% url 'workorder-detail' wo.pk %}'" title="Open {{ wo.order_number }}">
+                        <td class="ind-num" style="color:var(--ind-primary);">{{ wo.order_number }}</td>
+                        <td>{{ wo.product.name }}</td>
+                        <td class="ind-muted">{{ wo.customer.name|default:"-" }}</td>
+                        <td class="ind-num">{{ wo.quantity }}</td>
+                        <td class="ind-muted">{{ wo.planned_end_date|date:"m-d H:i" }}</td>
+                        <td>
+                            {% if wo.status == 'PENDING' %}<span class="ind-badge b-amber">Pending</span>
+                            {% elif wo.status == 'IN_PROGRESS' %}<span class="ind-badge b-blue">In Progress</span>
+                            {% elif wo.status == 'COMPLETED' %}<span class="ind-badge b-green">Completed</span>
+                            {% elif wo.status == 'CANCELLED' %}<span class="ind-badge b-slate">Cancelled</span>
+                            {% elif wo.status == 'ABNORMAL' %}<span class="ind-badge b-red">Abnormal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="ind-muted" style="text-align:center; padding:24px;">No work orders found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if low_stock_materials %}
+    <div class="ind-section-title"><i class="bi bi-exclamation-triangle me-1"></i>Low Stock Materials</div>
+    <div class="ind-card">
+        <div class="ind-card-body" style="padding: 0;">
+            <table class="ind-table">
+                <thead>
+                    <tr>
+                        <th>Material ID</th>
+                        <th>Name</th>
+                        <th>Supplier</th>
+                        <th class="ind-num">Stock</th>
+                        <th class="ind-num">Safety Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in low_stock_materials %}
+                    <tr>
+                        <td class="ind-num" style="color:var(--ind-red);">{{ m.material_id }}</td>
+                        <td>{{ m.name }}</td>
+                        <td class="ind-muted">{{ m.supplier.name|default:"-" }}</td>
+                        <td class="ind-num">{{ m.stock_quantity|floatformat:0 }}</td>
+                        <td class="ind-num">{{ m.min_stock|floatformat:0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Shortcuts -->
+    <div class="ind-section-title"><i class="bi bi-grid me-1"></i>Module Shortcuts</div>
+    <div class="module-grid">
+        <a class="module-link" href="{% url 'org-dashboard' %}"><i class="bi bi-diagram-3"></i>Organization</a>
+        <a class="module-link" href="{% url 'equipment-dashboard' %}"><i class="bi bi-tools"></i>Equipment</a>
+        <a class="module-link" href="{% url 'material-dashboard' %}"><i class="bi bi-box-seam"></i>Materials</a>
+        <a class="module-link" href="{% url 'product-dashboard' %}"><i class="bi bi-layers"></i>Products</a>
+        <a class="module-link" href="{% url 'supplier-dashboard' %}"><i class="bi bi-truck"></i>Suppliers</a>
+        <a class="module-link" href="{% url 'customer:customer-dashboard' %}"><i class="bi bi-person-vcard"></i>Customers</a>
+        <a class="module-link" href="{% url 'production-dashboard' %}"><i class="bi bi-speedometer2"></i>Production</a>
+        <a class="module-link" href="{% url 'documents-dashboard' %}"><i class="bi bi-file-earmark-text"></i>Documents</a>
+    </div>
+</div>
+
+<script src="{% static 'vendor/chart.js/chart.umd.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const woCtx = document.getElementById('indWoChart');
+    if (woCtx) {
+        new Chart(woCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [
+                        {{ pending_workorders|default:0 }},
+                        {{ in_progress_workorders|default:0 }},
+                        {{ completed_workorders|default:0 }},
+                        {{ cancelled_workorders|default:0 }}
+                    ],
+                    backgroundColor: ['#F59E0B', '#3B82F6', '#22C55E', '#94A3B8'],
+                    borderWidth: 0,
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { size: 11 } } } }
+            }
+        });
+    }
+
+    const docCtx = document.getElementById('indDocChart');
+    if (docCtx) {
+        new Chart(docCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Draft', 'Pending', 'Approved', 'Rejected'],
+                datasets: [{
+                    label: 'Documents',
+                    data: [
+                        {{ draft_documents|default:0 }},
+                        {{ pending_documents|default:0 }},
+                        {{ approved_documents|default:0 }},
+                        {{ rejected_documents|default:0 }}
+                    ],
+                    backgroundColor: ['#94A3B8', '#F59E0B', '#22C55E', '#EF4444'],
+                    borderRadius: 4,
+                    barThickness: 28,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

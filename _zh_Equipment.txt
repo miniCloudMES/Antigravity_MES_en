@@ -1,0 +1,4 @@
+Equipment\templates\equipment\equipment_detail.html#41#<span class="badge bg-success">正常運作</span>
+Equipment\templates\equipment\equipment_detail.html#43#<span class="badge bg-warning text-dark">維護中</span>
+Equipment\templates\equipment\equipment_detail.html#45#<span class="badge bg-danger">故障</span>
+Equipment\templates\equipment\equipment_detail.html#47#<span class="badge bg-dark">報廢</span>

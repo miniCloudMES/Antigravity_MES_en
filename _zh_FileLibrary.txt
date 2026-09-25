@@ -1,0 +1,230 @@
+FileLibrary\management\commands\retranscode_h265.py#7#help = '把Completed的 H.265 Standardized Video重置為待轉檔（改用 H.264 後重轉）'
+FileLibrary\management\commands\retranscode_h265.py#10#parser.add_argument('--sync', action='store_true', help='同步執行（等轉完才結束）')
+FileLibrary\management\commands\retranscode_h265.py#11#parser.add_argument('--list-only', action='store_true', help='只列出，不重轉')
+FileLibrary\management\commands\retranscode_h265.py#17#self.stdout.write(f'Completed的影片：{done.count()} 支')
+FileLibrary\management\commands\retranscode_h265.py#23#self.stdout.write('沒有需要重轉的影片。')
+FileLibrary\management\commands\retranscode_h265.py#26#self.stdout.write(f'重置 {done.count()} 支影片為待轉檔（H.264）…')
+FileLibrary\management\commands\retranscode_h265.py#32#self.stdout.write(f'  #{f.pk} {f.title} → 已觸發')
+FileLibrary\management\commands\retry_transcodes.py#8#help = '掃描未Completed轉檔的影片並重新觸發轉檔（cron 用）'
+FileLibrary\management\commands\retry_transcodes.py#11#parser.add_argument('--sync', action='store_true', help='同步執行（等轉完才結束，適合 cron）')
+FileLibrary\management\commands\retry_transcodes.py#12#parser.add_argument('--list-only', action='store_true', help='只列出未Completed的影片，不轉檔')
+FileLibrary\management\commands\retry_transcodes.py#21#self.stdout.write(f'未Completed轉檔影片：{pending.count()} 支')
+FileLibrary\management\commands\retry_transcodes.py#27#self.stdout.write('沒有需要重新轉檔的影片。')
+FileLibrary\management\commands\retry_transcodes.py#30#self.stdout.write(f'重新啟動 {pending.count()} 支影片轉檔…')
+FileLibrary\management\commands\retry_transcodes.py#36#self.stdout.write(f'  #{f.pk} {f.title} → 已觸發')
+FileLibrary\templates\filelibrary\category_form.html#3#{% block title %}{% if action == '建立' %}新建分類{% else %}編輯分類{% endif %} - miniMES 系統{% endblock %}
+FileLibrary\templates\filelibrary\category_form.html#8#<h2 class="fw-bold mb-1"><i class="bi bi-tags me-2" style="color:var(--lin-accent);"></i>{% if action == '建立' %}新建分類{% else %}編輯分類{% endif %}</h2>
+FileLibrary\templates\filelibrary\category_form.html#9#<p class="text-muted mb-0" style="font-size:13px;">{% if action == '建立' %}建立新的檔案分類。{% else %}更新分類資訊。{% endif %}</p>
+FileLibrary\templates\filelibrary\category_form.html#32#<a href="{% url 'filelibrary:file-category-list' %}" class="btn btn-outline-secondary px-4">取消</a>
+FileLibrary\templates\filelibrary\category_list.html#3#{% block title %}檔案分類管理 - miniMES 系統{% endblock %}
+FileLibrary\templates\filelibrary\category_list.html#9#<h2 class="fw-bold mb-1"><i class="bi bi-tags me-2" style="color:var(--lin-accent);"></i>檔案分類管理</h2>
+FileLibrary\templates\filelibrary\category_list.html#10#<p class="text-muted mb-0" style="font-size:13px;">管理檔案庫的分類項目。</p>
+FileLibrary\templates\filelibrary\category_list.html#14#<i class="bi bi-arrow-left me-1"></i>返回檔案庫
+FileLibrary\templates\filelibrary\category_list.html#17#<i class="bi bi-plus-circle me-1"></i>新建分類
+FileLibrary\templates\filelibrary\category_list.html#29#<th>分類名稱</th>
+FileLibrary\templates\filelibrary\category_list.html#30#<th>描述</th>
+FileLibrary\templates\filelibrary\category_list.html#31#<th>檔案數</th>
+FileLibrary\templates\filelibrary\category_list.html#32#<th class="text-end">操作</th>
+FileLibrary\templates\filelibrary\category_list.html#42#<a href="{% url 'filelibrary:file-category-edit' cat.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="編輯">
+FileLibrary\templates\filelibrary\category_list.html#45#<form method="post" action="{% url 'filelibrary:file-category-delete' cat.pk %}" class="d-inline" onsubmit="return confirm('確定要刪除分類「{{ cat.name }}」嗎？');">
+FileLibrary\templates\filelibrary\category_list.html#47#<button type="submit" class="btn btn-sm btn-outline-danger" title="刪除">
+FileLibrary\templates\filelibrary\category_list.html#55#<td colspan="4" class="text-center text-muted py-4">目前沒有任何分類</td>
+FileLibrary\templates\filelibrary\file_library_list.html#3#{% block title %}檔案庫 - miniMES 系統{% endblock %}
+FileLibrary\templates\filelibrary\file_library_list.html#9#<h2 class="fw-bold mb-1"><i class="bi bi-folder2-open me-2" style="color:var(--lin-accent);"></i>檔案庫</h2>
+FileLibrary\templates\filelibrary\file_library_list.html#10#<p class="text-muted mb-0" style="font-size:13px;">集中管理系統檔案，支援上傳、下載與分類。</p>
+FileLibrary\templates\filelibrary\file_library_list.html#15#<i class="bi bi-tags me-1"></i>分類管理
+FileLibrary\templates\filelibrary\file_library_list.html#20#<i class="bi bi-cloud-arrow-up me-1"></i>上傳檔案
+FileLibrary\templates\filelibrary\file_library_list.html#27#<!-- 篩選列 -->
+FileLibrary\templates\filelibrary\file_library_list.html#31#<input type="text" name="q" value="{{ q }}" class="form-control" style="max-width:240px;" placeholder="搜尋檔案名稱…">
+FileLibrary\templates\filelibrary\file_library_list.html#33#<option value="">全部分類</option>
+FileLibrary\templates\filelibrary\file_library_list.html#38#<button type="submit" class="btn btn-outline-primary px-4">篩選</button>
+FileLibrary\templates\filelibrary\file_library_list.html#40#<a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary px-3">清除</a>
+FileLibrary\templates\filelibrary\file_library_list.html#46#<!-- 未完成轉檔警告 -->
+FileLibrary\templates\filelibrary\file_library_list.html#50#<strong>有 {{ pending_videos|length }} 支影片尚未完成轉檔：</strong>
+FileLibrary\templates\filelibrary\file_library_list.html#56#<button type="submit" class="btn btn-warning btn-sm rounded-pill px-3" onclick="return confirm('確定要重新啟動這些影片的轉檔嗎？');">
+FileLibrary\templates\filelibrary\file_library_list.html#57#<i class="bi bi-arrow-repeat"></i> 重新轉檔
+FileLibrary\templates\filelibrary\file_library_list.html#69#<th>檔案名稱</th>
+FileLibrary\templates\filelibrary\file_library_list.html#70#<th>分類</th>
+FileLibrary\templates\filelibrary\file_library_list.html#71#<th>大小</th>
+FileLibrary\templates\filelibrary\file_library_list.html#72#<th>狀態</th>
+FileLibrary\templates\filelibrary\file_library_list.html#73#<th>上傳者</th>
+FileLibrary\templates\filelibrary\file_library_list.html#74#<th>上傳時間</th>
+FileLibrary\templates\filelibrary\file_library_list.html#75#<th class="text-end">操作</th>
+FileLibrary\templates\filelibrary\file_library_list.html#84#<a href="{% url 'filelibrary:file-preview' f.pk %}" class="me-2 image-preview-link" title="點擊預覽圖片" data-title="{{ f.title }}" data-download="{% url 'filelibrary:file-download' f.pk %}">
+FileLibrary\templates\filelibrary\file_library_list.html#111#<span class="badge bg-secondary">等待轉檔</span>
+FileLibrary\templates\filelibrary\file_library_list.html#113#<span class="badge bg-info">轉檔中…</span>
+FileLibrary\templates\filelibrary\file_library_list.html#115#<span class="badge bg-success">已轉檔 720p</span>
+FileLibrary\templates\filelibrary\file_library_list.html#117#<span class="badge bg-danger" title="{{ f.video_error|default:'' }}">轉檔失敗</span>
+FileLibrary\templates\filelibrary\file_library_list.html#122#<button type="submit" class="btn btn-sm btn-outline-warning px-2 py-0" title="重新轉檔">
+FileLibrary\templates\filelibrary\file_library_list.html#133#<a href="{% url 'filelibrary:file-video-play' f.pk %}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="播放（720p/H.264）">
+FileLibrary\templates\filelibrary\file_library_list.html#137#<a href="{% url 'filelibrary:file-download' f.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="下載原檔">
+FileLibrary\templates\filelibrary\file_library_list.html#141#<a href="{% url 'filelibrary:file-edit' f.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="編輯">
+FileLibrary\templates\filelibrary\file_library_list.html#144#<form method="post" action="{% url 'filelibrary:file-delete' f.pk %}" class="d-inline" onsubmit="return confirm('確定要刪除檔案「{{ f.title }}」嗎？');">
+FileLibrary\templates\filelibrary\file_library_list.html#146#<button type="submit" class="btn btn-sm btn-outline-danger" title="刪除">
+FileLibrary\templates\filelibrary\file_library_list.html#156#<i class="bi bi-inbox fs-2 d-block mb-2"></i>目前沒有任何檔案
+FileLibrary\templates\filelibrary\file_library_list.html#166#<!-- 圖片預覽 Modal -->
+FileLibrary\templates\filelibrary\file_library_list.html#172#<i class="bi bi-image text-primary me-2"></i><span id="preview-title">圖片預覽</span>
+FileLibrary\templates\filelibrary\file_library_list.html#174#<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+FileLibrary\templates\filelibrary\file_library_list.html#177#<img id="preview-image" src="" alt="圖片預覽" class="img-fluid rounded" style="max-height:70vh;">
+FileLibrary\templates\filelibrary\file_library_list.html#181#<i class="bi bi-download me-1"></i>下載原檔
+FileLibrary\templates\filelibrary\file_library_list.html#183#<button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">關閉</button>
+FileLibrary\templates\filelibrary\file_library_list.html#200#previewTitle.textContent = link.getAttribute('data-title') || '圖片預覽';
+FileLibrary\templates\filelibrary\file_upload.html#3#{% block title %}{% if editing %}編輯檔案{% else %}上傳檔案{% endif %} - miniMES 系統{% endblock %}
+FileLibrary\templates\filelibrary\file_upload.html#5#{# 上傳頁不需要 jQuery UI/datepicker，跳過以減輕手機記憶體負擔 #}
+FileLibrary\templates\filelibrary\file_upload.html#11#<h2 class="fw-bold mb-1"><i class="bi {% if editing %}bi-pencil-square{% else %}bi-cloud-arrow-up{% endif %} me-2" style="color:var(--lin-accent);"></i>{% if editing %}編輯檔案{% else %}上傳檔案{% endif %}</h2>
+FileLibrary\templates\filelibrary\file_upload.html#13#{% if editing %}更新檔案資訊或替換檔案內容。{% else %}上傳檔案至檔案庫，支援 PDF、Excel、Word 等格式。{% endif %}
+FileLibrary\templates\filelibrary\file_upload.html#14#{% if not editing %}<span class="text-secondary">（單檔上限 {{ max_file_size|filesizeformat }}，超過 {{ chunk_size|filesizeformat }} 自動分片上傳）</span>{% endif %}
+FileLibrary\templates\filelibrary\file_upload.html#24#<!-- 編輯模式：一般表單 -->
+FileLibrary\templates\filelibrary\file_upload.html#38#<button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-lg me-1"></i>儲存變更</button>
+FileLibrary\templates\filelibrary\file_upload.html#39#<a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary px-4">取消</a>
+FileLibrary\templates\filelibrary\file_upload.html#43#<!-- 上傳模式：一般 or 分片 -->
+FileLibrary\templates\filelibrary\file_upload.html#51#<label class="form-label"><i class="bi bi-tags me-1"></i>分類</label>
+FileLibrary\templates\filelibrary\file_upload.html#54#<button type="button" class="btn btn-outline-primary" id="btnAddCategory" style="white-space:nowrap;" title="新增分類">
+FileLibrary\templates\filelibrary\file_upload.html#55#<i class="bi bi-plus-lg me-1"></i>新增分類
+FileLibrary\templates\filelibrary\file_upload.html#62#<label class="form-label"><i class="bi bi-type me-1"></i>檔案名稱</label>
+FileLibrary\templates\filelibrary\file_upload.html#68#<label class="form-label"><i class="bi bi-paperclip me-1"></i>選擇檔案</label>
+FileLibrary\templates\filelibrary\file_upload.html#71#<div class="form-text">單檔上限 {{ max_file_size|filesizeformat }}，超過 {{ chunk_size|filesizeformat }} 自動分片上傳並顯示進度。</div>
+FileLibrary\templates\filelibrary\file_upload.html#75#<label class="form-label"><i class="bi bi-arrow-repeat me-1"></i>上傳進度</label>
+FileLibrary\templates\filelibrary\file_upload.html#83#<label class="form-label"><i class="bi bi-chat-left-text me-1"></i>說明</label>
+FileLibrary\templates\filelibrary\file_upload.html#89#<button type="submit" class="btn btn-primary px-4" id="btnSubmit"><i class="bi bi-check-lg me-1"></i>上傳</button>
+FileLibrary\templates\filelibrary\file_upload.html#90#<a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary px-4">取消</a>
+FileLibrary\templates\filelibrary\file_upload.html#99#<!-- 新增分類 Modal -->
+FileLibrary\templates\filelibrary\file_upload.html#104#<h5 class="modal-title fw-bold"><i class="bi bi-tags me-2" style="color:var(--lin-accent);"></i>新增分類</h5>
+FileLibrary\templates\filelibrary\file_upload.html#109#<label class="form-label">分類名稱</label>
+FileLibrary\templates\filelibrary\file_upload.html#110#<input type="text" id="catName" class="form-control" placeholder="輸入分類名稱">
+FileLibrary\templates\filelibrary\file_upload.html#113#<label class="form-label">分類描述</label>
+FileLibrary\templates\filelibrary\file_upload.html#114#<textarea id="catDesc" class="form-control" rows="2" placeholder="描述（選填）"></textarea>
+FileLibrary\templates\filelibrary\file_upload.html#119#<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+FileLibrary\templates\filelibrary\file_upload.html#120#<button type="button" class="btn btn-primary" id="btnSaveCategory"><i class="bi bi-check-lg me-1"></i>建立</button>
+FileLibrary\templates\filelibrary\file_upload.html#134#// ── 新增分類 modal ──
+FileLibrary\templates\filelibrary\file_upload.html#144#if (!name) { $('#catError').removeClass('d-none').text('請輸入分類名稱。'); return; }
+FileLibrary\templates\filelibrary\file_upload.html#153#$('#catError').removeClass('d-none').text(res.error || '建立失敗。');
+FileLibrary\templates\filelibrary\file_upload.html#156#let msg = '建立失敗，請稍後再試。';
+FileLibrary\templates\filelibrary\file_upload.html#162#// ── 上傳：小檔一般 POST，大檔分片 ──
+FileLibrary\templates\filelibrary\file_upload.html#167#if (!fileInput || !fileInput.files.length) return true; // 讓 HTML5 required 處理
+FileLibrary\templates\filelibrary\file_upload.html#170#if (file.size <= CHUNK_SIZE) return true; // 一般上傳
+FileLibrary\templates\filelibrary\file_upload.html#172#// 大檔案 → 分片
+FileLibrary\templates\filelibrary\file_upload.html#175#alert('檔案超過 ' + (MAX_SIZE / 1024 / 1024) + 'MB 上限！');
+FileLibrary\templates\filelibrary\file_upload.html#191#setProgress(0, '準備上傳…');
+FileLibrary\templates\filelibrary\file_upload.html#193#// 查詢已接收分片（斷點續傳）
+FileLibrary\templates\filelibrary\file_upload.html#196#// 找到第一個未上傳的分片
+FileLibrary\templates\filelibrary\file_upload.html#200#// 若所有分片都已存在但尚未合併，重發最後一片以觸發合併
+FileLibrary\templates\filelibrary\file_upload.html#202#if (nextIndex > 0) setProgress(Math.round((nextIndex / totalChunks) * 100), '續傳中：已存在 ' + nextIndex + ' 個分片…');
+FileLibrary\templates\filelibrary\file_upload.html#210#// 最後一片完成後，後端自動合併；此處再等合併結果
+FileLibrary\templates\filelibrary\file_upload.html#237#alert(res.error || '上傳失敗。');
+FileLibrary\templates\filelibrary\file_upload.html#242#setProgress(100, '合併完成，即將跳轉…');
+FileLibrary\templates\filelibrary\file_upload.html#247#setProgress(pct, '分片 ' + (index + 1) + ' / ' + totalChunks);
+FileLibrary\templates\filelibrary\file_upload.html#250#let msg = '分片 ' + (index + 1) + ' 上傳失敗。';
+FileLibrary\templates\filelibrary\video_play.html#8#<title>影片播放 - {{ f.title }} - miniMES 系統</title>
+FileLibrary\templates\filelibrary\video_play.html#25#<a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary btn-icon" title="返回檔案庫">
+FileLibrary\templates\filelibrary\video_play.html#37#<h4 class="mt-3 fw-bold">影片轉檔中…</h4>
+FileLibrary\templates\filelibrary\video_play.html#38#<p class="text-muted">系統正在背景將影片轉為 720p / H.264 / MP4，請稍候再重新整理此頁。</p>
+FileLibrary\templates\filelibrary\video_play.html#41#<h4 class="mt-3 fw-bold">轉檔失敗</h4>
+FileLibrary\templates\filelibrary\video_play.html#42#<p class="text-muted">{{ f.video_error|default:"無法轉檔此影片。" }}</p>
+FileLibrary\templates\filelibrary\video_play.html#45#<h4 class="mt-3 fw-bold">等待轉檔</h4>
+FileLibrary\templates\filelibrary\video_play.html#46#<p class="text-muted">此影片尚未完成標準化轉檔。</p>
+FileLibrary\templates\filelibrary\video_play.html#50#<i class="bi bi-arrow-clockwise me-1"></i>重新整理
+FileLibrary\templates\filelibrary\video_play.html#53#<i class="bi bi-download me-1"></i>下載原檔
+FileLibrary\forms.py#11#'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入File Name'}),
+FileLibrary\forms.py#13#'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description（選填）'}),
+FileLibrary\forms.py#18#'file': '選擇File',
+FileLibrary\forms.py#28#'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入Category Name'}),
+FileLibrary\forms.py#29#'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'CategoryDescription（選填）'}),
+FileLibrary\tests.py#10#"""File庫：列表需登入、上傳僅限 admin/manager（operator 被拒絕）。"""
+FileLibrary\tests.py#26#'title': '測試File',
+FileLibrary\tests.py#29#self.assertEqual(response.status_code, 302)  # 被導回列表並顯示權限錯誤訊息
+FileLibrary\tests.py#35#'title': '測試File',
+FileLibrary\video.py#1#"""File庫影片標準化轉檔：720p 上限 + H.264 (libx264) + MP4，背景執行緒執行"""
+FileLibrary\video.py#11#VIDEO_CRF = 23                # 畫質參數（H.264 建議 18-28，越小越清晰）
+FileLibrary\video.py#12#VIDEO_PRESET = 'medium'       # 速度/壓縮平衡
+FileLibrary\video.py#14#MAX_WIDTH = 1280              # 720p 寬度上限
+FileLibrary\video.py#15#MAX_HEIGHT = 720              # 720p 高度上限
+FileLibrary\video.py#16#TRANSCODE_TIMEOUT = 3600      # 單檔最長 1 小時
+FileLibrary\video.py#26#"""把影片轉成 720p 上限 / H.264 / MP4，存為 video_standard。
+FileLibrary\video.py#27#sync=True 時同步執行（管理命令/cron 用）；否則背景執行緒。
+FileLibrary\video.py#39#_mark_failed(lib_file, '來源File無法讀取')
+FileLibrary\video.py#43#_mark_failed(lib_file, '來源File不存在')
+FileLibrary\video.py#50## 輸出檔名：<原名>_<uuid8>_720p.mp4（防路徑穿越、避免碰撞）
+FileLibrary\video.py#57## scale：min(1280,iw) / min(720,ih) 只縮不放大；force_original_aspect_ratio 保持比例。
+FileLibrary\video.py#58## 注意：filter 內的逗號必須用 \, 跳脫（subprocess 直傳無 shell 引號語法），
+FileLibrary\video.py#59## 且 libx264 要求偶數寬高 → pad 補齊。
+FileLibrary\video.py#79#_mark_failed(lib_file, '轉檔逾時（超過 1 小時）')
+FileLibrary\video.py#81#except Exception as e:  # ffmpeg 不存在等
+FileLibrary\video.py#82#_mark_failed(lib_file, f'轉檔執行失敗：{e}')
+FileLibrary\video.py#87#_mark_failed(lib_file, f'ffmpeg 錯誤：{err[-400:]}')
+FileLibrary\video.py#90## 成功：關聯標準版
+FileLibrary\views.py#17## 分片上傳設定
+FileLibrary\views.py#56## 未Completed轉檔的影片（PENDING 等待 / PROCESSING 卡住 / FAILED 失敗）
+FileLibrary\views.py#78#"""重新觸發未Completed影片的轉檔（可指定單支或全部未Completed）"""
+FileLibrary\views.py#80#messages.error(request, '您沒有權限執行此Action。')
+FileLibrary\views.py#92#messages.error(request, '此File不是影片。')
+FileLibrary\views.py#95#messages.info(request, f'「{target.title}」Completed轉檔，無需重試。')
+FileLibrary\views.py#100#messages.info(request, '沒有需要重新轉檔的影片。')
+FileLibrary\views.py#108#transcode_video(f.pk)  # 觸發背景轉檔
+FileLibrary\views.py#112#messages.success(request, f'已重新啟動 {count} 支影片的轉檔{suffix}，請稍候查看狀態。')
+FileLibrary\views.py#119#messages.error(request, '您沒有權限上傳File。')
+FileLibrary\views.py#128## 影片：背景標準化轉檔（720p / H.264 / MP4）
+FileLibrary\views.py#134#messages.success(request, f'File「{f.title}」已上傳，影片正在背景轉檔（720p/H.264）。')
+FileLibrary\views.py#136#messages.success(request, f'File「{f.title}」已上傳。')
+FileLibrary\views.py#147## ── 分片上傳（Chunk） ───────────────────────────────────────────────────────
+FileLibrary\views.py#150#"""分片暫存目錄：media/chunk_tmp/<upload_id>/"""
+FileLibrary\views.py#162#"""查詢已收到的分片編號（支援斷點續傳）"""
+FileLibrary\views.py#164#return JsonResponse({'success': False, 'error': '無權限。'}, status=403)
+FileLibrary\views.py#167#return JsonResponse({'success': False, 'error': '缺少 upload_id。'}, status=400)
+FileLibrary\views.py#183#"""接收一個分片；最後一片到達時合併為完整File"""
+FileLibrary\views.py#185#return JsonResponse({'success': False, 'error': '您沒有權限上傳File。'}, status=403)
+FileLibrary\views.py#194## 參數驗證
+FileLibrary\views.py#200#return JsonResponse({'success': False, 'error': '分片參數格式錯誤。'}, status=400)
+FileLibrary\views.py#203#return JsonResponse({'success': False, 'error': '缺少必要參數。'}, status=400)
+FileLibrary\views.py#205#return JsonResponse({'success': False, 'error': '分片編號錯誤。'}, status=400)
+FileLibrary\views.py#207#return JsonResponse({'success': False, 'error': f'File超過 {MAX_FILE_SIZE // 1024 // 1024}MB 上限。'}, status=400)
+FileLibrary\views.py#209## 檢查 upload_id 合法性（只允許 uuid 格式，防路徑穿越）
+FileLibrary\views.py#213#return JsonResponse({'success': False, 'error': '無效的 upload_id。'}, status=400)
+FileLibrary\views.py#215## 儲存分片
+FileLibrary\views.py#223## 若未全部到達，回報目前進度
+FileLibrary\views.py#232## 全部到達 → 合併
+FileLibrary\views.py#239#raise FileNotFoundError(f'缺少分片 {i}')
+FileLibrary\views.py#244#raise ValueError(f'合併大小不符：{merged_size} != {total_size}')
+FileLibrary\views.py#246#raise ValueError('合併後超過大小上限')
+FileLibrary\views.py#249#return JsonResponse({'success': False, 'error': f'合併失敗：{e}'}, status=500)
+FileLibrary\views.py#251## Create LibraryFile 並搬入正式目錄
+FileLibrary\views.py#256## 用 FileSystemStorage 搬檔
+FileLibrary\views.py#278## 影片：背景標準化轉檔（720p / H.264 / MP4）
+FileLibrary\views.py#297#messages.error(request, '只有系統管理員可以EditFile。')
+FileLibrary\views.py#316#messages.error(request, '只有系統管理員可以DeleteFile。')
+FileLibrary\views.py#338#raise Http404('File不存在')
+FileLibrary\views.py#341#raise Http404('File不存在')
+FileLibrary\views.py#343#raise Http404('File無法讀取')
+FileLibrary\views.py#344## 用 X-Accel-Redirect 交給 nginx 直接傳檔（不佔 uWSGI worker）
+FileLibrary\views.py#354#"""影片標準版僅供線上播放（720p/H.264/MP4），不提供下載"""
+FileLibrary\views.py#357#raise Http404('標準版尚未Completed')
+FileLibrary\views.py#360#raise Http404('標準版File不存在')
+FileLibrary\views.py#362#raise Http404('File無法讀取')
+FileLibrary\views.py#363## 一律 inline 播放（X-Accel-Redirect 交給 nginx 串流，支援 Range），不下載
+FileLibrary\views.py#374#"""影片播放頁（新分頁）：黑底播放器，串流壓縮後的標準版（720p/H.264）"""
+FileLibrary\views.py#377#raise Http404('此File不是影片')
+FileLibrary\views.py#379## 尚未轉檔Completed：提供狀態提示
+FileLibrary\views.py#390## ── Image預覽（後端壓縮 <100KB） ────────────────────────────────────────────
+FileLibrary\views.py#399#"""Image格式：後端用 Pillow 壓縮到 <100KB 後回傳 JPEG（SVG 直接回傳原檔）"""
+FileLibrary\views.py#402#raise Http404('此File不是可預覽的Image')
+FileLibrary\views.py#407#raise Http404('File無法讀取')
+FileLibrary\views.py#410#raise Http404('File不存在')
+FileLibrary\views.py#413## SVG：向量格式，直接回傳原檔
+FileLibrary\views.py#419#raise Http404('File無法讀取')
+FileLibrary\views.py#421## Other格式：Pillow 開啟 → 縮尺寸 → 品質階梯壓縮 <100KB
+FileLibrary\views.py#427#raise Http404('Image無法解析')
+FileLibrary\views.py#429## 多幀格式（GIF）取第一幀；統一 RGB
+FileLibrary\views.py#445## 第一階段：固定尺寸，品質 85 → 75 → … → 20
+FileLibrary\views.py#452## 第二階段：品質到底仍超標 → 縮小尺寸（1200 → 800 → 500 → 300）再配品質
+FileLibrary\views.py#460## 極限：300px / q=20
+FileLibrary\views.py#466## ── Category管理（僅 admin） ────────────────────────────────────────────────────
+FileLibrary\views.py#470#"""上傳表單內建的新增Category端點（admin/manager 可用）"""
+FileLibrary\views.py#472#return JsonResponse({'success': False, 'error': '您沒有權限新增Category。'}, status=403)
+FileLibrary\views.py#483#return JsonResponse({'success': False, 'error': '僅支援 POST。'}, status=405)
+FileLibrary\views.py#489#messages.error(request, '只有系統管理員可以管理Category。')
+FileLibrary\views.py#498#messages.error(request, '只有系統管理員可以新增Category。')
+FileLibrary\views.py#504#messages.success(request, 'Category已Create。')
+FileLibrary\views.py#514#messages.error(request, '只有系統管理員可以EditCategory。')
+FileLibrary\views.py#521#messages.success(request, 'Category已更新。')
+FileLibrary\views.py#532#messages.error(request, '只有系統管理員可以DeleteCategory。')
+FileLibrary\views.py#536#messages.error(request, f'Category「{category.name}」下仍有File，無法Delete。')

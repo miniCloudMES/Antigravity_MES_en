@@ -1,0 +1,28 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Delete Document - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 mt-5">
+            <div class="card-body p-5 text-center">
+                <div class="text-danger mb-4">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Delete this document?</h4>
+                <p class="text-muted mb-4">
+                    Are you sure you want to delete the document "<strong>{{ document.title }}</strong>"? This action cannot be undone.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'document-detail' document.pk %}" class="btn btn-light rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

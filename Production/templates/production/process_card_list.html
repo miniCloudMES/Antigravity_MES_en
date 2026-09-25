@@ -1,0 +1,94 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Process Cards - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-signpost-split me-2 text-primary"></i>Process Cards</h2>
+            <p class="text-muted mb-0" style="font-size:13px;">Standard process steps for each product: personnel, equipment, material, documents and QC requirements. Automatically applied when a work order is created.</p>
+        </div>
+        <div>
+            <a href="{% url 'production-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="row mb-3">
+    <div class="col-12">
+        <form method="get" class="d-flex gap-2">
+            <input type="text" name="q" value="{{ q }}" class="form-control" style="max-width:260px;" placeholder="Search product name or ID...">
+            <button type="submit" class="btn btn-outline-primary px-4">Search</button>
+            {% if q %}<a href="{% url 'process-card-list' %}" class="btn btn-outline-secondary px-3">Clear</a>{% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th class="text-center">Steps</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td><code>{{ p.product_id }}</code></td>
+                    <td class="fw-semibold">{{ p.name }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ p.category.name|default:"-" }}</span></td>
+                    <td class="text-center"><span class="badge bg-primary rounded-pill">{{ p.step_count }}</span></td>
+                    <td class="text-end">
+                        {% if p.step_count %}
+                        <a href="{% url 'process-card-detail' p.pk %}" class="btn btn-sm btn-outline-primary me-1" title="View process card">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if is_manager %}
+                        <a href="{% url 'process-card-edit' p.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit process card">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                        {% else %}
+                        {% if is_manager %}
+                        <a href="{% url 'process-card-edit' p.pk %}" class="btn btn-sm btn-outline-success" title="Create process card">
+                            <i class="bi bi-plus-lg"></i>
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">
+                        <i class="bi bi-signpost-split fs-2 d-block mb-2"></i>No process cards have been created yet
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

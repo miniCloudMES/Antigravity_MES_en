@@ -1,0 +1,202 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}{{ document.title }} - Document Details{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Navigation Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'documents-dashboard' %}" class="text-decoration-none">Document Center</a></li>
+                {% if document.category %}
+                <li class="breadcrumb-item">
+                    <a href="{% url 'documents-dashboard' %}?category={{ document.category.id }}" class="text-decoration-none">
+                        {{ document.category.name }}
+                    </a>
+                </li>
+                {% endif %}
+                <li class="breadcrumb-item active" aria-current="page">{{ document.title }}</li>
+            </ol>
+        </nav>
+
+        <!-- Document Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-5">
+                <!-- Header + Actions -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-4 mb-4 gap-3">
+                    <div>
+                        <h1 class="fw-bold text-dark mb-2">{{ document.title }}</h1>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if document.status != 'approved' and document.status != 'pending' %}
+                        {% if is_manager or document.submitted_by_id == request.user.id %}
+                        <a href="{% url 'document-edit' document.pk %}" class="btn btn-sm btn-outline-warning rounded-pill" title="Edit">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </a>
+                        {% endif %}
+                        {% if is_manager or document.submitted_by_id == request.user.id %}
+                        <a href="{% url 'document-delete' document.pk %}" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
+                            <i class="bi bi-trash me-1"></i>Delete
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                        {% if document.status == 'pending' %}
+                        {% if document.submitted_by_id == request.user.id %}
+                        <form method="post" action="{% url 'document-recall' document.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill" title="Withdraw Submission">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Withdraw Submission
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% if is_manager %}
+                        <a href="{% url 'document-review' document.pk %}" class="btn btn-sm btn-success rounded-pill" title="Go to Review">
+                            <i class="bi bi-check-lg me-1"></i>Go to Review
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                        {% if document.status == 'draft' or document.status == 'rejected' %}
+                        <a href="{% url 'document-submit' document.pk %}" class="btn btn-sm btn-primary rounded-pill" title="{% if document.status == 'draft' %}Submit for Review{% else %}Resubmit{% endif %}">
+                            <i class="bi bi-send me-1"></i>{% if document.status == 'draft' %}Submit for Review{% else %}Resubmit{% endif %}
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'document-audit-logs' document.pk %}" class="btn btn-sm btn-outline-dark rounded-pill" title="Audit Logs">
+                            <i class="bi bi-journal-text me-1"></i>Audit Logs
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Document Info Table -->
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered align-middle mb-0" style="font-size: 1rem;">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 16%;" class="text-muted small">Document Code</th>
+                                <td class="small">{{ document.code|default:"Not assigned" }}</td>
+
+                                <th scope="row" class="text-muted small">Version</th>
+                                <td class="small">v{{ document.version }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted small">Department</th>
+                                <td class="small">{{ document.department.name|default:"Unassigned" }}</td>
+
+                                <th scope="row" class="text-muted small">Created By</th>
+                                <td class="small">{{ document.created_by.username|default:"System" }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted small">Created At</th>
+                                <td class="small">{{ document.created_at|date:"Y-m-d H:i" }}</td>
+
+                                <th scope="row" class="text-muted small">Valid Until</th>
+                                <td class="small">
+                                    {% if document.expired_at %}
+                                        <span class="text-danger">{{ document.expired_at|date:"Y-m-d H:i" }}</span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-muted small">Status</th>
+                                <td class="small">
+                                    <span class="badge rounded-pill px-3 py-2
+                                        {% if document.is_active %}bg-success
+                                        {% else %}bg-secondary text-white
+                                        {% endif %}">
+                                        {{ document.is_active|yesno:"Active,Disabled" }}
+                                    </span>
+                                </td>
+
+                                <th scope="row" class="text-muted small">Review Status</th>
+                                <td class="small">
+                                    <span class="badge rounded-pill px-3 py-2
+                                        {% if document.status == 'draft' %}bg-secondary-subtle text-secondary
+                                        {% elif document.status == 'pending' %}bg-warning text-dark
+                                        {% elif document.status == 'approved' %}bg-success
+                                        {% elif document.status == 'rejected' %}bg-danger
+                                        {% endif %}">
+                                        {{ document.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% if document.approval_manager %}
+                            <tr>
+                                <th scope="row" class="text-muted small">Approval Manager</th>
+                                <td colspan="3" class="small">{{ document.approval_manager.name|default:document.approval_manager.emp_no }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if document.reviewed_at %}
+                            <tr>
+                                <th scope="row" class="text-muted small">Reviewed By</th>
+                                <td colspan="3" class="small">
+                                    {{ document.reviewed_by.username|default:"-" }} at {{ document.reviewed_at|date:"Y-m-d H:i" }}
+                                </td>
+                            </tr>
+                            {% if document.status == 'rejected' and document.review_notes %}
+                            <tr>
+                                <th scope="row" class="text-muted small align-top">Review Notes</th>
+                                <td colspan="3" class="small">{{ document.review_notes|linebreaks }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endif %}
+                            {% if document.description %}
+                            <tr>
+                                <th scope="row" class="text-muted small align-top">Description</th>
+                                <td colspan="3" class="small">{{ document.description|linebreaks }}</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Rich Text Content -->
+                <div class="document-content mt-4 pt-4 border-top" style="clear: both; display: block; width: 100%; line-height: 1.8; font-size: 1.1rem; color: #2c3e50;">
+                    {{ document.content|safe }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Multiple Images Section -->
+        {% if document.images.exists or document.image %}
+        <div class="border-top pt-4 mt-5">
+            <h5 class="fw-bold mb-4 text-secondary"><i class="bi bi-images text-primary me-2"></i>Document Images</h5>
+            <div class="row g-4 justify-content-center">
+                {% if document.image %}
+                <div class="col-md-6 text-center">
+                    <div class="bg-light p-3 rounded-3 border h-100 d-flex flex-column justify-content-between">
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2" style="min-height: 250px;">
+                            <img src="{{ document.image.url }}" alt="Main image" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
+                        </div>
+                        <p class="text-muted small mb-0 bg-white p-2 border rounded-2">(System main image)</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% for img in document.images.all %}
+                <div class="col-md-6 text-center">
+                    <div class="bg-light p-3 rounded-3 border h-100 d-flex flex-column justify-content-between">
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2" style="min-height: 250px;">
+                            <a href="{{ img.image.url }}" target="_blank">
+                                <img src="{{ img.image.url }}" alt="Attachment" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
+                            </a>
+                        </div>
+                        {% if img.description %}
+                            <p class="text-muted small mb-0 bg-white p-2 border rounded-2"><i class="bi bi-info-circle me-1"></i>{{ img.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-5">
+            <a href="{% url 'documents-dashboard' %}" class="btn btn-light rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i>Back to Document Center
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Material Category Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="bi bi-tags text-info me-2"></i>Material Category Management</h2>
+        <div>
+            <a href="{% url 'material-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            {% if is_manager %}
+            <a href="{% url 'material-category-add' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg"></i> Add Category
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 15px;">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Materials</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td class="fw-bold">{{ category.name }}</td>
+                                <td>{{ category.description|default:"-" }}</td>
+                                <td><span class="badge bg-secondary">{{ category.materials.count }}</span></td>
+                                <td>{{ category.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    {% if is_manager %}
+                                    <a href="{% url 'material-category-edit' category.pk %}" class="btn btn-sm btn-outline-secondary px-2" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'material-category-delete' category.pk %}" class="btn btn-sm btn-outline-danger ms-1 px-2" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No material categories found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

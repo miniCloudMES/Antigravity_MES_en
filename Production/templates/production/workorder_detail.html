@@ -1,0 +1,335 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Work Order Detail - {{ object.order_number }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-list-check text-success me-2"></i>{{ object.order_number }}</h2>
+            <p class="text-muted mb-0">
+                Product: <strong>{{ object.product.name }}</strong>; Quantity: <strong>{{ object.quantity }}</strong>
+                {% if object.customer %}; Customer: <strong>{{ object.customer.name }}</strong>{% endif %}
+                {% if object.lot_number %}; Lot: <strong><code>{{ object.lot_number }}</code></strong>{% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'workorder-list' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+            {% if is_manager and object.status != 'COMPLETED' and object.status != 'CANCELLED' %}
+            <a href="{% url 'workorder-edit' object.pk %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Work Order QR Code -->
+<div class="card border-0 shadow-sm mb-4 d-inline-block" style="border-radius:14px; min-width:220px;">
+    <div class="card-body text-center py-3">
+        <div class="text-muted small mb-2"><i class="bi bi-qr-code me-1"></i>Work Order QR Code</div>
+        <img src="{% url 'workorder-qrcode' object.pk %}" alt="Work Order {{ object.order_number }} QR Code"
+             width="160" height="160" class="img-fluid border rounded" style="image-rendering: pixelated;">
+        <div class="fw-semibold mt-2"><code>{{ object.order_number }}</code></div>
+        <a href="{% url 'workorder-qrcode' object.pk %}" download="qr_{{ object.order_number }}.png"
+           class="btn btn-sm btn-outline-primary mt-2 rounded-pill px-3">
+            <i class="bi bi-download"></i> Download PNG
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Work Order Status</div>
+                <div class="fw-bold mt-1">
+                    {% if object.status == 'PENDING' %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif object.status == 'IN_PROGRESS' %}
+                        <span class="badge bg-info">In Progress</span>
+                    {% elif object.status == 'COMPLETED' %}
+                        <span class="badge bg-success">Completed</span>
+                    {% elif object.status == 'CANCELLED' %}
+                        <span class="badge bg-secondary">Cancelled</span>
+                    {% elif object.status == 'ABNORMAL' %}
+                        <span class="badge bg-danger">Abnormal</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Planned Start</div>
+                <div class="fw-bold mt-1">{{ object.planned_start_date|date:"Y-m-d H:i" }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Planned End</div>
+                <div class="fw-bold mt-1">{{ object.planned_end_date|date:"Y-m-d H:i" }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Created At</div>
+                <div class="fw-bold mt-1">{{ object.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Station / Previous Station completion time -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>Current Station</div>
+                <div class="fw-bold mt-1">
+                    {% if object.current_step %}
+                        Step {{ object.current_step.step_number }}: {{ object.current_step.name }}
+                    {% else %}
+                        <span class="text-muted">&mdash; (No active step)</span>
+                    {% endif %}
+                </div>
+                {% if object.current_step and object.current_step.status %}
+                <small class="text-muted">
+                    {% if object.current_step.status == 'IN_PROGRESS' %}<span class="badge bg-info">In Processing</span>
+                    {% elif object.current_step.status == 'ABNORMAL' %}<span class="badge bg-danger">Abnormal</span>
+                    {% elif object.current_step.status == 'PENDING' %}<span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small"><i class="bi bi-clock-history me-1"></i>Previous Station Completed At</div>
+                <div class="fw-bold mt-1">
+                    {% if object.previous_step %}
+                        {{ object.previous_step.actual_end_date|date:"Y-m-d H:i" }}
+                    {% else %}
+                        <span class="text-muted">&mdash;</span>
+                    {% endif %}
+                </div>
+                {% if object.previous_step %}
+                <small class="text-muted">Step {{ object.previous_step.step_number }}: {{ object.previous_step.name }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius:16px;">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="text-muted small">Actual Start</div>
+                <div class="fw-bold">{{ object.actual_start_date|default:"-"|date:"Y-m-d H:i" }}</div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small">Actual End</div>
+                <div class="fw-bold">{{ object.actual_end_date|default:"-"|date:"Y-m-d H:i" }}</div>
+            </div>
+            <div class="col-md-12">
+                <div class="text-muted small">Notes</div>
+                <div class="fw-bold">{{ object.notes|default:"-" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Process Card -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius:16px;">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-signpost-split me-2 text-primary"></i>Process Card</h5>
+        <span class="badge bg-light text-dark border">{{ steps|length }} step(s)</span>
+    </div>
+    <div class="card-body p-0">
+        {% if steps %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Step</th>
+                        <th>Name</th>
+                        <th>Personnel</th>
+                        <th>Equipment</th>
+                        <th>Material</th>
+                        <th>Document</th>
+                        <th>QC Requirement</th>
+                        <th class="text-center">Received</th>
+                        <th class="text-center">Good</th>
+                        <th class="text-center">Defect</th>
+                        <th class="text-center">Loss</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Track In</th>
+                        <th class="text-center">Track Out</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in steps %}
+                    <tr>
+                        <td class="text-center"><span class="badge bg-primary rounded-pill">{{ step.step_number }}</span></td>
+                        <td>
+                            {% if step.is_picking_step %}
+                            <span class="fw-semibold"><i class="bi bi-box-seam text-primary me-1"></i>{{ step.name }}</span>
+                            <small class="d-block text-muted">Verify material quantity against BOM (confirmed {{ picking_confirmed|default:0 }}/{{ picking_total|default:0 }})</small>
+                            {% else %}
+                            <span class="fw-semibold">{{ step.name }}</span>
+                            {% endif %}
+                            {% if step.description %}
+                            <small class="d-block text-muted">{{ step.description|striptags|truncatechars:40 }}</small>
+                            {% endif %}
+                            {% if step.standard_time_minutes and not step.is_picking_step %}
+                            <small class="d-block text-muted"><i class="bi bi-clock"></i> {{ step.standard_time_minutes }} min</small>
+                            {% endif %}
+                            {% if step.track_in_note %}
+                            <small class="d-block text-info" title="Track In note: {{ step.track_in_note }}"><i class="bi bi-box-arrow-in-right me-1"></i>{{ step.track_in_note|truncatechars:30 }}</small>
+                            {% endif %}
+                            {% if step.track_out_note %}
+                            <small class="d-block text-success" title="Track Out note: {{ step.track_out_note }}"><i class="bi bi-box-arrow-right me-1"></i>{{ step.track_out_note|truncatechars:30 }}</small>
+                            {% endif %}
+                        </td>
+                        <td class="small">
+                            {% if step.personnel %}{{ step.personnel.name }}{% else %}-{% endif %}
+                            {% if step.personnel_requirement %}<small class="d-block text-muted">{{ step.personnel_requirement }}</small>{% endif %}
+                        </td>
+                        <td class="small">{{ step.equipment.name|default:"-" }}</td>
+                        <td class="small">{{ step.material.name|default:"-" }}</td>
+                        <td class="small">
+                            {% if step.document %}
+                            <a href="{% url 'document-detail' step.document.pk %}" target="_blank" title="Open document: {{ step.document.title }}">
+                                <i class="bi bi-file-earmark-text me-1"></i>{{ step.document.title }}
+                            </a>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="small text-muted">{{ step.qc_requirements|default:"-"|truncatechars:20 }}</td>
+                        <td class="text-center small">{{ step.received_quantity|default:"-" }}</td>
+                        <td class="text-center small">{{ step.good_quantity|default:"-" }}</td>
+                        <td class="text-center small">{{ step.defect_quantity|default:"-" }}</td>
+                        <td class="text-center small">{{ step.loss_quantity|default:"0" }}</td>
+                        <td class="text-center">
+                            {% if step.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif step.status == 'IN_PROGRESS' %}
+                                <span class="badge bg-info">In Processing</span>
+                            {% elif step.status == 'COMPLETED' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif step.status == 'CANCELLED' %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                            {% elif step.status == 'ABNORMAL' %}
+                                <span class="badge bg-danger">Abnormal</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-nowrap">
+                            {% if step.actual_start_date %}
+                                {{ step.actual_start_date|date:"m-d H:i" }}
+                                {% if step.track_in_by %}<small class="d-block text-muted">{{ step.track_in_by.employee.name|default:step.track_in_by.username }}</small>{% endif %}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="small text-nowrap">
+                            {% if step.actual_end_date %}
+                                {{ step.actual_end_date|date:"m-d H:i" }}
+                                {% if step.track_out_by %}<small class="d-block text-muted">{{ step.track_out_by.employee.name|default:step.track_out_by.username }}</small>{% endif %}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            {% if step.is_picking_step %}
+                                {% if step.status == 'PENDING' %}
+                                <a href="{% url 'workorder-picking' object.pk %}" class="btn btn-sm btn-outline-primary" title="Confirm picking (verify material against BOM)">
+                                    <i class="bi bi-box-seam"></i> Confirm Picking
+                                </a>
+                                <form method="post" action="{% url 'workorder-step-update' step.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="CANCELLED">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cancel this step" onclick="return confirm('Are you sure you want to cancel this step?');">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <a href="{% url 'workorder-picking' object.pk %}" class="btn btn-sm btn-outline-secondary" title="View picking confirmation">
+                                    <i class="bi bi-box-seam"></i> View Picking
+                                </a>
+                                {% endif %}
+                            {% elif step.status == 'PENDING' %}
+                            <a href="{% url 'workorder-step-track-in' step.pk %}" class="btn btn-sm btn-outline-info" title="Enter station (Track In)">
+                                <i class="bi bi-box-arrow-in-right"></i> Track In
+                            </a>
+                            <form method="post" action="{% url 'workorder-step-update' step.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="CANCELLED">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cancel this step" onclick="return confirm('Are you sure you want to cancel this step?');">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                            {% elif step.status == 'IN_PROGRESS' %}
+                            <a href="{% url 'workorder-step-quantity' step.pk %}" class="btn btn-sm btn-outline-primary" title="Enter quantities">
+                                <i class="bi bi-calculator"></i>
+                            </a>
+                            <a href="{% url 'workorder-step-quantity' step.pk %}?action=trackout" class="btn btn-sm btn-outline-success" title="Leave station (Track Out)">
+                                <i class="bi bi-box-arrow-right"></i> Track Out
+                            </a>
+                            <form method="post" action="{% url 'workorder-step-update' step.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="ABNORMAL">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Mark abnormal">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'workorder-step-update' step.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="CANCELLED">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cancel this step" onclick="return confirm('Are you sure you want to cancel this step?');">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                            {% elif step.status == 'ABNORMAL' %}
+                            <a href="{% url 'workorder-step-track-in' step.pk %}" class="btn btn-sm btn-outline-info" title="Re-enter station (Track In)">
+                                <i class="bi bi-arrow-counterclockwise"></i> Re-enter
+                            </a>
+                            <a href="{% url 'workorder-step-quantity' step.pk %}?action=trackout" class="btn btn-sm btn-outline-success" title="Leave station (Track Out)">
+                                <i class="bi bi-box-arrow-right"></i> Track Out
+                            </a>
+                            <form method="post" action="{% url 'workorder-step-update' step.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="CANCELLED">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cancel this step" onclick="return confirm('Are you sure you want to cancel this step?');">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                            {% elif step.status == 'COMPLETED' %}
+                            <form method="post" action="{% url 'workorder-step-update' step.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="ABNORMAL">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Review found abnormal">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-signpost-split fs-2 d-block mb-2"></i>
+            This work order has no process card{% if object.product.process_steps.exists %} (product "{{ object.product.name }}" has a standard process, but the work order was created before the process was defined){% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

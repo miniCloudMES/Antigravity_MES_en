@@ -1,0 +1,78 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}My Profile - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>My Profile</h4>
+            </div>
+            <div class="card-body p-4">
+                {% if employee %}
+                    <div class="d-flex align-items-center mb-4">
+                        {% if employee.photo %}
+                            <img src="{{ employee.photo.url }}" alt="{{ employee.name }}" class="rounded-circle me-3" style="width:64px;height:64px;object-fit:cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width:64px;height:64px;font-size:1.5rem;font-weight:700;">
+                                {{ employee.name|first }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-0">{{ employee.name }}</h5>
+                            <span class="badge bg-secondary">{{ employee.get_role_display }}</span>
+                        </div>
+                    </div>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="text-muted w-25">Employee No.</th>
+                            <td>{{ employee.emp_no }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Gender</th>
+                            <td>{{ employee.get_gender_display }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Department</th>
+                            <td>{{ employee.department.name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Position</th>
+                            <td>{{ employee.position.name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Email</th>
+                            <td>{{ employee.email|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Phone</th>
+                            <td>{{ employee.phone|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Hire Date</th>
+                            <td>{{ employee.hire_date|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Account Binding</th>
+                            <td>
+                                {% if employee.user %}
+                                    <span class="text-success"><i class="bi bi-check-circle me-1"></i>{{ employee.user.username }}</span>
+                                {% else %}
+                                    <span class="text-muted">Not bound</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Your account is not linked to an employee record yet. Please contact your system administrator.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,619 @@
+Production\templates\production\bom_confirm_delete.html#3#{% block title %}刪除 BOM - miniMES 系統{% endblock %}
+Production\templates\production\bom_confirm_delete.html#12#<h4 class="fw-bold mb-2">確認刪除 BOM？</h4>
+Production\templates\production\bom_confirm_delete.html#13#<p class="text-muted mb-1">您即將刪除以下 BOM 及其所有子件明細：</p>
+Production\templates\production\bom_confirm_delete.html#14#<p class="fw-bold fs-5 mb-4">{{ object.product.name }}（版本 {{ object.version }}）</p>
+Production\templates\production\bom_confirm_delete.html#15#<p class="text-danger small mb-4">此操作無法復原，相關子件明細也將一併刪除。</p>
+Production\templates\production\bom_confirm_delete.html#18#<button type="submit" class="btn btn-danger rounded-pill px-5">確認刪除</button>
+Production\templates\production\bom_confirm_delete.html#19#<a href="{% url 'bom-list' %}" class="btn btn-outline-secondary rounded-pill px-5">取消</a>
+Production\templates\production\bom_detail.html#3#{% block title %}BOM 明細 - {{ bom.product.name }} - miniMES 系統{% endblock %}
+Production\templates\production\bom_detail.html#9#<h2 class="fw-bold"><i class="bi bi-diagram-2 text-info me-2"></i>BOM 明細</h2>
+Production\templates\production\bom_detail.html#10#<p class="text-muted mb-0">成品：<strong>{{ bom.product.name }}</strong>（{{ bom.product.product_id }}）　版本：<span class="badge bg-secondary">{{ bom.version }}</span></p>
+Production\templates\production\bom_detail.html#15#<i class="bi bi-pencil me-1"></i>編輯
+Production\templates\production\bom_detail.html#19#<i class="bi bi-arrow-left me-1"></i>返回列表
+Production\templates\production\bom_detail.html#30#<p class="text-muted small mb-1">成品物料編號</p>
+Production\templates\production\bom_detail.html#34#<p class="text-muted small mb-1">成品名稱</p>
+Production\templates\production\bom_detail.html#38#<p class="text-muted small mb-1">版本號</p>
+Production\templates\production\bom_detail.html#42#<p class="text-muted small mb-1">狀態</p>
+Production\templates\production\bom_detail.html#45#<span class="badge bg-success">啟用中</span>
+Production\templates\production\bom_detail.html#47#<span class="badge bg-secondary">停用</span>
+Production\templates\production\bom_detail.html#52#<p class="text-muted small mb-1">子件總數</p>
+Production\templates\production\bom_detail.html#53#<p class="fw-bold text-info fs-5">{{ bom.items.count }} 項</p>
+Production\templates\production\bom_detail.html#58#<p class="text-muted small mb-1">備註說明</p>
+Production\templates\production\bom_detail.html#68#<h6 class="fw-bold text-muted"><i class="bi bi-list-ul me-1"></i>子件明細</h6>
+Production\templates\production\bom_detail.html#75#<th>物料編號</th>
+Production\templates\production\bom_detail.html#76#<th>子件名稱</th>
+Production\templates\production\bom_detail.html#77#<th>分類</th>
+Production\templates\production\bom_detail.html#78#<th class="text-end">用量</th>
+Production\templates\production\bom_detail.html#79#<th>單位備註</th>
+Production\templates\production\bom_detail.html#80#<th>備註</th>
+Production\templates\production\bom_detail.html#97#<i class="bi bi-inbox me-1"></i>此 BOM 尚無子件，請編輯後新增。
+Production\templates\production\bom_form.html#3#{% block title %}{{ form_title }} - miniMES 系統{% endblock %}
+Production\templates\production\bom_form.html#10#<i class="bi bi-arrow-left me-1"></i>返回列表
+Production\templates\production\bom_form.html#21#<h6 class="fw-bold text-muted"><i class="bi bi-info-circle me-1"></i>BOM 基本資訊</h6>
+Production\templates\production\bom_form.html#26#<label class="form-label fw-semibold">成品（母件）<span class="text-danger">*</span></label>
+Production\templates\production\bom_form.html#31#<label class="form-label fw-semibold">版本號<span class="text-danger">*</span></label>
+Production\templates\production\bom_form.html#38#<label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">啟用中</label>
+Production\templates\production\bom_form.html#42#<label class="form-label fw-semibold">備註說明</label>
+Production\templates\production\bom_form.html#52#<h6 class="fw-bold text-muted mb-0"><i class="bi bi-list-ul me-1"></i>子件明細</h6>
+Production\templates\production\bom_form.html#54#<i class="bi bi-plus-circle me-1"></i>新增子件
+Production\templates\production\bom_form.html#68#<label class="form-label fw-semibold small">子件物料<span class="text-danger">*</span></label>
+Production\templates\production\bom_form.html#73#<label class="form-label fw-semibold small">用量<span class="text-danger">*</span></label>
+Production\templates\production\bom_form.html#78#<label class="form-label fw-semibold small">單位備註</label>
+Production\templates\production\bom_form.html#82#<label class="form-label fw-semibold small">備註</label>
+Production\templates\production\bom_form.html#87#<div class="form-check mb-2" title="勾選刪除此列">
+Production\templates\production\bom_form.html#102#<a href="{% url 'bom-list' %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Production\templates\production\bom_form.html#104#<i class="bi bi-check-circle me-1"></i>{% if object %}更新{% else %}儲存{% endif %}
+Production\templates\production\bom_list.html#3#{% block title %}物料清單管理 - miniMES 系統{% endblock %}
+Production\templates\production\bom_list.html#9#<h2 class="fw-bold"><i class="bi bi-diagram-2 text-info me-2"></i>物料清單（BOM）</h2>
+Production\templates\production\bom_list.html#10#<p class="text-muted mb-0">管理各成品的物料組成與用量。</p>
+Production\templates\production\bom_list.html#15#<i class="bi bi-plus-circle me-1"></i>新增 BOM
+Production\templates\production\bom_list.html#19#<i class="bi bi-arrow-left me-1"></i>返回
+Production\templates\production\bom_list.html#30#<th>成品（母件）</th>
+Production\templates\production\bom_list.html#31#<th>版本</th>
+Production\templates\production\bom_list.html#32#<th>子件數量</th>
+Production\templates\production\bom_list.html#33#<th>狀態</th>
+Production\templates\production\bom_list.html#34#<th>更新時間</th>
+Production\templates\production\bom_list.html#35#<th class="text-center">操作</th>
+Production\templates\production\bom_list.html#46#<td>{{ bom.items.count }} 項</td>
+Production\templates\production\bom_list.html#49#<span class="badge bg-success">啟用中</span>
+Production\templates\production\bom_list.html#51#<span class="badge bg-secondary">停用</span>
+Production\templates\production\bom_list.html#56#<a href="{% url 'bom-detail' bom.pk %}" class="btn btn-sm btn-outline-info me-1" title="查看明細">
+Production\templates\production\bom_list.html#60#<a href="{% url 'bom-edit' bom.pk %}" class="btn btn-sm btn-outline-primary me-1" title="編輯">
+Production\templates\production\bom_list.html#63#<a href="{% url 'bom-delete' bom.pk %}" class="btn btn-sm btn-outline-danger" title="刪除">
+Production\templates\production\bom_list.html#72#<i class="bi bi-inbox fs-2 d-block mb-2"></i>尚無 BOM 資料，請先新增。
+Production\templates\production\bom_list.html#85#<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一頁</a></li>
+Production\templates\production\bom_list.html#87#<li class="page-item disabled"><span class="page-link">第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 頁</span></li>
+Production\templates\production\bom_list.html#89#<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">下一頁</a></li>
+Production\templates\production\process_card_detail.html#3#{% block title %}加工流程卡 - {{ product.name }} - miniMES 系統{% endblock %}
+Production\templates\production\process_card_detail.html#9#<h2 class="fw-bold mb-1"><i class="bi bi-signpost-split text-primary me-2"></i>{{ product.name }} 加工流程卡</h2>
+Production\templates\production\process_card_detail.html#10#<p class="text-muted mb-0" style="font-size:13px;">產品編號：<code>{{ product.product_id }}</code>　工序數：<span class="badge bg-primary rounded-pill">{{ steps|length }}</span></p>
+Production\templates\production\process_card_detail.html#15#<i class="bi bi-pencil me-1"></i>編輯流程卡
+Production\templates\production\process_card_detail.html#19#<i class="bi bi-arrow-left me-1"></i>返回列表
+Production\templates\production\process_card_detail.html#29#<span class="badge bg-primary rounded-pill me-2">工序 {{ step.step_number }}</span>
+Production\templates\production\process_card_detail.html#32#<span class="badge bg-light text-dark border ms-2"><i class="bi bi-clock me-1"></i>{{ step.standard_time_minutes }} 分</span>
+Production\templates\production\process_card_detail.html#39#<div class="text-muted small mb-1"><i class="bi bi-people me-1"></i>人員職位</div>
+Production\templates\production\process_card_detail.html#50#<div class="text-muted small mb-1"><i class="bi bi-pc-display me-1"></i>使用設備</div>
+Production\templates\production\process_card_detail.html#60#<div class="text-muted small mb-1"><i class="bi bi-box-seam me-1"></i>使用物料</div>
+Production\templates\production\process_card_detail.html#68#<div class="text-muted small mb-1"><i class="bi bi-file-earmark-text me-1"></i>參考文件（SOP）</div>
+Production\templates\production\process_card_detail.html#78#<div class="text-muted small mb-1"><i class="bi bi-clipboard-check me-1"></i>品管要求</div>
+Production\templates\production\process_card_detail.html#82#<div class="text-muted small mb-1"><i class="bi bi-tools me-1"></i>加工指導說明</div>
+Production\templates\production\process_card_detail.html#91#<i class="bi bi-signpost-split fs-2 d-block mb-2"></i>此產品尚未定義工序
+Production\templates\production\process_card_detail.html#95#<i class="bi bi-plus-lg me-1"></i>建立加工流程卡
+Production\templates\production\process_card_form.html#4#{% block title %}編輯加工流程卡 - {{ product.name }} - miniMES 系統{% endblock %}
+Production\templates\production\process_card_form.html#17#<h2 class="fw-bold mb-1"><i class="bi bi-signpost-split text-primary me-2"></i>編輯加工流程卡</h2>
+Production\templates\production\process_card_form.html#18#<p class="text-muted mb-0" style="font-size:13px;">產品：<strong>{{ product.name }}</strong>（<code>{{ product.product_id }}</code>）— 依序填寫各工序的加工指導。</p>
+Production\templates\production\process_card_form.html#21#<i class="bi bi-arrow-left me-1"></i>返回流程卡
+Production\templates\production\process_card_form.html#32#<h6 class="fw-bold text-muted mb-0"><i class="bi bi-list-ol me-1"></i>工序明細（依序號排列）</h6>
+Production\templates\production\process_card_form.html#34#<i class="bi bi-plus-circle me-1"></i>新增工序
+Production\templates\production\process_card_form.html#44#<label class="form-label fw-semibold small">序號<span class="text-danger">*</span></label>
+Production\templates\production\process_card_form.html#49#<label class="form-label fw-semibold small">工序名稱<span class="text-danger">*</span></label>
+Production\templates\production\process_card_form.html#54#<label class="form-label fw-semibold small">人員職位</label>
+Production\templates\production\process_card_form.html#59#<label class="form-label fw-semibold small">使用設備</label>
+Production\templates\production\process_card_form.html#63#<label class="form-label fw-semibold small">使用物料</label>
+Production\templates\production\process_card_form.html#68#<div class="form-check mb-2" title="勾選刪除此列">
+Production\templates\production\process_card_form.html#77#<label class="form-label fw-semibold small">加工指導說明</label>
+Production\templates\production\process_card_form.html#84#<label class="form-label fw-semibold small">參考文件</label>
+Production\templates\production\process_card_form.html#88#<label class="form-label fw-semibold small">人員補充說明</label>
+Production\templates\production\process_card_form.html#92#<label class="form-label fw-semibold small">品管要求</label>
+Production\templates\production\process_card_form.html#96#<label class="form-label fw-semibold small">標準工時（分）</label>
+Production\templates\production\process_card_form.html#106#<a href="{% url 'process-card-detail' product.pk %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Production\templates\production\process_card_form.html#108#<i class="bi bi-check-circle me-1"></i>儲存流程卡
+Production\templates\production\process_card_form.html#121#// 初始化單一 wrap 的 Quill 編輯器
+Production\templates\production\process_card_form.html#129#placeholder: '輸入加工指導說明…',
+Production\templates\production\process_card_form.html#143#// 載入既有內容（Django textarea 值）
+Production\templates\production\process_card_form.html#147#// 編輯時同步回 textarea（form 提交靠它）
+Production\templates\production\process_card_form.html#154#// 初始化所有現有列
+Production\templates\production\process_card_form.html#176#// 移除被 clone 的 Quill 產生物，避免衝突
+Production\templates\production\process_card_list.html#3#{% block title %}加工流程卡 - miniMES 系統{% endblock %}
+Production\templates\production\process_card_list.html#9#<h2 class="fw-bold mb-1"><i class="bi bi-signpost-split me-2 text-primary"></i>加工流程卡</h2>
+Production\templates\production\process_card_list.html#10#<p class="text-muted mb-0" style="font-size:13px;">各產品的標準製程工序：人員、設備、物料、文件與品管要求。工單建立時自動帶入。</p>
+Production\templates\production\process_card_list.html#14#<i class="bi bi-arrow-left me-1"></i>返回儀表板
+Production\templates\production\process_card_list.html#20#<!-- 搜尋 -->
+Production\templates\production\process_card_list.html#24#<input type="text" name="q" value="{{ q }}" class="form-control" style="max-width:260px;" placeholder="搜尋產品名稱或編號…">
+Production\templates\production\process_card_list.html#25#<button type="submit" class="btn btn-outline-primary px-4">搜尋</button>
+Production\templates\production\process_card_list.html#26#{% if q %}<a href="{% url 'process-card-list' %}" class="btn btn-outline-secondary px-3">清除</a>{% endif %}
+Production\templates\production\process_card_list.html#36#<th>產品編號</th>
+Production\templates\production\process_card_list.html#37#<th>產品名稱</th>
+Production\templates\production\process_card_list.html#38#<th>分類</th>
+Production\templates\production\process_card_list.html#39#<th class="text-center">工序數</th>
+Production\templates\production\process_card_list.html#40#<th class="text-end">操作</th>
+Production\templates\production\process_card_list.html#52#<a href="{% url 'process-card-detail' p.pk %}" class="btn btn-sm btn-outline-primary me-1" title="檢視流程卡">
+Production\templates\production\process_card_list.html#56#<a href="{% url 'process-card-edit' p.pk %}" class="btn btn-sm btn-outline-secondary" title="編輯流程卡">
+Production\templates\production\process_card_list.html#62#<a href="{% url 'process-card-edit' p.pk %}" class="btn btn-sm btn-outline-success" title="建立流程卡">
+Production\templates\production\process_card_list.html#72#<i class="bi bi-signpost-split fs-2 d-block mb-2"></i>尚未建立任何加工流程卡
+Production\templates\production\process_card_list.html#85#<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">上一頁</a></li>
+Production\templates\production\process_card_list.html#89#<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">下一頁</a></li>
+Production\templates\production\production_dashboard.html#3#{% block title %}生產管理 - miniMES 系統{% endblock %}
+Production\templates\production\production_dashboard.html#8#<h2 class="fw-bold mb-1"><i class="bi bi-cpu me-2" style="color:var(--lin-accent);"></i>生產管理</h2>
+Production\templates\production\production_dashboard.html#9#<p class="text-muted mb-0" style="font-size:13px;">管理生產工單、追蹤生產進度與相關資源。</p>
+Production\templates\production\production_dashboard.html#12#<i class="bi bi-arrow-left me-1"></i>返回主儀表板
+Production\templates\production\production_dashboard.html#26#<div class="text-muted" style="font-size:12px;">工單總數</div>
+Production\templates\production\production_dashboard.html#39#<div class="text-muted" style="font-size:12px;">待處理</div>
+Production\templates\production\production_dashboard.html#52#<div class="text-muted" style="font-size:12px;">進行中</div>
+Production\templates\production\production_dashboard.html#65#<div class="text-muted" style="font-size:12px;">已完成</div>
+Production\templates\production\production_dashboard.html#80#<h5 class="fw-semibold mb-0">工單管理</h5>
+Production\templates\production\production_dashboard.html#82#<p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">建立、編輯與追蹤所有生產工單的狀態。</p>
+Production\templates\production\production_dashboard.html#83#<a href="{% url 'workorder-list' %}" class="btn btn-outline-primary px-3 w-100">前往管理</a>
+Production\templates\production\production_dashboard.html#94#<h5 class="fw-semibold mb-0">物料清單（BOM）</h5>
+Production\templates\production\production_dashboard.html#96#<p class="text-muted mb-2" style="font-size:13px;">定義成品的子件組成與用量。</p>
+Production\templates\production\production_dashboard.html#98#共 <strong style="color:var(--lin-text);">{{ total_boms }}</strong> 筆 BOM，
+Production\templates\production\production_dashboard.html#99#啟用中 <strong style="color:var(--lin-green);">{{ active_boms }}</strong> 筆。
+Production\templates\production\production_dashboard.html#101#<a href="{% url 'bom-list' %}" class="btn btn-outline-primary px-3 w-100">前往管理</a>
+Production\templates\production\production_dashboard.html#112#<h5 class="fw-semibold mb-0">加工流程卡</h5>
+Production\templates\production\production_dashboard.html#114#<p class="text-muted mb-2" style="font-size:13px;">定義各產品標準製程：人員、設備、物料、文件與品管要求。</p>
+Production\templates\production\production_dashboard.html#116#已定義 <strong style="color:var(--lin-text);">{{ process_card_count }}</strong> 個產品的製程。
+Production\templates\production\production_dashboard.html#118#<a href="{% url 'process-card-list' %}" class="btn btn-outline-primary px-3 w-100">前往管理</a>
+Production\templates\production\production_dashboard.html#129#<h5 class="fw-semibold mb-0">生產報表</h5>
+Production\templates\production\production_dashboard.html#131#<p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">查看各站別良品/不良品/遺失數量、工單流轉與總損耗分析。</p>
+Production\templates\production\production_dashboard.html#132#<a href="{% url 'production-report' %}" class="btn btn-outline-primary px-3 w-100">前往報表</a>
+Production\templates\production\production_report.html#3#{% block title %}生產數量報表 - miniMES 系統{% endblock %}
+Production\templates\production\production_report.html#8#<h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-line me-2 text-primary"></i>生產數量報表</h2>
+Production\templates\production\production_report.html#9#<p class="text-muted mb-0">各站別良品 / 不良品 / 遺失數量總覽</p>
+Production\templates\production\production_report.html#12#<i class="bi bi-arrow-left"></i> 返回生產儀表板
+Production\templates\production\production_report.html#20#<div class="text-muted small">總領取</div>
+Production\templates\production\production_report.html#28#<div class="text-muted small">總良品</div>
+Production\templates\production\production_report.html#36#<div class="text-muted small">總不良品</div>
+Production\templates\production\production_report.html#44#<div class="text-muted small">總遺失</div>
+Production\templates\production\production_report.html#55#<div class="text-muted small">整體良率</div>
+Production\templates\production\production_report.html#68#<th class="text-center">工單</th>
+Production\templates\production\production_report.html#69#<th class="text-center">工序</th>
+Production\templates\production\production_report.html#70#<th>名稱</th>
+Production\templates\production\production_report.html#71#<th class="text-center">領取</th>
+Production\templates\production\production_report.html#72#<th class="text-center">良品</th>
+Production\templates\production\production_report.html#73#<th class="text-center">不良品</th>
+Production\templates\production\production_report.html#74#<th class="text-center">遺失</th>
+Production\templates\production\production_report.html#75#<th class="text-center">本站良率</th>
+Production\templates\production\production_report.html#98#<td colspan="8" class="text-center text-muted py-5">尚無數量填報紀錄</td>
+Production\templates\production\workorder_confirm_delete.html#3#{% block title %}刪除工單確認 - miniMES 系統{% endblock %}
+Production\templates\production\workorder_confirm_delete.html#10#<h4 class="fw-bold">確認刪除</h4>
+Production\templates\production\workorder_confirm_delete.html#11#<p class="text-muted">您確定要刪除工單 <strong>{{ workorder.order_number }}</strong> 嗎？</p>
+Production\templates\production\workorder_confirm_delete.html#12#<p class="text-danger">這個操作無法復原！</p>
+Production\templates\production\workorder_confirm_delete.html#16#<a href="{% url 'workorder-list' %}" class="btn btn-secondary rounded-pill px-4">取消</a>
+Production\templates\production\workorder_confirm_delete.html#17#<button type="submit" class="btn btn-danger rounded-pill px-4">確定刪除</button>
+Production\templates\production\workorder_detail.html#3#{% block title %}工單明細 - {{ object.order_number }} - miniMES 系統{% endblock %}
+Production\templates\production\workorder_detail.html#11#生產產品：<strong>{{ object.product.name }}</strong>；數量：<strong>{{ object.quantity }}</strong>
+Production\templates\production\workorder_detail.html#12#{% if object.customer %}；客戶：<strong>{{ object.customer.name }}</strong>{% endif %}
+Production\templates\production\workorder_detail.html#13#{% if object.lot_number %}；批號：<strong><code>{{ object.lot_number }}</code></strong>{% endif %}
+Production\templates\production\workorder_detail.html#18#<i class="bi bi-arrow-left"></i> 返回列表
+Production\templates\production\workorder_detail.html#22#<i class="bi bi-pencil"></i> 編輯
+Production\templates\production\workorder_detail.html#29#<!-- 工單 QR-Code（工單開頭） -->
+Production\templates\production\workorder_detail.html#32#<div class="text-muted small mb-2"><i class="bi bi-qr-code me-1"></i>工單 QR-Code</div>
+Production\templates\production\workorder_detail.html#33#<img src="{% url 'workorder-qrcode' object.pk %}" alt="工單 {{ object.order_number }} QR-Code"
+Production\templates\production\workorder_detail.html#38#<i class="bi bi-download"></i> 下載 PNG
+Production\templates\production\workorder_detail.html#47#<div class="text-muted small">工單狀態</div>
+Production\templates\production\workorder_detail.html#50#<span class="badge bg-warning text-dark">待處理</span>
+Production\templates\production\workorder_detail.html#52#<span class="badge bg-info">進行中</span>
+Production\templates\production\workorder_detail.html#54#<span class="badge bg-success">已完成</span>
+Production\templates\production\workorder_detail.html#56#<span class="badge bg-secondary">已取消</span>
+Production\templates\production\workorder_detail.html#58#<span class="badge bg-danger">異常</span>
+Production\templates\production\workorder_detail.html#67#<div class="text-muted small">計畫開始</div>
+Production\templates\production\workorder_detail.html#75#<div class="text-muted small">計畫結束</div>
+Production\templates\production\workorder_detail.html#83#<div class="text-muted small">建立時間</div>
+Production\templates\production\workorder_detail.html#90#<!-- 目前站別 / 前一站完工時間 -->
+Production\templates\production\workorder_detail.html#95#<div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>目前所在工站</div>
+Production\templates\production\workorder_detail.html#98#工序 {{ object.current_step.step_number }}：{{ object.current_step.name }}
+Production\templates\production\workorder_detail.html#100#<span class="text-muted">—（無進行中工序）</span>
+Production\templates\production\workorder_detail.html#105#{% if object.current_step.status == 'IN_PROGRESS' %}<span class="badge bg-info">加工中</span>
+Production\templates\production\workorder_detail.html#106#{% elif object.current_step.status == 'ABNORMAL' %}<span class="badge bg-danger">異常</span>
+Production\templates\production\workorder_detail.html#107#{% elif object.current_step.status == 'PENDING' %}<span class="badge bg-warning text-dark">待加工</span>
+Production\templates\production\workorder_detail.html#117#<div class="text-muted small"><i class="bi bi-clock-history me-1"></i>前一站完工時間</div>
+Production\templates\production\workorder_detail.html#126#<small class="text-muted">工序 {{ object.previous_step.step_number }}：{{ object.previous_step.name }}</small>
+Production\templates\production\workorder_detail.html#137#<div class="text-muted small">實際開始</div>
+Production\templates\production\workorder_detail.html#141#<div class="text-muted small">實際結束</div>
+Production\templates\production\workorder_detail.html#145#<div class="text-muted small">備註</div>
+Production\templates\production\workorder_detail.html#152#<!-- 加工流程卡 -->
+Production\templates\production\workorder_detail.html#155#<h5 class="mb-0"><i class="bi bi-signpost-split me-2 text-primary"></i>加工流程卡</h5>
+Production\templates\production\workorder_detail.html#156#<span class="badge bg-light text-dark border">{{ steps|length }} 道工序</span>
+Production\templates\production\workorder_detail.html#164#<th class="text-center">工序</th>
+Production\templates\production\workorder_detail.html#165#<th>名稱</th>
+Production\templates\production\workorder_detail.html#166#<th>人員需求</th>
+Production\templates\production\workorder_detail.html#167#<th>設備</th>
+Production\templates\production\workorder_detail.html#168#<th>物料</th>
+Production\templates\production\workorder_detail.html#169#<th>文件</th>
+Production\templates\production\workorder_detail.html#170#<th>品管要求</th>
+Production\templates\production\workorder_detail.html#171#<th class="text-center">進站數量</th>
+Production\templates\production\workorder_detail.html#172#<th class="text-center">良品</th>
+Production\templates\production\workorder_detail.html#173#<th class="text-center">不良品</th>
+Production\templates\production\workorder_detail.html#174#<th class="text-center">遺失</th>
+Production\templates\production\workorder_detail.html#175#<th class="text-center">狀態</th>
+Production\templates\production\workorder_detail.html#176#<th class="text-center">進站</th>
+Production\templates\production\workorder_detail.html#177#<th class="text-center">出站</th>
+Production\templates\production\workorder_detail.html#178#<th class="text-end">操作</th>
+Production\templates\production\workorder_detail.html#188#<small class="d-block text-muted">依 BOM 確認物料數量（已確認 {{ picking_confirmed|default:0 }}/{{ picking_total|default:0 }}）</small>
+Production\templates\production\workorder_detail.html#196#<small class="d-block text-muted"><i class="bi bi-clock"></i> {{ step.standard_time_minutes }} 分</small>
+Production\templates\production\workorder_detail.html#199#<small class="d-block text-info" title="進站備註：{{ step.track_in_note }}"><i class="bi bi-box-arrow-in-right me-1"></i>{{ step.track_in_note|truncatechars:30 }}</small>
+Production\templates\production\workorder_detail.html#202#<small class="d-block text-success" title="出站備註：{{ step.track_out_note }}"><i class="bi bi-box-arrow-right me-1"></i>{{ step.track_out_note|truncatechars:30 }}</small>
+Production\templates\production\workorder_detail.html#213#<a href="{% url 'document-detail' step.document.pk %}" target="_blank" title="開啟文件：{{ step.document.title }}">
+Production\templates\production\workorder_detail.html#225#<span class="badge bg-warning text-dark">待加工</span>
+Production\templates\production\workorder_detail.html#227#<span class="badge bg-info">加工中</span>
+Production\templates\production\workorder_detail.html#229#<span class="badge bg-success">完成</span>
+Production\templates\production\workorder_detail.html#231#<span class="badge bg-secondary">取消</span>
+Production\templates\production\workorder_detail.html#233#<span class="badge bg-danger">異常</span>
+Production\templates\production\workorder_detail.html#251#<a href="{% url 'workorder-picking' object.pk %}" class="btn btn-sm btn-outline-primary" title="領料確認（依 BOM 核對物料數量）">
+Production\templates\production\workorder_detail.html#252#<i class="bi bi-box-seam"></i> 領料確認
+Production\templates\production\workorder_detail.html#257#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#262#<a href="{% url 'workorder-picking' object.pk %}" class="btn btn-sm btn-outline-secondary" title="檢視領料確認">
+Production\templates\production\workorder_detail.html#263#<i class="bi bi-box-seam"></i> 檢視領料
+Production\templates\production\workorder_detail.html#267#<a href="{% url 'workorder-step-track-in' step.pk %}" class="btn btn-sm btn-outline-info" title="進站（Track In）">
+Production\templates\production\workorder_detail.html#268#<i class="bi bi-box-arrow-in-right"></i> 進站
+Production\templates\production\workorder_detail.html#273#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#278#<a href="{% url 'workorder-step-quantity' step.pk %}" class="btn btn-sm btn-outline-primary" title="數量填報">
+Production\templates\production\workorder_detail.html#281#<a href="{% url 'workorder-step-quantity' step.pk %}?action=trackout" class="btn btn-sm btn-outline-success" title="出站（Track Out）">
+Production\templates\production\workorder_detail.html#282#<i class="bi bi-box-arrow-right"></i> 出站
+Production\templates\production\workorder_detail.html#287#<button type="submit" class="btn btn-sm btn-outline-danger" title="標記異常">
+Production\templates\production\workorder_detail.html#294#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#299#<a href="{% url 'workorder-step-track-in' step.pk %}" class="btn btn-sm btn-outline-info" title="重新進站（Track In）">
+Production\templates\production\workorder_detail.html#300#<i class="bi bi-arrow-counterclockwise"></i> 重新進站
+Production\templates\production\workorder_detail.html#302#<a href="{% url 'workorder-step-quantity' step.pk %}?action=trackout" class="btn btn-sm btn-outline-success" title="出站（Track Out）">
+Production\templates\production\workorder_detail.html#303#<i class="bi bi-box-arrow-right"></i> 出站
+Production\templates\production\workorder_detail.html#308#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#316#<button type="submit" class="btn btn-sm btn-outline-danger" title="複查發現異常">
+Production\templates\production\workorder_detail.html#330#此工單無加工流程卡{% if object.product.process_steps.exists %}（產品「{{ object.product.name }}」有標準製程，但工單建立於製程定義之前）{% endif %}
+Production\templates\production\workorder_form.html#3#{% block title %}{{ form_title }} - miniMES 系統{% endblock %}
+Production\templates\production\workorder_form.html#17#<label class="form-label fw-bold">工單號碼 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#26#<label class="form-label fw-bold">客戶</label>
+Production\templates\production\workorder_form.html#34#<label class="form-label fw-bold">批號 (Lot)</label>
+Production\templates\production\workorder_form.html#37#<i class="bi bi-info-circle me-1"></i>留空將依工單號碼自動產生
+Production\templates\production\workorder_form.html#45#<label class="form-label fw-bold">生產物料 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#53#<label class="form-label fw-bold">生產數量 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#61#<label class="form-label fw-bold">工單類別 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#69#<label class="form-label fw-bold">工單來源 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#77#<label class="form-label fw-bold">計畫開始日期 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#85#<label class="form-label fw-bold">計畫結束日期 <span class="text-danger">*</span></label>
+Production\templates\production\workorder_form.html#93#<label class="form-label fw-bold">實際開始日期</label>
+Production\templates\production\workorder_form.html#101#<label class="form-label fw-bold">實際結束日期</label>
+Production\templates\production\workorder_form.html#109#<label class="form-label fw-bold">備註</label>
+Production\templates\production\workorder_form.html#117#<a href="{% url 'workorder-list' %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Production\templates\production\workorder_form.html#119#{% if object %}更新{% else %}儲存{% endif %}
+Production\templates\production\workorder_form.html#151#setWoFeedback('checking', '檢查中…');
+Production\templates\production\workorder_form.html#180#setWoFeedback('error', '請修正工單號碼');
+Production\templates\production\workorder_list.html#3#{% block title %}工單管理 - miniMES 系統{% endblock %}
+Production\templates\production\workorder_list.html#8#<h2 class="fw-bold"><i class="bi bi-list-check text-success me-2"></i>工單管理</h2>
+Production\templates\production\workorder_list.html#11#<i class="bi bi-arrow-left"></i> 返回儀表板
+Production\templates\production\workorder_list.html#15#<i class="bi bi-plus-lg"></i> 新增工單
+Production\templates\production\workorder_list.html#22#<!-- 狀態篩選 -->
+Production\templates\production\workorder_list.html#27#全部 ({{ status_counts.PENDING|add:status_counts.IN_PROGRESS|add:status_counts.COMPLETED|add:status_counts.CANCELLED|add:status_counts.ABNORMAL }})
+Production\templates\production\workorder_list.html#30#待處理 ({{ status_counts.PENDING }})
+Production\templates\production\workorder_list.html#33#進行中 ({{ status_counts.IN_PROGRESS }})
+Production\templates\production\workorder_list.html#36#已完成 ({{ status_counts.COMPLETED }})
+Production\templates\production\workorder_list.html#39#已取消 ({{ status_counts.CANCELLED }})
+Production\templates\production\workorder_list.html#42#異常 ({{ status_counts.ABNORMAL }})
+Production\templates\production\workorder_list.html#56#<th>工單號碼</th>
+Production\templates\production\workorder_list.html#57#<th>客戶</th>
+Production\templates\production\workorder_list.html#58#<th>批號</th>
+Production\templates\production\workorder_list.html#59#<th>生產物料</th>
+Production\templates\production\workorder_list.html#60#<th>生產數量</th>
+Production\templates\production\workorder_list.html#61#<th>狀態</th>
+Production\templates\production\workorder_list.html#62#<th>計畫開始</th>
+Production\templates\production\workorder_list.html#63#<th>計畫結束</th>
+Production\templates\production\workorder_list.html#64#<th>操作</th>
+Production\templates\production\workorder_list.html#77#<span class="badge bg-warning text-dark">待處理</span>
+Production\templates\production\workorder_list.html#79#<span class="badge bg-info">進行中</span>
+Production\templates\production\workorder_list.html#81#<span class="badge bg-success">已完成</span>
+Production\templates\production\workorder_list.html#83#<span class="badge bg-secondary">已取消</span>
+Production\templates\production\workorder_list.html#85#<span class="badge bg-danger">異常</span>
+Production\templates\production\workorder_list.html#91#<a href="{% url 'workorder-detail' order.pk %}" class="btn btn-sm btn-outline-primary me-1 px-2" title="查看明細">
+Production\templates\production\workorder_list.html#96#<a href="{% url 'workorder-edit' order.pk %}" class="btn btn-sm btn-outline-secondary me-1 px-2" title="編輯"><i class="bi bi-pencil"></i></a>
+Production\templates\production\workorder_list.html#97#<a href="{% url 'workorder-delete' order.pk %}" class="btn btn-sm btn-outline-danger ms-1 px-2" title="刪除"><i class="bi bi-trash"></i></a>
+Production\templates\production\workorder_list.html#104#<td colspan="9" class="text-center text-muted py-4">目前沒有任何工單資料</td>
+Production\templates\production\workorder_picking.html#3#{% block title %}領料確認 - {{ work_order.order_number }} - miniMES 系統{% endblock %}
+Production\templates\production\workorder_picking.html#9#<h2 class="fw-bold"><i class="bi bi-box-seam text-primary me-2"></i>領料確認（第一站）</h2>
+Production\templates\production\workorder_picking.html#11#工單：<strong>{{ work_order.order_number }}</strong>；
+Production\templates\production\workorder_picking.html#12#產品：<strong>{{ work_order.product.name }}</strong>；
+Production\templates\production\workorder_picking.html#13#數量：<strong>{{ work_order.quantity }}</strong>
+Production\templates\production\workorder_picking.html#14#{% if work_order.bom %}；BOM 版本：<strong>{{ work_order.bom.version }}</strong>{% endif %}
+Production\templates\production\workorder_picking.html#18#<i class="bi bi-arrow-left"></i> 返回工單明細
+Production\templates\production\workorder_picking.html#27#<i class="bi bi-exclamation-triangle me-1"></i>此工單沒有領料站（無啟用 BOM），無需領料確認。
+Production\templates\production\workorder_picking.html#31#<i class="bi bi-check-circle me-1"></i><strong>領料已確認完成</strong>（{{ picking_step.actual_end_date|date:"Y-m-d H:i" }}，
+Production\templates\production\workorder_picking.html#32#由 {{ picking_step.track_out_by.employee.name|default:picking_step.track_out_by.username }} 確認）。
+Production\templates\production\workorder_picking.html#36#<i class="bi bi-x-circle me-1"></i>領料站已取消。
+Production\templates\production\workorder_picking.html#40#<i class="bi bi-info-circle me-1"></i>請依 BOM 清單逐項核對物料數量，確認數量正確後點擊「確認領料完成」。
+Production\templates\production\workorder_picking.html#41#確認完成後將<strong>直接扣減庫存</strong>（OUTBOUND 交易）並放行下一工序。
+Production\templates\production\workorder_picking.html#42#確認數量低於應領數量將視為短缺並記錄；確認數量不可超過目前庫存。
+Production\templates\production\workorder_picking.html#54#<th>物料編號</th>
+Production\templates\production\workorder_picking.html#55#<th>物料名稱</th>
+Production\templates\production\workorder_picking.html#56#<th class="text-center">單位</th>
+Production\templates\production\workorder_picking.html#57#<th class="text-center">應領數量</th>
+Production\templates\production\workorder_picking.html#58#<th class="text-center">目前庫存</th>
+Production\templates\production\workorder_picking.html#59#<th class="text-center">確認數量</th>
+Production\templates\production\workorder_picking.html#60#<th>備註</th>
+Production\templates\production\workorder_picking.html#74#<span class="badge bg-danger ms-1">庫存不足</span>
+Production\templates\production\workorder_picking.html#88#class="form-control form-control-sm" placeholder="短缺/異常說明（可留空）">
+Production\templates\production\workorder_picking.html#102#<i class="bi bi-check-lg"></i> 確認領料完成
+Production\templates\production\workorder_picking.html#104#<a href="{% url 'workorder-detail' work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Production\templates\production\workorder_picking.html#115#<td class="small">應領 <strong>{{ item.required_quantity|floatformat:2 }}</strong></td>
+Production\templates\production\workorder_picking.html#116#<td class="small">確認 <strong>{{ item.confirmed_quantity|floatformat:2 }}</strong></td>
+Production\templates\production\workorder_picking.html#117#<td class="small text-muted">由 {{ item.confirmed_by.employee.name|default:item.confirmed_by.username|default:"-" }} 於 {{ item.confirmed_at|date:"m-d H:i" }}</td>
+Production\templates\production\workorder_picking.html#125#<i class="bi bi-box-seam fs-2 d-block mb-2"></i>此工單沒有領料明細（無啟用 BOM）。
+Production\templates\production\workorder_step_quantity.html#3#{% block title %}數量填報 - {{ step.name }} - miniMES 系統{% endblock %}
+Production\templates\production\workorder_step_quantity.html#9#<h2 class="fw-bold"><i class="bi bi-calculator text-success me-2"></i>數量填報</h2>
+Production\templates\production\workorder_step_quantity.html#11#工單：<strong>{{ step.work_order.order_number }}</strong>；
+Production\templates\production\workorder_step_quantity.html#12#工序：<strong>{{ step.step_number }}. {{ step.name }}</strong>
+Production\templates\production\workorder_step_quantity.html#16#<i class="bi bi-arrow-left"></i> 返回工單明細
+Production\templates\production\workorder_step_quantity.html#25#<i class="bi bi-box-arrow-right me-1"></i><strong>出站（Track Out）</strong>：
+Production\templates\production\workorder_step_quantity.html#26#請填報良品 / 不良品 / 遺失數量（須平衡：良品 + 不良品 + 遺失 = 進站數量），並記錄出站時發現的狀況後點擊「確認出站」。
+Production\templates\production\workorder_step_quantity.html#31#<strong><i class="bi bi-signpost-split me-1"></i>加工指導說明：</strong>
+Production\templates\production\workorder_step_quantity.html#39#<label class="form-label text-muted small">進站數量</label>
+Production\templates\production\workorder_step_quantity.html#43#<label class="form-label text-muted small">良品數量</label>
+Production\templates\production\workorder_step_quantity.html#47#<label class="form-label text-muted small">不良品數量</label>
+Production\templates\production\workorder_step_quantity.html#51#<label class="form-label text-muted small">遺失數量</label>
+Production\templates\production\workorder_step_quantity.html#55#<label class="form-label text-muted small">數量填報備註</label>
+Production\templates\production\workorder_step_quantity.html#59#<label class="form-label text-muted small">出站備註 / 狀況</label>
+Production\templates\production\workorder_step_quantity.html#64#<i class="bi bi-save"></i> 儲存數量
+Production\templates\production\workorder_step_quantity.html#68#<i class="bi bi-box-arrow-right"></i> 確認出站（Track Out）
+Production\templates\production\workorder_step_quantity.html#76#<strong>平衡檢查：</strong>
+Production\templates\production\workorder_step_quantity.html#78#<span class="badge bg-success">平衡</span>
+Production\templates\production\workorder_step_quantity.html#79#進站 {{ step.received_quantity }} = 良品 {{ step.good_quantity|default:0 }} + 不良品 {{ step.defect_quantity|default:0 }} + 遺失 {{ step.loss_quantity|default:0 }}
+Production\templates\production\workorder_step_quantity.html#81#<span class="badge bg-warning text-dark">不平衡</span>
+Production\templates\production\workorder_step_quantity.html#82#進站 {{ step.received_quantity }} ≠ 良品 {{ step.good_quantity|default:0 }} + 不良品 {{ step.defect_quantity|default:0 }} + 遺失 {{ step.loss_quantity|default:0 }}
+Production\templates\production\workorder_step_quantity.html#85#<br><strong>下一站應領：</strong>{{ step.passed_quantity }}
+Production\templates\production\workorder_step_track_in.html#3#{% block title %}進站 Track In - {{ step.name }} - miniMES 系統{% endblock %}
+Production\templates\production\workorder_step_track_in.html#9#<h2 class="fw-bold"><i class="bi bi-box-arrow-in-right text-info me-2"></i>進站（Track In）</h2>
+Production\templates\production\workorder_step_track_in.html#11#工單：<strong>{{ step.work_order.order_number }}</strong>；
+Production\templates\production\workorder_step_track_in.html#12#工序：<strong>{{ step.step_number }}. {{ step.name }}</strong>
+Production\templates\production\workorder_step_track_in.html#13#{% if step.equipment %}；設備：<strong>{{ step.equipment.name }}</strong>{% endif %}
+Production\templates\production\workorder_step_track_in.html#17#<i class="bi bi-arrow-left"></i> 返回工單明細
+Production\templates\production\workorder_step_track_in.html#26#<strong><i class="bi bi-arrow-right-circle me-1 text-primary"></i>前一站「{{ prev_step.name }}」流轉數量：</strong>
+Production\templates\production\workorder_step_track_in.html#27#良品 <strong>{{ prev_step.good_quantity|default:0 }}</strong>、
+Production\templates\production\workorder_step_track_in.html#28#不良品 <strong>{{ prev_step.defect_quantity|default:0 }}</strong>
+Production\templates\production\workorder_step_track_in.html#29#→ 本站進站數量建議 <strong>{{ prev_step.passed_quantity }}</strong>
+Production\templates\production\workorder_step_track_in.html#31#<br><small class="text-muted"><i class="bi bi-chat-left-text me-1"></i>前站出站備註：{{ prev_step.track_out_note }}</small>
+Production\templates\production\workorder_step_track_in.html#38#<strong><i class="bi bi-signpost-split me-1"></i>加工指導說明：</strong>
+Production\templates\production\workorder_step_track_in.html#44#<i class="bi bi-info-circle me-1"></i>進站時請確認本站進站數量，並記錄進站時發現的狀況（外觀異常、缺料、前站問題等）。
+Production\templates\production\workorder_step_track_in.html#51#<label class="form-label text-muted small">進站數量</label>
+Production\templates\production\workorder_step_track_in.html#53#<div class="form-text">本站實際收到的數量（預設由前一站流轉帶入）</div>
+Production\templates\production\workorder_step_track_in.html#56#<label class="form-label text-muted small">進站備註 / 狀況</label>
+Production\templates\production\workorder_step_track_in.html#61#<i class="bi bi-box-arrow-in-right"></i> 確認進站
+Production\templates\production\workorder_step_track_in.html#63#<a href="{% url 'workorder-detail' step.work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">取消</a>
+Production\forms.py#10#"""只顯示Active中Product"""
+Production\forms.py#13#kwargs.setdefault('empty_label', '--- 請選擇Product ---')
+Production\forms.py#41#'notes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': '請輸入Remarks...'}),
+Production\forms.py#48#self.fields['customer'].empty_label = '--- 請選擇Customer（可留空）---'
+Production\forms.py#103#'personnel_requirement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '補充Description（可留空）'}),
+Production\forms.py#110#continue  # description 已是 Quill textarea（保留 quill-input class）
+Production\forms.py#113#field.empty_label = '--- 請選擇職位 ---'
+Production\forms.py#132#"""進站（Track In）表單：確認進站Quantity並記錄進站Remarks/狀況"""
+Production\forms.py#137#labels = {'received_quantity': '進站Quantity'}
+Production\forms.py#143#'placeholder': '例如：外觀Abnormal、前站問題、缺料、等待確認…',
+Production\forms.py#152#labels = {'received_quantity': '進站Quantity'}
+Production\forms.py#157#'placeholder': '出站時發現的狀況，例如：良品Abnormal、Equipment問題、Quantity差異…',
+Production\forms.py#165#continue  # textarea 保留預設樣式
+Production\forms.py#183#field.empty_label = '--- 請選擇職位 ---'
+Production\models.py#72#product = models.ForeignKey(Product, on_delete=models.PROTECT, verbose_name='生產Product')
+Production\models.py#73#quantity = models.PositiveIntegerField(verbose_name='生產Quantity')
+Production\models.py#140#verbose_name_plural = "Work Order管理"
+Production\models.py#154#version = models.CharField(max_length=20, default='1.0', verbose_name='Version號')
+Production\models.py#156#is_active = models.BooleanField(default=True, verbose_name='Active中')
+Production\models.py#164#verbose_name = "Material清單"
+Production\models.py#165#verbose_name_plural = "Material清單管理"
+Production\models.py#183#verbose_name='子件Material',
+Production\models.py#211#description = models.TextField(blank=True, verbose_name='加工指導Description')
+Production\models.py#227#verbose_name='使用Equipment',
+Production\models.py#235#verbose_name='使用Material',
+Production\models.py#243#verbose_name='參考Document',
+Production\models.py#245#qc_requirements = models.TextField(blank=True, verbose_name='QC要求')
+Production\models.py#279#verbose_name='所屬Work Order',
+Production\models.py#291#description = models.TextField(blank=True, verbose_name='加工指導Description')
+Production\models.py#307#verbose_name='使用Equipment',
+Production\models.py#315#verbose_name='使用Material',
+Production\models.py#323#verbose_name='參考Document',
+Production\models.py#325#qc_requirements = models.TextField(blank=True, verbose_name='QC要求')
+Production\models.py#328#actual_start_date = models.DateTimeField(null=True, blank=True, verbose_name='實際Start Time')
+Production\models.py#329#actual_end_date = models.DateTimeField(null=True, blank=True, verbose_name='實際End Time')
+Production\models.py#331#received_quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name='領取Quantity')
+Production\models.py#332#good_quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name='良品Quantity')
+Production\models.py#333#defect_quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name='不良品Quantity')
+Production\models.py#334#loss_quantity = models.PositiveIntegerField(default=0, verbose_name='遺失Quantity')
+Production\models.py#335#remarks = models.CharField(max_length=255, blank=True, verbose_name='Quantity填報Remarks')
+Production\models.py#360#verbose_name='實際使用Equipment',
+Production\models.py#362#track_in_note = models.TextField(blank=True, verbose_name='進站Remarks/狀況')
+Production\models.py#363#track_out_note = models.TextField(blank=True, verbose_name='出站Remarks/狀況')
+Production\models.py#390#verbose_name = "Work Order工序"
+Production\models.py#391#verbose_name_plural = "Work Order工序"
+Production\models.py#409#required_quantity = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='應領Quantity')
+Production\models.py#411#max_digits=12, decimal_places=2, null=True, blank=True, verbose_name='確認Quantity'
+Production\tests.py#16## 1. Create組織結構
+Production\tests.py#17#self.dept = Department.objects.create(code='D001', name='生產部')
+Production\tests.py#18#self.pos_op = Position.objects.create(code='P001', name='Action工')
+Production\tests.py#19#self.pos_qa = Position.objects.create(code='P002', name='QC員')
+Production\tests.py#21## CreateAction工與QC員帳號
+Production\tests.py#24#user=self.user_op, emp_no='EMP-001', name='小明',
+Production\tests.py#30#user=self.user_mgr, emp_no='EMP-002', name='王經理',
+Production\tests.py#34## 2. CreateProduct與Material
+Production\tests.py#35#self.prod_cat = ProductCategory.objects.create(name='成品類')
+Production\tests.py#37#product_id='PROD-ABC', name='智慧手錶', category=self.prod_cat, unit='pcs'
+Production\tests.py#40## 注意：名稱需避開 migration seed（0003_populate_material_categories）已Create的「電子零件」，
+Production\tests.py#41## 否則 UNIQUE 衝突導致測試失敗。
+Production\tests.py#42#self.mat_cat = MaterialCategory.objects.create(name='測試-電子零件')
+Production\tests.py#43## BOM 零件（原料）：螢幕
+Production\tests.py#45#material_id='MAT-SCR', name='手錶螢幕', category=self.mat_cat, unit='pcs', stock_quantity=10
+Production\tests.py#47## 成品Material（用於成品Inbound驗證，ID 與 product_id 相同）
+Production\tests.py#49#material_id='PROD-ABC', name='智慧手錶', category=self.mat_cat, unit='pcs', stock_quantity=5
+Production\tests.py#52## 3. Create BOM 關係（生產 1 個智慧手錶需要 1 個螢幕）
+Production\tests.py#57#self.eq_cat = EquipmentCategory.objects.create(name='貼合Equipment')
+Production\tests.py#59#equipment_id='EQ-001', name='螢幕貼合機', category=self.eq_cat, status='active'
+Production\tests.py#62## 5. CreateStandard Process與Work Order
+Production\tests.py#64#product=self.product, step_number=1, name='螢幕貼合',
+Production\tests.py#72## CreateWork Order工序快照
+Production\tests.py#75#name='螢幕貼合', personnel=self.pos_qa, equipment=self.equipment,
+Production\tests.py#82#"""測試 1: 一般 operator 職位不符時應阻擋 Track In"""
+Production\tests.py#86## op_user 的 position 是 pos_op (Action工)，但工序要求 pos_qa (QC員)
+Production\tests.py#89#self.assertEqual(self.wo_step.status, 'PENDING')  # 狀態應維持 PENDING
+Production\tests.py#91## manager 應不受職位限制
+Production\tests.py#98#"""測試 2: Equipment Status非 active 阻擋 Track In"""
+Production\tests.py#107#self.assertEqual(self.wo_step.status, 'PENDING')  # 應被阻擋維持 PENDING
+Production\tests.py#110#"""測試 3 & 4: BOM 齊Set性檢查與完工成品自動Inbound"""
+Production\tests.py#115## 情況 A: 齊Set性檢查成功 (缺料檢查) -> 原料 stock_quantity=10，Work Order需要 5x1=5，夠用
+Production\tests.py#121## 情況 B: 完工扣料與成品Inbound（Track Out 強制填Quantity且須平衡）
+Production\tests.py#132## 驗證原料Stock已扣減 (10 - 5 = 5)
+Production\tests.py#136## 驗證成品Stock已增加 (5 + 5 = 10)
+Production\tests.py#140## 驗證有 INBOUND 與 OUTBOUND Stock交易紀錄
+Production\tests.py#145#"""測試 5: Track In 時原料不足應阻擋"""
+Production\tests.py#146## 手動將原料螢幕Stock降到 2 (Work Order需要 5)
+Production\tests.py#155#self.assertEqual(self.wo_step.status, 'PENDING')  # 因為缺料應維持 PENDING
+Production\tests.py#158#"""測試 6: 一站Cancelled、其餘Completed → Work Order應為Completed（Cancelled視為跳站）"""
+Production\tests.py#160#work_order=self.work_order, step_number=2, name='組裝', status='PENDING'
+Production\tests.py#163#work_order=self.work_order, step_number=3, name='檢驗', status='PENDING'
+Production\tests.py#165## 工序 1、3 Completed，工序 2 Cancelled
+Production\tests.py#178#"""測試 7: 全部工序Cancelled → Work Order應為Cancelled"""
+Production\tests.py#180#work_order=self.work_order, step_number=2, name='組裝', status='PENDING'
+Production\tests.py#190#"""測試 8: Work Order QR-Code 端點回傳 PNG（編碼Work Order編號）"""
+Production\tests.py#196## PNG 魔數驗證
+Production\tests.py#200#"""測試 9: 嚴格串行 — 前一站尚未出站，下一站無法 Track In"""
+Production\tests.py#202#work_order=self.work_order, step_number=2, name='組裝', status='PENDING'
+Production\tests.py#207## 前一站（工序1）尚未出站 → 阻擋
+Production\tests.py#212## 前一站Completed後即可進站
+Production\tests.py#221#"""測試 10: Track Out 強制Quantity — 未填或Quantity不平衡皆阻擋出站"""
+Production\tests.py#228## 未填Quantity → 阻擋
+Production\tests.py#233## Quantity不平衡（良品 3 + 不良品 0 + 遺失 1 = 4 ≠ 領取 5）→ 阻擋
+Production\tests.py#242#"""測試 11: Track In/Out 記錄Operator、實際Equipment與時間"""
+Production\tests.py#250#self.assertEqual(self.wo_step.actual_equipment, self.equipment)  # 快照計畫Equipment
+Production\tests.py#262#"""測試 12: 上一站出站後，良品/不良品/領取Quantity自動流轉到下一站"""
+Production\tests.py#264#work_order=self.work_order, step_number=2, name='組裝', status='PENDING'
+Production\tests.py#271## 出站：領取 7 = 良品 5 + 不良品 1 + 遺失 1
+Production\tests.py#278#self.assertEqual(s2.received_quantity, 6)   # 流轉 = 良品 5 + 不良品 1（遺失不流轉）
+Production\tests.py#283#"""測試 13: 下一站Cancelled時，Quantity流轉到再下一站（跳過Cancelled工序）"""
+Production\tests.py#285#work_order=self.work_order, step_number=2, name='跳過站', status='CANCELLED'
+Production\tests.py#288#work_order=self.work_order, step_number=3, name='檢驗', status='PENDING'
+Production\tests.py#303## Cancelled的 s2 不應收到流轉
+Production\tests.py#307#"""測試 14: Track In 表單頁（GET）可正常渲染"""
+Production\tests.py#312#self.assertContains(response, '進站（Track In）')
+Production\tests.py#313#self.assertContains(response, '進站Quantity')
+Production\tests.py#316#"""測試 15: Track In 記錄進站Quantity與進站Remarks/狀況"""
+Production\tests.py#321#'track_in_note': '外觀檢查發現 2 件刮傷，等待確認',
+Production\tests.py#326#self.assertEqual(self.wo_step.track_in_note, '外觀檢查發現 2 件刮傷，等待確認')
+Production\tests.py#330#"""測試 16: Track Out 記錄出站Remarks/狀況"""
+Production\tests.py#338#'track_out_note': 'Equipment運轉Abnormal，CompletedMaintenance',
+Production\tests.py#344#self.assertEqual(self.wo_step.track_out_note, 'Equipment運轉Abnormal，CompletedMaintenance')
+Production\tests.py#347## ── 領料站（第一站）────────────────────────────────────────────────────
+Production\tests.py#350#"""透過Create視圖Create含領料站的Work Order（Product有 BOM + Standard Process）"""
+Production\tests.py#365#"""測試 17: CreateWork Order（有 BOM）→ 自動Create領料第一站與Material確認清單"""
+Production\tests.py#371## Material確認清單：BOM Quantity 1.0 × Work OrderQuantity 5 = 應領 5
+Production\tests.py#378#"""測試 18: 領料確認頁（GET）可正常渲染並列出Material"""
+Production\tests.py#383#self.assertContains(response, '領料確認')
+Production\tests.py#387#"""測試 19: 領料未確認 → 下一道製程無法進站；確認後放行（嚴格串行）"""
+Production\tests.py#394## 領料未確認 → 阻擋進站
+Production\tests.py#399## 確認領料（每項填應領Quantity）
+Production\tests.py#404## 領料站Completed後即可進站下一站
+Production\tests.py#410#"""測試 20: 領料確認記錄每項Material確認資料並Completed領料站"""
+Production\tests.py#419#data[f'note_{it.pk}'] = '短缺 1，後補'
+Production\tests.py#431#self.assertEqual(it.note, '短缺 1，後補')
+Production\tests.py#434#"""測試 21: 領料確認Completed後直接扣減Stock並寫入 OUTBOUND 交易"""
+Production\tests.py#449#"""測試 22: 確認Quantity超過目前Stock → 阻擋領料確認且不扣Stock"""
+Production\tests.py#460#self.assertEqual(picking.status, 'PENDING')  # 未Completed
+Production\tests.py#462#self.assertEqual(self.material.stock_quantity, 2)  # 未扣
+Production\tests.py#466#"""測試 23: 領料已扣Stock → Work Order完工時不重複扣料（仍自動Inbound成品）"""
+Production\tests.py#470## 領料確認並扣Stock（10 - 5 = 5）
+Production\tests.py#475## 走完整製程：Track In → Track Out（Quantity平衡）→ Work OrderCompleted
+Production\tests.py#487## 領料已扣 5，完工不重複扣（仍維持 5）
+Production\tests.py#490## 成品自動Inbound
+Production\tests.py#493## OUTBOUND 交易只有領料確認那筆
+Production\urls.py#43## 加工流程卡（Standard Process）
+Production\urls.py#47## Work Order工序
+Production\urls.py#53## 報表
+Production\views.py#24#生產管理儀表板視圖
+Production\views.py#76#context['form_title'] = '新增Work Order'
+Production\views.py#80#"""儲存Work Order後：Create領料第一站（依 BOM 產生Material確認清單），再從Standard Process帶入工序快照"""
+Production\views.py#84## ── 領料站（第一站，step 0）── 依Active BOM 產生Material確認清單
+Production\views.py#92#name='領料',
+Production\views.py#93#description='依 BOM 領取Material並確認Quantity，確認Completed後才能進站下一工序',
+Production\views.py#105## ── Standard Process Step快照 ──
+Production\views.py#124## 第一道製程工序自動帶入Work OrderQuantity
+Production\views.py#130#f'Work Order已Create，並從「{self.object.product.name}」Standard Process帶入 {source_steps.count()} 道工序。第1道製程已自動填入領取Quantity {self.object.quantity}。',
+Production\views.py#135#f'已Create「領料」第一站，依 BOM 產生 {bom.items.count()} 項Material確認清單（依Work OrderQuantity {self.object.quantity} 計算應領Quantity）。',
+Production\views.py#150#messages.error(request, f'Work Order「{obj.order_number}」Completed，無法修改。')
+Production\views.py#216#context['form_title'] = '新增 BOM'
+Production\views.py#230#messages.success(self.request, f'「{self.object.product.name}」的 BOM 已Create。')
+Production\views.py#258#messages.success(self.request, f'「{self.object.product.name}」的 BOM 已更新。')
+Production\views.py#269#messages.success(self.request, 'BOM 已Delete。')
+Production\views.py#273## ── 加工流程卡（Standard Process）Views ──────────────────────────────────────────────
+Production\views.py#276#"""列出所有Product，標示是否已定義Standard Process"""
+Production\views.py#293#"""單一Product的加工流程卡（含所有工序）"""
+Production\views.py#305#"""EditProduct的加工流程卡（formset 管理工序）"""
+Production\views.py#311#fields = []  # Product本身欄位不需Edit，只Edit工序 formset
+Production\views.py#332#messages.success(self.request, f'「{self.object.name}」加工流程卡已更新。')
+Production\views.py#340#"""檢查Work Order BOM 子件Stock是否足夠，返回缺料列表"""
+Production\views.py#352#"""Work Order全部工序Completed時：扣減 BOM 子件Stock（防重複扣料；領料確認已扣則跳過），並自動增加Inbound成品Stock"""
+Production\views.py#353## ── Material扣減（領料確認已Create OUTBOUND 則跳過，避免重複扣料）──
+Production\views.py#357#msg = 'Stock不足，無法CompletedWork Order：'
+Production\views.py#359#msg += f' {mat.material_id}({mat.name}) 需 {need} 現有 {stock}；'
+Production\views.py#375#remark=f'生產領料：{order.order_number} ({order.product.name} × {order.quantity})',
+Production\views.py#379## ── 成品Inbound（各自防重複）──
+Production\views.py#381## 成品MaterialInbound：如果 Material 中有與成品 product_id 相同的Material
+Production\views.py#384#reference=order.order_number, type='INBOUND', remark__startswith='生產完工'
+Production\views.py#394#remark=f'生產完工自動Inbound：{order.order_number} ({order.product.name} × {order.quantity})',
+Production\views.py#397## 成品自身Stock自動Inbound（Product Stock控制），防重複Inbound
+Production\views.py#408#remark=f'生產完工自動Inbound：{order.order_number} ({prod.name} × {order.quantity})',
+Production\views.py#417#"""更新Work OrderStep Status — 僅限Abnormal / Cancelled / 複查Abnormal。
+Production\views.py#418#進站（Track In）與出站（Track Out）請使用專屬端點 workorder_step_track_in / workorder_step_track_out。
+Production\views.py#423#messages.error(request, '無有效員工身份，無法更新Step Status。')
+Production\views.py#428#messages.error(request, '無效的Step Status。')
+Production\views.py#432## 允許的狀態流轉（進站/出站已由專屬端點處理）
+Production\views.py#436#'ABNORMAL': {'CANCELLED'},                      # Abnormal → Cancelled（復工走 Track In、出站走 Track Out）
+Production\views.py#437#'COMPLETED': {'ABNORMAL'},                      # Completed → Abnormal（複查發現問題）
+Production\views.py#438#'CANCELLED': set(),                             # Cancelled為終態
+Production\views.py#441#messages.info(request, f'工序「{step.name}」已是此狀態。')
+Production\views.py#445#messages.success(request, f'工序「{step.name}」狀態已更新為 {step.get_status_display()}。')
+Production\views.py#447#messages.info(request, f'Work Order Status自動更新為「{step.work_order.get_status_display()}」。')
+Production\views.py#451#f'工序「{step.name}」目前為「{step.get_status_display()}」，無法變更為「{dict(WorkOrderStep.STATUS_CHOICES)[new_status]}」。',
+Production\views.py#459#"""嚴格串行：目前工序的前一站（跳過Cancelled工序），無則 None"""
+Production\views.py#467#"""Track In 進站：可填寫進站Quantity與進站Remarks/狀況。
+Production\views.py#468#GET 顯示進站表單；POST 驗證嚴格串行 / Personnel Position / Equipment Status / BOM 齊Set後，
+Production\views.py#469#記錄進站Quantity、Remarks、人員、實際Equipment與實際Start Time，狀態 → IN_PROGRESS"""
+Production\views.py#473#messages.error(request, '無有效員工身份，無法進站。')
+Production\views.py#478#messages.error(request, f'工序「{step.name}」目前狀態為「{step.get_status_display()}」，無法進站。')
+Production\views.py#481## 嚴格串行：前一站（非Cancelled）必須已出站
+Production\views.py#486#f'嚴格串行流程：前一站「{prev.name}」尚未出站（目前「{prev.get_status_display()}」），無法進站「{step.name}」。',
+Production\views.py#490## Personnel Position匹配校驗（operator 限定）
+Production\views.py#495#f'Operator職位「{emp.position.name if emp.position else "無"}」不符合工序要求的職位「{step.personnel.name}」。'
+Production\views.py#499## Equipment Status防呆（非 active Equipment阻擋進站）
+Production\views.py#503#f'關聯Equipment「{step.equipment.name}」目前狀態為「{step.equipment.get_status_display()}」，非Active狀態，無法進站。'
+Production\views.py#507## 開工齊Set性檢查（Work Order尚未開工）
+Production\views.py#511#msg = '開工齊Set性檢查失敗，Stock不足以進站：'
+Production\views.py#513#msg += f' {mat.material_id}({mat.name}) 需 {need} 現有 {stock}；'
+Production\views.py#517## 進站Quantity + 進站Remarks/狀況
+Production\views.py#522#messages.error(request, f'進站資料錯誤：{e}')
+Production\views.py#531#step.actual_equipment = step.equipment  # 未指定實際Equipment時，快照計畫Equipment
+Production\views.py#539#msg = f'工序「{step.name}」已進站（Track In）。'
+Production\views.py#541#msg += f' 進站Remarks：{step.track_in_note}'
+Production\views.py#545## GET：顯示進站表單（含前一站流轉Quantity提示）
+Production\views.py#557#"""Track Out 出站：強制填報領取/良品/不良品/遺失Quantity且平衡後，
+Production\views.py#558#記錄Track-Out Operator與實際End Time，狀態 → COMPLETED，並自動帶入下一站與完工扣料"""
+Production\views.py#566#messages.error(request, f'Quantity填報錯誤：{e}')
+Production\views.py#568#obj = form.save()  # Quantity一律先儲存，避免使用者輸入流失
+Production\views.py#571#msg = f'工序「{obj.name}」Quantity已儲存。'
+Production\views.py#573#msg += f' 出站Remarks：{obj.track_out_note}'
+Production\views.py#577## ── 出站（Track Out）──
+Production\views.py#580#messages.error(request, '無有效員工身份，無法出站。')
+Production\views.py#584#messages.error(request, f'工序「{step.name}」目前狀態為「{step.get_status_display()}」，無法出站。')
+Production\views.py#587## 強制Quantity平衡檢查
+Production\views.py#589#messages.error(request, '出站前必須填報領取Quantity。')
+Production\views.py#594#f'Quantity不平衡，無法出站：領取 {obj.received_quantity}，但良品+不良品+遺失 = {(obj.good_quantity or 0)+(obj.defect_quantity or 0)+(obj.loss_quantity or 0)}。請確認Quantity後再出站。',
+Production\views.py#604## 自動流轉Quantity到下一站（跳過Cancelled工序；下一站尚未進站才帶入，避免覆蓋In Progress的站）
+Production\views.py#616#f'下一站「{next_step.name}」已自動流轉：領取 {step.passed_quantity}（良品 {step.good_quantity or 0}、不良品 {step.defect_quantity or 0}）。',
+Production\views.py#619## 推導Work Order整體狀態
+Production\views.py#621#msg = f'工序「{step.name}」已出站（Track Out），Work Order Status自動更新為「{step.work_order.get_status_display()}」。'
+Production\views.py#623#msg += f' 出站Remarks：{step.track_out_note}'
+Production\views.py#626## Work Order全部Completed → 檢查Stock並扣料
+Production\views.py#634#messages.success(request, f'Work Order {step.work_order.order_number} Completed，並扣減 BOM 子件Stock，且成品自動Inbound。')
+Production\views.py#638## ── 領料確認（第一站）────────────────────────────────────────────────────────
+Production\views.py#642#"""領料站確認：依 BOM 顯示各Material應領Quantity，員工確認Quantity正確後才能進站下一工序"""
+Production\views.py#646#messages.error(request, '無有效員工身份，無法進行領料確認。')
+Production\views.py#654#messages.error(request, '領料站目前無法確認。')
+Production\views.py#657## 1. 解析並驗證每項確認Quantity（格式 / 非負 / 不可超過目前Stock）
+Production\views.py#667#errors.append(f'「{item.material.material_id}」確認Quantity格式錯誤')
+Production\views.py#671#f'「{item.material.material_id}」確認Quantity {qty} 超過目前Stock {item.material.stock_quantity}，無法領料。'
+Production\views.py#681## 2. 儲存確認資料
+Production\views.py#692## 3. Completed領料站 + 直接扣減Stock（同一交易，防重複扣料）
+Production\views.py#695#reference=wo.order_number, type='OUTBOUND', remark__startswith='領料確認'
+Production\views.py#710#remark=f'領料確認：{wo.order_number} ({wo.product.name} × {qty} {mat.unit})',
+Production\views.py#725#msg = '領料確認Completed，已直接扣減Stock，可以前往下一站。'
+Production\views.py#727#msg += '（注意：有Material確認Quantity低於應領Quantity，請留意短缺）'
+Production\views.py#738## ── 工序Quantity填報 ─────────────────────────────────────────────────────────────
+Production\views.py#748#messages.success(request, f'工序「{obj.name}」Quantity已更新。')
+Production\views.py#752#f'工序「{obj.name}」Quantity已儲存，但尚未平衡：領取 {obj.received_quantity}，良品+不良品+遺失 = {(obj.good_quantity or 0)+(obj.defect_quantity or 0)+(obj.loss_quantity or 0)}。',
+Production\views.py#790#return JsonResponse({'available': False, 'message': 'Work Order No.不能為空'})
+Production\views.py#797#return JsonResponse({'available': False, 'message': '此Work Order No.已存在'})
+Production\views.py#798#return JsonResponse({'available': True, 'message': '此Work Order No.可以使用'})
+Production\views.py#805#"""產生Work Order QR-Code PNG（編碼Work Order編號），供列印貼於Shop Floor"""
+Production\views.py#820#response['Cache-Control'] = 'max-age=86400'  # QR 內容不變，快取一天

@@ -1,0 +1,89 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Audit Log Overview{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-6">
+                <h2 class="fw-bold"><i class="bi bi-journal-text text-primary me-2"></i>Document Audit Log Overview</h2>
+                <p class="text-muted">Operation log of every document action: create, edit, submit, approve, reject and withdraw.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="{% url 'documents-dashboard' %}" class="btn btn-outline-secondary rounded-pill">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Document Center
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                {% if logs %}
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0" style="font-size: 0.95rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 16%;">Time</th>
+                                <th style="width: 10%;">Document Title</th>
+                                <th style="width: 10%;">Action</th>
+                                <th style="width: 12%;">Performed By</th>
+                                <th>Previous Status</th>
+                                <th>New Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td class="small">{{ log.performed_at|date:"Y-m-d H:i" }}</td>
+                                <td class="small">
+                                    <a href="{% url 'document-detail' log.document.pk %}">{{ log.document.title }}</a>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2
+                                        {% if log.action == 'approve' %}bg-success
+                                        {% elif log.action == 'reject' %}bg-danger
+                                        {% elif log.action == 'submit' %}bg-primary
+                                        {% elif log.action == 'recall' %}bg-warning text-dark
+                                        {% elif log.action == 'edit' %}bg-secondary-subtle text-secondary
+                                        {% elif log.action == 'create' %}bg-info-subtle text-info
+                                        {% elif log.action == 'toggle_active' %}bg-secondary text-white
+                                        {% else %}bg-light text-dark
+                                        {% endif %}">
+                                        {{ log.get_action_display }}
+                                    </span>
+                                </td>
+                                <td class="small">{{ log.performed_by.username|default:"System" }}</td>
+                                <td class="small">{{ log.previous_status|default:"-" }}</td>
+                                <td class="small">{{ log.new_status|default:"-" }}</td>
+                                <td class="small">{{ log.notes|default:"-"|truncatechars:60 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    No audit records yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'orgnization/base.html' %}
+
+{% block title %}Employee List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-person-lines-fill me-2" style="color:var(--lin-accent);"></i>Organization Employee Management</h2>
+    <div>
+        <a href="{% url 'org-dashboard' %}" class="btn btn-outline-secondary px-3 me-2">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        {% if is_manager %}
+        <a href="{% url 'employee-add' %}" class="btn btn-primary px-3">
+            <i class="bi bi-plus-lg me-1"></i> Add Employee
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col" class="px-4">Employee No.</th>
+                        <th scope="col">Photo</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">Department</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td class="px-4 fw-semibold" style="color:var(--lin-accent);">{{ emp.emp_no }}</td>
+                        <td>
+                            {% if emp.photo %}
+                                <img src="{{ emp.photo.url }}" alt="Photo" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo-url="{{ emp.photo.url }}" data-emp-name="{{ emp.name }}">
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; border-radius:50%; background:var(--lin-text-muted);">
+                                    <i class="bi bi-person" style="font-size:0.9rem;"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="fw-semibold">{{ emp.name }}</td>
+                        <td>{{ emp.get_gender_display }}</td>
+                        <td>{{ emp.department.name|default:"-" }}</td>
+                        <td>{{ emp.position.name|default:"-" }}</td>
+                        <td>
+                            {% if emp.is_active %}
+                                <span class="badge" style="background:rgba(16,185,129,0.12);color:var(--lin-green);">Active</span>
+                            {% else %}
+                                <span class="badge" style="background:var(--lin-surface-alt);color:var(--lin-text-muted);">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if is_manager %}
+                            <a href="{% url 'employee-edit' emp.pk %}" class="btn btn-outline-primary btn-sm me-1 px-2" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="{% url 'employee-delete' emp.pk %}" class="btn btn-outline-danger btn-sm px-2" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-3 text-secondary opacity-50"></i>
+                            No employees found. Click "Add Employee" in the top-right corner.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Photo Preview Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="photoModalLabel">Employee Photo</h5>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <img src="" id="modalImagePreview" class="img-fluid rounded shadow-sm" alt="Employee Photo" style="max-height: 70vh; object-fit: contain;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const photoModal = document.getElementById('photoModal');
+        if (photoModal) {
+            photoModal.addEventListener('show.bs.modal', function (event) {
+                // The image element that triggered the modal
+                const button = event.relatedTarget;
+                // Read the data- attributes
+                const photoUrl = button.getAttribute('data-photo-url');
+                const empName = button.getAttribute('data-emp-name');
+                
+                // Update the image and title inside the modal
+                const modalImage = photoModal.querySelector('#modalImagePreview');
+                const modalTitle = photoModal.querySelector('.modal-title');
+                
+                modalImage.src = photoUrl;
+                modalTitle.textContent = empName + "'s Photo";
+            });
+        }
+    });
+</script>
+{% endblock %}

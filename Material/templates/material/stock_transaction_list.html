@@ -1,0 +1,174 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Stock Transaction History - miniMES System{% endblock %}
+
+{% block content %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="bi bi-arrow-left-right text-success me-2"></i>Stock Transaction History</h2>
+        {% if is_manager %}
+        <a href="{% url 'stock-transaction-add' %}" class="btn btn-success rounded-pill px-4">
+            <i class="bi bi-plus-lg"></i> Add Transaction
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if filtered_material %}
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-success border-0 shadow-sm mb-0" style="border-radius: 12px;">
+            <i class="bi bi-funnel me-1"></i>
+            Showing only material <strong>{{ filtered_material.material_id }}</strong> {{ filtered_material.name }}
+            (current stock <strong>{{ filtered_material.stock_quantity }}</strong> {{ filtered_material.get_unit_display }})
+            <a href="{% url 'stock-transaction-list' %}" class="btn btn-sm btn-outline-secondary rounded-pill ms-2 px-3">Show All</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-3">
+    <div class="col-12">
+        <form method="get" class="d-flex gap-2 flex-wrap align-items-center">
+            {% if filtered_material %}<input type="hidden" name="material" value="{{ filtered_material.pk }}">{% endif %}
+            <input type="text" name="material_id" value="{{ selected_material }}" class="form-control" style="max-width:180px;" placeholder="Search material ID…">
+            <select name="type" class="form-select" style="max-width:160px;">
+                <option value="">All Types</option>
+                {% for code, label in type_choices %}
+                    <option value="{{ code }}" {% if selected_type == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="date_from" value="{{ selected_date_from }}" class="form-control" style="max-width:165px;" title="Start date">
+            <span class="text-muted">～</span>
+            <input type="date" name="date_to" value="{{ selected_date_to }}" class="form-control" style="max-width:165px;" title="End date">
+            <button type="submit" class="btn btn-outline-primary rounded-pill px-4">Filter</button>
+            <a href="{% url 'stock-transaction-list' %}" class="btn btn-outline-secondary rounded-pill px-3">Clear</a>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-3 g-3">
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+            <div class="card-body">
+                <div class="text-muted small">Filtered Records</div>
+                <div class="fs-4 fw-bold">{{ summary_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Inbound</div>
+                <div class="fs-4 fw-bold text-success">+{{ summary_inbound }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Outbound</div>
+                <div class="fs-4 fw-bold text-danger">-{{ summary_outbound }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Adjustments</div>
+                <div class="fs-4 fw-bold text-warning">{{ summary_adjust }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Material ID</th>
+                                <th>Quantity</th>
+                                <th>Balance After</th>
+                                <th>Reference</th>
+                                <th>Operator</th>
+                                <th>Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in transactions %}
+                            <tr>
+                                <td>{{ tx.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    {% if tx.type == 'INBOUND' %}
+                                        <span class="badge bg-success">{{ tx.get_type_display }}</span>
+                                    {% elif tx.type == 'OUTBOUND' %}
+                                        <span class="badge bg-danger">{{ tx.get_type_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">{{ tx.get_type_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="fw-bold">
+                                    <a href="{% url 'stock-transaction-list' %}?material={{ tx.material.pk }}"
+                                       class="text-success text-decoration-none" title="View this material's transaction history">
+                                        {{ tx.material.material_id }}
+                                    </a>
+                                </td>
+                                <td class="fw-bold">
+                                    {% if tx.type == 'INBOUND' %}
+                                        <span class="text-success">+{{ tx.quantity }}</span>
+                                    {% elif tx.type == 'OUTBOUND' %}
+                                        <span class="text-danger">-{{ tx.quantity }}</span>
+                                    {% else %}
+                                        {% if tx.quantity > 0 %}
+                                            <span class="text-success">+{{ tx.quantity }}</span>
+                                        {% elif tx.quantity < 0 %}
+                                            <span class="text-danger">{{ tx.quantity }}</span>
+                                        {% else %}
+                                            {{ tx.quantity }}
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td class="fw-bold text-primary">{{ tx.balance_after|default:"-" }}</td>
+                                <td>{{ tx.reference|default:"-" }}</td>
+                                <td>{{ tx.created_by.username|default:"-" }}</td>
+                                <td class="small text-muted">{{ tx.remark|default:"-"|truncatechars:40 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">No transaction records yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if base_query %}&{{ base_query }}{% endif %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if base_query %}&{{ base_query }}{% endif %}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

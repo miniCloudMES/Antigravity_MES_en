@@ -1,0 +1,29 @@
+{% extends 'orgnization/base.html' %}
+
+{% block title %}Organization Home{% endblock %}
+
+{% block content %}
+<div class="row align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="col-md-8 text-center">
+        <div class="card shadow border-0 rounded-4 p-5 bg-white">
+            <h1 class="display-4 fw-bold text-primary mb-4">
+                <i class="bi bi-diagram-3"></i> Organization Home
+            </h1>
+            <p class="lead text-secondary mb-5">
+                Welcome to the organization management area. Use the buttons below or the navigation bar above to open the department, position, or employee management pages and start adding, editing, or managing your data.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'department-list' %}" class="btn btn-primary btn-lg shadow rounded-pill px-5 py-3 fw-semibold">
+                    <i class="bi bi-diagram-3-fill me-2"></i> Go to Department Management
+                </a>
+                <a href="{% url 'position-list' %}" class="btn btn-success btn-lg shadow rounded-pill px-5 py-3 fw-semibold">
+                    <i class="bi bi-person-badge-fill me-2"></i> Go to Position Management
+                </a>
+                <a href="{% url 'employee-list' %}" class="btn btn-info btn-lg text-white shadow rounded-pill px-5 py-3 fw-semibold">
+                    <i class="bi bi-person-lines-fill me-2"></i> Go to Employee Management
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

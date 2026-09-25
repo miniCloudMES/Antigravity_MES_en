@@ -1,0 +1,320 @@
+{% extends "orgnization/base.html" %}
+{% load static %}
+
+{% block title %}{% if object %}Edit Equipment{% else %}Create Equipment{% endif %} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold">
+            <i class="bi bi-tools text-primary me-2"></i>{% if object %}Edit Equipment{% else %}Create Equipment{% endif %}
+        </h2>
+        <p class="text-muted">Fill in the form below to {% if object %}update{% else %}add{% endif %} an equipment item in the system.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-body p-5">
+                <form method="post" class="row g-4" id="equipment-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="col-md-6">
+                        <label for="{{ form.equipment_id.id_for_label }}" class="form-label fw-bold text-primary">Equipment ID <span class="text-danger">*</span></label>
+                        {{ form.equipment_id }}
+                        <div id="eq-id-feedback" class="small mt-1 d-flex align-items-center gap-1" style="min-height:1.4em"></div>
+                        {% if form.equipment_id.errors %}
+                            <div class="text-danger small mt-1">{{ form.equipment_id.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.name.id_for_label }}" class="form-label fw-bold text-primary">Equipment Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.status.id_for_label }}" class="form-label fw-bold">Current Status <span class="text-danger">*</span></label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.purchase_date.id_for_label }}" class="form-label fw-bold">Purchase Date</label>
+                        {{ form.purchase_date }}
+                        {% if form.purchase_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.purchase_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.location.id_for_label }}" class="form-label fw-bold">Location</label>
+                        {{ form.location }}
+                        {% if form.location.errors %}
+                            <div class="text-danger small mt-1">{{ form.location.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.supplier.id_for_label }}" class="form-label fw-bold">Supplier</label>
+                        {{ form.supplier }}
+                        {% if form.supplier.errors %}
+                            <div class="text-danger small mt-1">{{ form.supplier.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Equipment Image</label>
+                        <input type="hidden" name="image_cropped" id="image_cropped">
+                        {# Preview area: shown when there is an existing image or after cropping #}
+                        <div class="d-flex align-items-center gap-3 mb-2 mt-1" id="eq-image-preview-wrap"
+                             style="{% if not object.image %}display:none!important{% endif %}">
+                            <img id="eq-image-preview"
+                                 src="{% if object.image %}{{ object.image.url }}{% endif %}"
+                                 alt="Equipment image preview"
+                                 class="rounded shadow-sm border"
+                                 style="width:96px;height:96px;object-fit:cover;">
+                            <span class="badge bg-success-subtle text-success small" id="eq-cropped-badge" style="display:none">
+                                <i class="bi bi-check-circle me-1"></i>Cropped
+                            </span>
+                            {% if object.image %}
+                            <div class="form-check ms-1">
+                                <input type="checkbox" name="image-clear"
+                                       id="image-clear_id" class="form-check-input"
+                                       onchange="handleEqClearImage(this)">
+                                <label for="image-clear_id"
+                                       class="form-check-label text-danger small">Remove image</label>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {# The real file input stays hidden and is used only as a trigger #}
+                        {# Mobile: the capture input forces the camera; the normal input allows gallery/file #}
+                        <input type="file" id="id_image" accept="image/*"
+                               class="d-none" onchange="openEqCropModal(this)">
+                        <input type="file" id="id_image_camera" accept="image/*" capture="environment"
+                               class="d-none" onchange="openEqCropModal(this)">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                    onclick="document.getElementById('id_image').click()">
+                                <i class="bi bi-images me-1"></i>Choose image/file…
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                                    onclick="document.getElementById('id_image_camera').click()">
+                                <i class="bi bi-camera me-1"></i>Take Photo
+                            </button>
+                        </div>
+                        {% if form.image.errors %}
+                            <div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end mt-4">
+                        <a href="{% url 'equipment-list' %}" class="btn btn-outline-secondary rounded-pill px-4 me-3">Cancel</a>
+                        <button type="submit" id="eq-submit-btn" class="btn btn-primary rounded-pill px-5">
+                            <i class="bi bi-save me-1"></i> Save Equipment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Cropper Modal ── #}
+<div class="modal fade" id="eqCropModal" tabindex="-1" aria-labelledby="eqCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="eqCropModalLabel">
+                    <i class="bi bi-crop text-primary me-2"></i>Crop Equipment Image
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="bg-dark rounded-3 overflow-hidden" style="max-height:480px">
+                    <img id="eq-crop-image" src="" alt="Image to crop" style="max-width:100%;display:block">
+                </div>
+                <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.rotate(-90)" title="Rotate left">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.rotate(90)" title="Rotate right">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.scaleX(-eqCropper.getData().scaleX||1)" title="Flip horizontally">
+                        <i class="bi bi-symmetry-vertical"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.reset()" title="Reset">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.setAspectRatio(16/9)" title="16:9">
+                        <i class="bi bi-aspect-ratio"></i> 16:9
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.setAspectRatio(4/3)" title="4:3">
+                        <i class="bi bi-aspect-ratio"></i> 4:3
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.setAspectRatio(1)" title="1:1">
+                        <i class="bi bi-aspect-ratio"></i> 1:1
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="eqCropper.setAspectRatio(NaN)" title="Free ratio">
+                        <i class="bi bi-aspect-ratio"></i> Free
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="eq-btn-crop-confirm">
+                    <i class="bi bi-check-lg me-1"></i>Apply Crop
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Cropper.js (local vendor) ── #}
+<link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper.min.css' %}">
+<script src="{% static 'vendor/cropperjs/cropper.min.js' %}"></script>
+
+<script>
+    // ── Equipment image Cropper (same pattern as the employee data page) ──
+    let eqCropper = null;
+
+    function openEqCropModal(input) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imgEl = document.getElementById('eq-crop-image');
+            imgEl.src = e.target.result;
+
+            // Destroy the previous instance
+            if (eqCropper) { eqCropper.destroy(); eqCropper = null; }
+
+            const modal = new bootstrap.Modal(document.getElementById('eqCropModal'));
+            modal.show();
+
+            // Initialize Cropper only after the modal animation finishes, otherwise the size cannot be measured
+            document.getElementById('eqCropModal').addEventListener('shown.bs.modal', () => {
+                eqCropper = new Cropper(imgEl, {
+                    aspectRatio: NaN,
+                    viewMode: 1,
+                    autoCropArea: 0.9,
+                    movable: true,
+                    zoomable: true,
+                    rotatable: true,
+                    scalable: true,
+                });
+            }, { once: true });
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    document.getElementById('eq-btn-crop-confirm').addEventListener('click', () => {
+        if (!eqCropper) return;
+
+        const canvas = eqCropper.getCroppedCanvas({
+            maxWidth: 800,
+            maxHeight: 800,
+            imageSmoothingQuality: 'high',
+        });
+
+        const b64 = compressCroppedToDataUrl(canvas);
+
+        // Fill in the hidden input
+        document.getElementById('image_cropped').value = b64;
+
+        // Update the preview
+        const preview = document.getElementById('eq-image-preview');
+        preview.src = b64;
+        const wrap = document.getElementById('eq-image-preview-wrap');
+        wrap.style.removeProperty('display');
+        document.getElementById('eq-cropped-badge').style.display = '';
+
+        // Uncheck the clear checkbox so the value does not get wiped
+        const clearCb = document.getElementById('image-clear_id');
+        if (clearCb) clearCb.checked = false;
+
+        bootstrap.Modal.getInstance(document.getElementById('eqCropModal')).hide();
+    });
+
+    function handleEqClearImage(cb) {
+        if (cb.checked) {
+            document.getElementById('image_cropped').value = '';
+        }
+    }
+</script>
+
+<script>
+    const eqIdInput = document.getElementById('id_equipment_id');
+    const eqFeedback = document.getElementById('eq-id-feedback');
+    const eqSubmitBtn = document.getElementById('eq-submit-btn');
+    const CURRENT_PK = '{{ object.pk|default:"" }}';
+    let eqTimer = null;
+    let eqValid = {% if object %}true{% else %}false{% endif %};
+
+    function setEqFeedback(state, msg) {
+        const icons = { ok: '✅', error: '❌', checking: '⏳', '': '' };
+        const colors = { ok: 'text-success', error: 'text-danger', checking: 'text-secondary', '': '' };
+        eqFeedback.className = `small mt-1 d-flex align-items-center gap-1 ${colors[state]}`;
+        eqFeedback.innerHTML = state ? `<span>${icons[state]}</span><span>${msg}</span>` : '';
+        eqValid = (state === 'ok');
+        if (eqSubmitBtn) eqSubmitBtn.disabled = !eqValid && eqIdInput && eqIdInput.value.length > 0;
+    }
+
+    function checkEqId(val) {
+        if (!val) { setEqFeedback('', ''); return; }
+
+        if (val.length < 3) { setEqFeedback('error', 'At least 3 characters are required'); return; }
+        if (!/^[A-Za-z0-9_\-]+$/.test(val)) { setEqFeedback('error', 'Special characters are not allowed'); return; }
+
+        setEqFeedback('checking', 'Checking…');
+        const url = `{% url 'check-equipment-id' %}?equipment_id=${encodeURIComponent(val)}${CURRENT_PK ? '&pk=' + CURRENT_PK : ''}`;
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.json())
+            .then(data => setEqFeedback(data.available ? 'ok' : 'error', data.message))
+            .catch(() => setEqFeedback('', ''));
+    }
+
+    if (eqIdInput) {
+        eqIdInput.addEventListener('input', () => {
+            clearTimeout(eqTimer);
+            setEqFeedback('', '');
+            eqTimer = setTimeout(() => checkEqId(eqIdInput.value.trim()), 400);
+        });
+        eqIdInput.addEventListener('blur', () => {
+            clearTimeout(eqTimer);
+            checkEqId(eqIdInput.value.trim());
+        });
+        if (eqIdInput.value.trim()) checkEqId(eqIdInput.value.trim());
+    }
+
+    document.getElementById('equipment-form').addEventListener('submit', (e) => {
+        if (eqIdInput && eqIdInput.value.trim() && !eqValid) {
+            e.preventDefault();
+            eqIdInput.focus();
+        }
+    });
+</script>
+{% endblock %}

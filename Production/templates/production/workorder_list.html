@@ -1,0 +1,151 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Work Order Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="bi bi-list-check text-success me-2"></i>Work Order Management</h2>
+        <div>
+            <a href="{% url 'production-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            {% if is_manager %}
+            <a href="{% url 'workorder-add' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg"></i> Add Work Order
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Status Filter -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="btn-group flex-wrap" role="group">
+            <a href="{% url 'workorder-list' %}" class="btn btn-sm {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3 me-1">
+                All ({{ status_counts.PENDING|add:status_counts.IN_PROGRESS|add:status_counts.COMPLETED|add:status_counts.CANCELLED|add:status_counts.ABNORMAL }})
+            </a>
+            <a href="{% url 'workorder-list' %}?status=PENDING" class="btn btn-sm {% if current_status == 'PENDING' %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3 me-1">
+                Pending ({{ status_counts.PENDING }})
+            </a>
+            <a href="{% url 'workorder-list' %}?status=IN_PROGRESS" class="btn btn-sm {% if current_status == 'IN_PROGRESS' %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3 me-1">
+                In Progress ({{ status_counts.IN_PROGRESS }})
+            </a>
+            <a href="{% url 'workorder-list' %}?status=COMPLETED" class="btn btn-sm {% if current_status == 'COMPLETED' %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3 me-1">
+                Completed ({{ status_counts.COMPLETED }})
+            </a>
+            <a href="{% url 'workorder-list' %}?status=CANCELLED" class="btn btn-sm {% if current_status == 'CANCELLED' %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3 me-1">
+                Cancelled ({{ status_counts.CANCELLED }})
+            </a>
+            <a href="{% url 'workorder-list' %}?status=ABNORMAL" class="btn btn-sm {% if current_status == 'ABNORMAL' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill px-3">
+                Abnormal ({{ status_counts.ABNORMAL }})
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Work Order No.</th>
+                                <th>Customer</th>
+                                <th>Lot No.</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Planned Start</th>
+                                <th>Planned End</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in workorders %}
+                            <tr>
+                                <td class="fw-bold text-primary">{{ order.order_number }}</td>
+                                <td>{{ order.customer.name|default:"-" }}</td>
+                                <td><code>{{ order.lot_number|default:"-" }}</code></td>
+                                <td>{{ order.product.name }}</td>
+                                <td>{{ order.quantity }}</td>
+                                <td>
+                                    {% if order.status == 'PENDING' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% elif order.status == 'IN_PROGRESS' %}
+                                        <span class="badge bg-info">In Progress</span>
+                                    {% elif order.status == 'COMPLETED' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif order.status == 'CANCELLED' %}
+                                        <span class="badge bg-secondary">Cancelled</span>
+                                    {% elif order.status == 'ABNORMAL' %}
+                                        <span class="badge bg-danger">Abnormal</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ order.planned_start_date|date:"Y-m-d H:i" }}</td>
+                                <td>{{ order.planned_end_date|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'workorder-detail' order.pk %}" class="btn btn-sm btn-outline-primary me-1 px-2" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if is_manager %}
+                                    {% if order.status != 'COMPLETED' and order.status != 'CANCELLED' %}
+                                        <a href="{% url 'workorder-edit' order.pk %}" class="btn btn-sm btn-outline-secondary me-1 px-2" title="Edit"><i class="bi bi-pencil"></i></a>
+                                        <a href="{% url 'workorder-delete' order.pk %}" class="btn btn-sm btn-outline-danger ms-1 px-2" title="Delete"><i class="bi bi-trash"></i></a>
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">No work orders yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if is_paginated %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

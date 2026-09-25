@@ -1,0 +1,106 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Production Quantity Report - miniMES System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Production Quantity Report</h2>
+        <p class="text-muted mb-0">Overview of good / defect / loss quantities by station</p>
+    </div>
+    <a href="{% url 'production-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+        <i class="bi bi-arrow-left"></i> Back to Production Dashboard
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Received</div>
+                <div class="fw-bold mt-1">{{ total_received }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Good</div>
+                <div class="fw-bold mt-1 text-success">{{ total_good }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Defect</div>
+                <div class="fw-bold mt-1 text-danger">{{ total_defect }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Total Loss</div>
+                <div class="fw-bold mt-1 text-warning">{{ total_loss }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body">
+                <div class="text-muted small">Overall Yield Rate</div>
+                <div class="fw-bold mt-1">{{ yield_rate|floatformat:2 }}%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius:16px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Work Order</th>
+                        <th class="text-center">Step</th>
+                        <th>Name</th>
+                        <th class="text-center">Received</th>
+                        <th class="text-center">Good</th>
+                        <th class="text-center">Defect</th>
+                        <th class="text-center">Loss</th>
+                        <th class="text-center">Station Yield</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in steps %}
+                    <tr>
+                        <td class="text-center small">{{ step.work_order.order_number }}</td>
+                        <td class="text-center"><span class="badge bg-primary rounded-pill">{{ step.step_number }}</span></td>
+                        <td>{{ step.name }}</td>
+                        <td class="text-center small">{{ step.received_quantity|default:"-" }}</td>
+                        <td class="text-center small text-success">{{ step.good_quantity|default:"-" }}</td>
+                        <td class="text-center small text-danger">{{ step.defect_quantity|default:"-" }}</td>
+                        <td class="text-center small text-warning">{{ step.loss_quantity|default:"0" }}</td>
+                        <td class="text-center small">
+                            {% if step.received_quantity %}
+                                {% widthratio step.good_quantity|default:0 step.received_quantity 100 %}%
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">No quantity records yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

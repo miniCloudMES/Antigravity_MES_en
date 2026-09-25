@@ -1,0 +1,42 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Account Created - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-check-circle me-2"></i>System Account Created</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="mb-3">A system account has been created for employee <strong>{{ employee.name }}</strong>. Please share the following information with them.</p>
+
+                <div class="alert alert-warning">
+                    <strong>The employee must change this password immediately after the first login.</strong>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-4 text-muted">Login ID</div>
+                    <div class="col-sm-8">
+                        <code class="fs-6">{{ username }}</code>
+                    </div>
+                    <div class="col-sm-4 text-muted">Initial Password</div>
+                    <div class="col-sm-8">
+                        <code class="fs-6 text-danger">{{ password }}</code>
+                    </div>
+                    <div class="col-sm-4 text-muted">Login Page</div>
+                    <div class="col-sm-8">
+                        <a href="{% url 'login' %}">{% url 'login' %}</a>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{% url 'employee-list' %}" class="btn btn-primary rounded-pill px-4">Back to Employee List</a>
+                    <a href="{% url 'employee-add' %}" class="btn btn-outline-secondary rounded-pill px-4">Add Another Employee</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

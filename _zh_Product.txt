@@ -1,0 +1,237 @@
+Product\templates\product\category_confirm_delete.html#3#{% block title %}刪除產品分類 - miniMES 系統{% endblock %}
+Product\templates\product\category_confirm_delete.html#11#<h4 class="fw-bold mt-3 mb-2">確認刪除分類</h4>
+Product\templates\product\category_confirm_delete.html#12#<p class="text-muted">確定要刪除產品分類「<strong>{{ object.name }}</strong>」嗎？</p>
+Product\templates\product\category_confirm_delete.html#15#<i class="bi bi-exclamation-circle me-1"></i>此分類下還有 {{ object.products.count }} 個產品，刪除將受保護限制。
+Product\templates\product\category_confirm_delete.html#18#<p class="text-danger small">此操作無法復原。</p>
+Product\templates\product\category_confirm_delete.html#21#<a href="{% url 'product-category-list' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">取消</a>
+Product\templates\product\category_confirm_delete.html#22#<button type="submit" class="btn btn-danger rounded-pill px-5">確認刪除</button>
+Product\templates\product\category_form.html#3#{% block title %}{% if object %}編輯分類{% else %}新增分類{% endif %} - miniMES 系統{% endblock %}
+Product\templates\product\category_form.html#10#<i class="bi bi-tags text-info me-2"></i>{% if object %}編輯產品分類{% else %}新增產品分類{% endif %}
+Product\templates\product\category_form.html#13#<i class="bi bi-arrow-left me-1"></i>返回列表
+Product\templates\product\category_form.html#23#分類名稱 <span class="text-danger">*</span>
+Product\templates\product\category_form.html#31#<label for="{{ form.description.id_for_label }}" class="form-label fw-bold">描述</label>
+Product\templates\product\category_form.html#38#<a href="{% url 'product-category-list' %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Product\templates\product\category_form.html#40#<i class="bi bi-check-circle me-1"></i>{% if object %}更新分類{% else %}建立分類{% endif %}
+Product\templates\product\category_list.html#3#{% block title %}產品分類管理 - miniMES 系統{% endblock %}
+Product\templates\product\category_list.html#8#<h2 class="fw-bold"><i class="bi bi-tags text-info me-2"></i>產品分類管理</h2>
+Product\templates\product\category_list.html#11#<i class="bi bi-arrow-left"></i> 返回儀表板
+Product\templates\product\category_list.html#15#<i class="bi bi-plus-lg"></i> 新增分類
+Product\templates\product\category_list.html#30#<th>分類名稱</th>
+Product\templates\product\category_list.html#31#<th>描述</th>
+Product\templates\product\category_list.html#32#<th>產品數</th>
+Product\templates\product\category_list.html#33#<th>建立時間</th>
+Product\templates\product\category_list.html#34#<th>操作</th>
+Product\templates\product\category_list.html#46#<a href="{% url 'product-category-edit' category.pk %}" class="btn btn-sm btn-outline-secondary px-2" title="編輯">
+Product\templates\product\category_list.html#49#<a href="{% url 'product-category-delete' category.pk %}" class="btn btn-sm btn-outline-danger ms-1 px-2" title="刪除">
+Product\templates\product\category_list.html#57#<td colspan="5" class="text-center text-muted py-4">目前沒有任何產品分類</td>
+Product\templates\product\product_confirm_delete.html#3#{% block title %}刪除產品 - miniMES 系統{% endblock %}
+Product\templates\product\product_confirm_delete.html#11#<h4 class="fw-bold mt-3 mb-2">確認刪除產品</h4>
+Product\templates\product\product_confirm_delete.html#12#<p class="text-muted">確定要刪除產品「<strong>{{ object.product_id }} - {{ object.name }}</strong>」嗎？</p>
+Product\templates\product\product_confirm_delete.html#16#<i class="bi bi-exclamation-circle me-1"></i>此產品已有關聯資料，刪除可能受保護限制：
+Product\templates\product\product_confirm_delete.html#18#{% if workorder_count %}<li>{{ workorder_count }} 張工單使用此產品</li>{% endif %}
+Product\templates\product\product_confirm_delete.html#19#{% if has_bom %}<li>已建立 BOM 物料清單</li>{% endif %}
+Product\templates\product\product_confirm_delete.html#24#<p class="text-danger small">此操作無法復原。</p>
+Product\templates\product\product_confirm_delete.html#27#<a href="{% url 'product-list' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">取消</a>
+Product\templates\product\product_confirm_delete.html#28#<button type="submit" class="btn btn-danger rounded-pill px-5">確認刪除</button>
+Product\templates\product\product_dashboard.html#3#{% block title %}產品管理 - miniMES 系統{% endblock %}
+Product\templates\product\product_dashboard.html#8#<h2 class="fw-bold mb-1"><i class="bi bi-layers me-2" style="color:var(--lin-accent);"></i>產品管理</h2>
+Product\templates\product\product_dashboard.html#9#<p class="text-muted mb-0" style="font-size:13px;">管理產品資料、分類與成品主檔。</p>
+Product\templates\product\product_dashboard.html#12#<i class="bi bi-arrow-left me-1"></i>返回主儀表板
+Product\templates\product\product_dashboard.html#26#<div class="text-muted" style="font-size:12px;">產品總數</div>
+Product\templates\product\product_dashboard.html#39#<div class="text-muted" style="font-size:12px;">啟用中</div>
+Product\templates\product\product_dashboard.html#52#<div class="text-muted" style="font-size:12px;">有 BOM</div>
+Product\templates\product\product_dashboard.html#65#<div class="text-muted" style="font-size:12px;">有製程</div>
+Product\templates\product\product_dashboard.html#78#<div class="text-muted" style="font-size:12px;">低庫存警示</div>
+Product\templates\product\product_dashboard.html#88#<h6 class="fw-bold text-muted mb-0"><i class="bi bi-exclamation-triangle text-danger me-1"></i>低庫存產品警示</h6>
+Product\templates\product\product_dashboard.html#89#<a href="{% url 'product-list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">查看全部</a>
+Product\templates\product\product_dashboard.html#95#<th>產品編號</th>
+Product\templates\product\product_dashboard.html#96#<th>名稱</th>
+Product\templates\product\product_dashboard.html#97#<th>單位</th>
+Product\templates\product\product_dashboard.html#98#<th>目前庫存</th>
+Product\templates\product\product_dashboard.html#99#<th>安全庫存</th>
+Product\templates\product\product_dashboard.html#114#<i class="bi bi-arrow-left-right me-1"></i>快速入庫
+Product\templates\product\product_dashboard.html#134#<h5 class="fw-semibold mb-0">產品資料</h5>
+Product\templates\product\product_dashboard.html#136#<p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">建立與維護產品主檔：編號、名稱、分類、規格、圖號。</p>
+Product\templates\product\product_dashboard.html#137#<a href="{% url 'product-list' %}" class="btn btn-outline-primary px-3 w-100">前往管理</a>
+Product\templates\product\product_dashboard.html#148#<h5 class="fw-semibold mb-0">產品分類</h5>
+Product\templates\product\product_dashboard.html#150#<p class="text-muted mb-2" style="font-size:13px;">管理產品分類，共 <strong style="color:var(--lin-text);">{{ total_categories }}</strong> 個。</p>
+Product\templates\product\product_dashboard.html#151#<a href="{% url 'product-category-list' %}" class="btn btn-outline-primary px-3 w-100">前往管理</a>
+Product\templates\product\product_dashboard.html#160#<h6 class="fw-bold text-muted"><i class="bi bi-clock-history me-1"></i>最近新增產品</h6>
+Product\templates\product\product_dashboard.html#166#<th>產品編號</th>
+Product\templates\product\product_dashboard.html#167#<th>名稱</th>
+Product\templates\product\product_dashboard.html#168#<th>分類</th>
+Product\templates\product\product_dashboard.html#169#<th>規格</th>
+Product\templates\product\product_dashboard.html#170#<th>版本</th>
+Product\templates\product\product_dashboard.html#171#<th>建立時間</th>
+Product\templates\product\product_form.html#4#{% block title %}{% if object %}編輯產品{% else %}建立產品資料{% endif %} - miniMES 系統{% endblock %}
+Product\templates\product\product_form.html#10#<i class="bi bi-box-seam text-primary me-2"></i>{% if object %}編輯產品資料{% else %}建立產品資料{% endif %}
+Product\templates\product\product_form.html#12#<p class="text-muted">請填寫下方表單以{% if object %}更新{% else %}新增{% endif %}產品項目到系統中。</p>
+Product\templates\product\product_form.html#25#產品編號 <span class="text-danger">*</span>
+Product\templates\product\product_form.html#36#產品名稱 <span class="text-danger">*</span>
+Product\templates\product\product_form.html#46#產品分類 <span class="text-danger">*</span>
+Product\templates\product\product_form.html#56#單位 <span class="text-danger">*</span>
+Product\templates\product\product_form.html#65#<label for="{{ form.spec.id_for_label }}" class="form-label fw-bold">規格</label>
+Product\templates\product\product_form.html#73#<label for="{{ form.drawing_no.id_for_label }}" class="form-label fw-bold">圖號</label>
+Product\templates\product\product_form.html#81#<label for="{{ form.version.id_for_label }}" class="form-label fw-bold">版本</label>
+Product\templates\product\product_form.html#89#<label class="form-label fw-bold">庫存數量</label>
+Product\templates\product\product_form.html#94#庫存僅能透過
+Product\templates\product\product_form.html#95#<a href="{% url 'product-quick-transaction' object.pk %}" class="text-primary fw-bold">庫存交易</a>
+Product\templates\product\product_form.html#96#調整，以保留完整異動紀錄。
+Product\templates\product\product_form.html#98#新建產品庫存為 0，請於建立後使用「庫存交易」辦理入庫。
+Product\templates\product\product_form.html#104#<label for="{{ form.min_stock.id_for_label }}" class="form-label fw-bold">安全庫存量</label>
+Product\templates\product\product_form.html#106#<div class="text-muted small mt-1">低於此數量時將顯示警示</div>
+Product\templates\product\product_form.html#115#<label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">啟用</label>
+Product\templates\product\product_form.html#120#<label class="form-label fw-bold">產品圖片</label>
+Product\templates\product\product_form.html#122#{# 預覽區：有舊圖片或裁完後顯示 #}
+Product\templates\product\product_form.html#127#alt="產品圖片預覽"
+Product\templates\product\product_form.html#131#<i class="bi bi-check-circle me-1"></i>已裁切
+Product\templates\product\product_form.html#139#class="form-check-label text-danger small">移除圖片</label>
+Product\templates\product\product_form.html#144#{# 實際 file input 隱藏，只作為觸發用 #}
+Product\templates\product\product_form.html#152#<i class="bi bi-images me-1"></i>選擇圖片/檔案…
+Product\templates\product\product_form.html#156#<i class="bi bi-camera me-1"></i>拍照
+Product\templates\product\product_form.html#165#<label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">備註說明</label>
+Product\templates\product\product_form.html#173#<a href="{% url 'product-list' %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Product\templates\product\product_form.html#175#<i class="bi bi-check-circle me-1"></i>{% if object %}更新產品{% else %}建立產品{% endif %}
+Product\templates\product\product_form.html#190#<i class="bi bi-crop text-primary me-2"></i>裁切產品圖片
+Product\templates\product\product_form.html#192#<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+Product\templates\product\product_form.html#196#<img id="prd-crop-image" src="" alt="待裁切圖片" style="max-width:100%;display:block">
+Product\templates\product\product_form.html#199#<button type="button" class="btn btn-outline-secondary btn-sm" onclick="prdCropper.rotate(-90)" title="左轉">
+Product\templates\product\product_form.html#202#<button type="button" class="btn btn-outline-secondary btn-sm" onclick="prdCropper.rotate(90)" title="右轉">
+Product\templates\product\product_form.html#205#<button type="button" class="btn btn-outline-secondary btn-sm" onclick="prdCropper.scaleX(-prdCropper.getData().scaleX||1)" title="水平翻轉">
+Product\templates\product\product_form.html#208#<button type="button" class="btn btn-outline-secondary btn-sm" onclick="prdCropper.reset()" title="重設">
+Product\templates\product\product_form.html#220#<button type="button" class="btn btn-outline-secondary btn-sm" onclick="prdCropper.setAspectRatio(NaN)" title="自由比例">
+Product\templates\product\product_form.html#221#<i class="bi bi-aspect-ratio"></i> 自由
+Product\templates\product\product_form.html#226#<button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">取消</button>
+Product\templates\product\product_form.html#228#<i class="bi bi-check-lg me-1"></i>確認裁切
+Product\templates\product\product_form.html#235#{# ── Cropper.js（本地 vendor）── #}
+Product\templates\product\product_form.html#240#// ── 產品圖片 Cropper（比照物料/員工資料模式）──
+Product\templates\product\product_form.html#303#// ── 產品編號即時唯一性驗證 ──
+Product\templates\product\product_form.html#322#if (val.length < 3) { setPrdFeedback('error', '至少需要 3 個字元'); return; }
+Product\templates\product\product_form.html#323#if (!/^[A-Za-z0-9_\-]+$/.test(val)) { setPrdFeedback('error', '不能包含特殊字元'); return; }
+Product\templates\product\product_form.html#325#setPrdFeedback('checking', '檢查中…');
+Product\templates\product\product_list.html#3#{% block title %}產品清單 - miniMES 系統{% endblock %}
+Product\templates\product\product_list.html#8#<h2 class="fw-bold"><i class="bi bi-box-seam text-primary me-2"></i>產品清單</h2>
+Product\templates\product\product_list.html#11#<i class="bi bi-arrow-left"></i> 返回儀表板
+Product\templates\product\product_list.html#15#<i class="bi bi-plus-lg"></i> 新增產品
+Product\templates\product\product_list.html#26#<input type="text" name="search" value="{{ search }}" class="form-control" style="max-width:240px;" placeholder="搜尋編號或名稱…">
+Product\templates\product\product_list.html#28#<option value="">全部分類</option>
+Product\templates\product\product_list.html#33#<button type="submit" class="btn btn-outline-primary rounded-pill px-4">篩選</button>
+Product\templates\product\product_list.html#35#<a href="{% url 'product-list' %}" class="btn btn-outline-secondary rounded-pill px-3">清除</a>
+Product\templates\product\product_list.html#49#<th>圖片</th>
+Product\templates\product\product_list.html#50#<th>產品編號</th>
+Product\templates\product\product_list.html#51#<th>產品名稱</th>
+Product\templates\product\product_list.html#52#<th>分類</th>
+Product\templates\product\product_list.html#53#<th>規格</th>
+Product\templates\product\product_list.html#54#<th>版本</th>
+Product\templates\product\product_list.html#55#<th>庫存</th>
+Product\templates\product\product_list.html#56#<th>狀態</th>
+Product\templates\product\product_list.html#57#<th>關聯</th>
+Product\templates\product\product_list.html#58#<th>操作</th>
+Product\templates\product\product_list.html#70#data-bs-toggle="modal" data-bs-target="#proPhotoModal" title="點擊預覽產品"
+Product\templates\product\product_list.html#91#data-bs-toggle="modal" data-bs-target="#proPhotoModal" title="點擊預覽產品"
+Product\templates\product\product_list.html#118#{% if p.is_low_stock %}<i class="bi bi-exclamation-triangle-fill text-warning" title="低庫存警示"></i>{% endif %}
+Product\templates\product\product_list.html#122#<span class="badge bg-success">啟用</span>
+Product\templates\product\product_list.html#124#<span class="badge bg-secondary">停用</span>
+Product\templates\product\product_list.html#129#{% if p.workorder_count %}<span class="badge bg-warning text-dark" title="工單">工單×{{ p.workorder_count }}</span>{% endif %}
+Product\templates\product\product_list.html#132#<button type="button" class="btn btn-sm btn-outline-primary me-1" title="預覽"
+Product\templates\product\product_list.html#151#<a href="{% url 'product-quick-transaction' p.pk %}" class="btn btn-sm btn-outline-success me-1" title="庫存異動">
+Product\templates\product\product_list.html#154#<a href="{% url 'product-stock-transaction-list' %}?product={{ p.pk }}" class="btn btn-sm btn-outline-info me-1" title="交易紀錄">
+Product\templates\product\product_list.html#157#<a href="{% url 'process-card-detail' p.pk %}" class="btn btn-sm btn-outline-primary me-1" title="加工流程卡">
+Product\templates\product\product_list.html#161#<a href="{% url 'product-edit' p.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="編輯">
+Product\templates\product\product_list.html#164#<a href="{% url 'product-delete' p.pk %}" class="btn btn-sm btn-outline-danger" title="刪除">
+Product\templates\product\product_list.html#173#<i class="bi bi-box-seam fs-2 d-block mb-2"></i>目前沒有任何產品
+Product\templates\product\product_list.html#189#<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">上一頁</a></li>
+Product\templates\product\product_list.html#193#<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">下一頁</a></li>
+Product\templates\product\product_list.html#198#<!-- 產品圖片預覽 Modal -->
+Product\templates\product\product_list.html#203#<h5 class="modal-title fw-bold" id="proPhotoModalLabel">產品圖片</h5>
+Product\templates\product\product_list.html#209#<img src="" id="proModalImagePreview" class="img-fluid rounded shadow-sm d-none" alt="產品圖片" style="max-height: 55vh; object-fit: contain;">
+Product\templates\product\product_list.html#213#<span>此產品尚未上傳圖片</span>
+Product\templates\product\product_list.html#222#<th class="text-muted fw-semibold" style="width:110px;">產品編號</th>
+Product\templates\product\product_list.html#226#<th class="text-muted fw-semibold">分類</th>
+Product\templates\product\product_list.html#230#<th class="text-muted fw-semibold">單位</th>
+Product\templates\product\product_list.html#234#<th class="text-muted fw-semibold">規格</th>
+Product\templates\product\product_list.html#238#<th class="text-muted fw-semibold">圖號</th>
+Product\templates\product\product_list.html#242#<th class="text-muted fw-semibold">版本</th>
+Product\templates\product\product_list.html#246#<th class="text-muted fw-semibold">庫存數量</th>
+Product\templates\product\product_list.html#253#<th class="text-muted fw-semibold">狀態</th>
+Product\templates\product\product_list.html#257#<th class="text-muted fw-semibold">關聯</th>
+Product\templates\product\product_list.html#261#<th class="text-muted fw-semibold">備註</th>
+Product\templates\product\product_list.html#306#// 庫存 + 低庫存警示
+Product\templates\product\product_list.html#312#stockBadge.innerHTML += ' <i class="bi bi-exclamation-triangle-fill text-warning" title="低庫存警示"></i>';
+Product\templates\product\product_list.html#316#minStockEl.textContent = minStockVal ? ('/ 安全庫存 ' + minStockVal) : '';
+Product\templates\product\product_list.html#318#// 狀態
+Product\templates\product\product_list.html#321#statusBadge.textContent = '啟用';
+Product\templates\product\product_list.html#324#statusBadge.textContent = '停用';
+Product\templates\product\product_list.html#328#// BOM / 工單 關聯
+Product\templates\product\product_list.html#336#relation.innerHTML += '<span class="badge bg-warning text-dark me-1" title="工單">工單×' + woCount + '</span>';
+Product\templates\product\product_list.html#342#// 備註
+Product\templates\product\product_stock_transaction_form.html#3#{% block title %}新增產品庫存交易 - miniMES 系統{% endblock %}
+Product\templates\product\product_stock_transaction_form.html#8#<h2 class="fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i>新增產品庫存交易</h2>
+Product\templates\product\product_stock_transaction_form.html#9#<p class="text-muted">輸入交易資料，系統將自動更新產品庫存數量。</p>
+Product\templates\product\product_stock_transaction_form.html#27#<label class="form-label fw-bold">產品 <span class="text-danger">*</span></label>
+Product\templates\product\product_stock_transaction_form.html#35#<label class="form-label fw-bold">交易類型 <span class="text-danger">*</span></label>
+Product\templates\product\product_stock_transaction_form.html#43#<label class="form-label fw-bold">數量 <span class="text-danger">*</span></label>
+Product\templates\product\product_stock_transaction_form.html#54#<label class="form-label fw-bold">單據參考號</label>
+Product\templates\product\product_stock_transaction_form.html#62#<label class="form-label fw-bold">備註</label>
+Product\templates\product\product_stock_transaction_form.html#70#<a href="{% url 'product-stock-transaction-list' %}" class="btn btn-outline-secondary rounded-pill px-4">取消</a>
+Product\templates\product\product_stock_transaction_form.html#72#<i class="bi bi-check-lg me-1"></i> 確認建立
+Product\templates\product\product_stock_transaction_list.html#3#{% block title %}產品庫存交易紀錄 - miniMES 系統{% endblock %}
+Product\templates\product\product_stock_transaction_list.html#14#<h2 class="fw-bold"><i class="bi bi-arrow-left-right text-primary me-2"></i>產品庫存交易紀錄</h2>
+Product\templates\product\product_stock_transaction_list.html#17#<i class="bi bi-arrow-left"></i> 返回儀表板
+Product\templates\product\product_stock_transaction_list.html#21#<i class="bi bi-plus-lg"></i> 新增交易
+Product\templates\product\product_stock_transaction_list.html#33#僅顯示產品 <strong>{{ filtered_product.product_id }}</strong> {{ filtered_product.name }}
+Product\templates\product\product_stock_transaction_list.html#34#（目前庫存 <strong>{{ filtered_product.stock_quantity }}</strong> {{ filtered_product.get_unit_display }}）
+Product\templates\product\product_stock_transaction_list.html#35#<a href="{% url 'product-stock-transaction-list' %}" class="btn btn-sm btn-outline-secondary rounded-pill ms-2 px-3">顯示全部</a>
+Product\templates\product\product_stock_transaction_list.html#45#<input type="text" name="product_id" value="{{ selected_product }}" class="form-control" style="max-width:180px;" placeholder="搜尋產品編號…">
+Product\templates\product\product_stock_transaction_list.html#47#<option value="">全部類型</option>
+Product\templates\product\product_stock_transaction_list.html#52#<input type="date" name="date_from" value="{{ selected_date_from }}" class="form-control" style="max-width:165px;" title="起始日期">
+Product\templates\product\product_stock_transaction_list.html#54#<input type="date" name="date_to" value="{{ selected_date_to }}" class="form-control" style="max-width:165px;" title="結束日期">
+Product\templates\product\product_stock_transaction_list.html#55#<button type="submit" class="btn btn-outline-primary rounded-pill px-4">篩選</button>
+Product\templates\product\product_stock_transaction_list.html#56#<a href="{% url 'product-stock-transaction-list' %}" class="btn btn-outline-secondary rounded-pill px-3">清除</a>
+Product\templates\product\product_stock_transaction_list.html#65#<div class="text-muted small">篩選筆數</div>
+Product\templates\product\product_stock_transaction_list.html#73#<div class="text-muted small">入庫合計</div>
+Product\templates\product\product_stock_transaction_list.html#81#<div class="text-muted small">出庫合計</div>
+Product\templates\product\product_stock_transaction_list.html#89#<div class="text-muted small">盤點調整合計</div>
+Product\templates\product\product_stock_transaction_list.html#104#<th>時間</th>
+Product\templates\product\product_stock_transaction_list.html#105#<th>類型</th>
+Product\templates\product\product_stock_transaction_list.html#106#<th>產品編號</th>
+Product\templates\product\product_stock_transaction_list.html#107#<th>數量</th>
+Product\templates\product\product_stock_transaction_list.html#108#<th>交易後庫存</th>
+Product\templates\product\product_stock_transaction_list.html#109#<th>單據參考</th>
+Product\templates\product\product_stock_transaction_list.html#110#<th>操作人員</th>
+Product\templates\product\product_stock_transaction_list.html#111#<th>備註</th>
+Product\templates\product\product_stock_transaction_list.html#129#class="text-primary text-decoration-none" title="查看此產品的交易紀錄">
+Product\templates\product\product_stock_transaction_list.html#155#<td colspan="8" class="text-center text-muted py-4">尚無交易紀錄</td>
+Product\templates\product\product_stock_transaction_list.html#170#<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if base_query %}&{{ base_query }}{% endif %}">上一頁</a></li>
+Product\templates\product\product_stock_transaction_list.html#174#<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if base_query %}&{{ base_query }}{% endif %}">下一頁</a></li>
+Product\templates\product\product_stock_transaction_quick_form.html#3#{% block title %}產品庫存異動 - {{ product.product_id }} - miniMES 系統{% endblock %}
+Product\templates\product\product_stock_transaction_quick_form.html#8#<h2 class="fw-bold"><i class="bi bi-arrow-left-right text-primary me-2"></i>產品庫存異動</h2>
+Product\templates\product\product_stock_transaction_quick_form.html#9#<p class="text-muted">產品：<strong class="text-primary">{{ product.product_id }}</strong> {{ product.name }}；目前庫存：<strong>{{ product.stock_quantity }}</strong> {{ product.get_unit_display }}</p>
+Product\templates\product\product_stock_transaction_quick_form.html#27#<label class="form-label fw-bold">交易類型 <span class="text-danger">*</span></label>
+Product\templates\product\product_stock_transaction_quick_form.html#35#<label class="form-label fw-bold">數量 <span class="text-danger">*</span></label>
+Product\templates\product\product_stock_transaction_quick_form.html#46#<label class="form-label fw-bold">單據參考號</label>
+Product\templates\product\product_stock_transaction_quick_form.html#54#<label class="form-label fw-bold">備註</label>
+Product\templates\product\product_stock_transaction_quick_form.html#62#<a href="{% url 'product-list' %}" class="btn btn-outline-secondary rounded-pill px-4">取消返回</a>
+Product\templates\product\product_stock_transaction_quick_form.html#64#<i class="bi bi-check-lg me-1"></i> 確認異動
+Product\forms.py#12#'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如: 電子Product'}),
+Product\forms.py#22#'product_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如: PRD-2024-001'}),
+Product\forms.py#23#'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '輸入Product Name'}),
+Product\forms.py#26#'spec': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Specification (例如: 300x200x50mm)'}),
+Product\forms.py#43#raise ValidationError('此Product ID已存在')
+Product\forms.py#55#'reference': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Work Order/銷售單號'}),
+Product\forms.py#56#'remark': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Remarks（可留空）'}),
+Product\forms.py#67#self.fields['quantity'].help_text = 'Inbound/Outbound為正數；Adjustment可為負數（減少Stock）'
+Product\forms.py#72## Inbound/Outbound必須為正數；Adjustment允許正負（正=加Stock，負=減Stock）
+Product\forms.py#74#raise ValidationError('Quantity必須大於 0。')
+Product\forms.py#85#raise ValidationError('OutboundQuantity不可超過目前Stock。')
+Product\forms.py#87#raise ValidationError('Adjustment後Stock不可為負數。')
+Product\models.py#49#max_digits=12, decimal_places=2, default=0, blank=True, null=True, verbose_name='安全Stock量'
+Product\models.py#84#balance_after = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, verbose_name='交易後Stock')
+Product\models.py#94#verbose_name = 'ProductStock交易紀錄'
+Product\models.py#95#verbose_name_plural = 'ProductStock交易紀錄'
+Product\tests.py#74#"""Product表單僅顯示唯讀Stock，不得提供可Edit的 stock_quantity 欄位。"""
+Product\tests.py#81#"""EditProduct時不得改動StockQuantity。"""
+Product\tests.py#84#'name': 'Test Product（改名）',
+Product\tests.py#93#self.assertEqual(self.prod.name, 'Test Product（改名）')
+Product\tests.py#105#"""ProductStock交易清單：日期區間篩選、單一項目檢視、合計。"""
+Product\tests.py#108#self.cat = ProductCategory.objects.create(name='篩選Test Category')

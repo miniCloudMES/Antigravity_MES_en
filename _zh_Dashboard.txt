@@ -1,0 +1,16 @@
+Dashboard\templates\dashboard\dashboard_industrial.html#10#/* ═══════════════ Industrial Data-Dense Dashboard（ui-ux-pro-max 設計系統） ═══════════════
+Dashboard\templates\dashboard\dashboard_industrial.html#11#風格：Data-Dense Dashboard | 配色：#1E40AF 藍 + #F59E0B 琥珀 | 字型：Fira Sans / Fira Code（降級 Inter + 等寬） */
+Dashboard\templates\dashboard\dashboard_industrial.html#37#/* ── KPI 卡片（Data-Dense） ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#57#/* ── 圖表區 ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#68#/* ── 資料表（Data-Dense） ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#81#/* ── 狀態徽章 ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#89#/* ── 模組入口 ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#101#/* ── 模板切換按鈕 ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#118#<!-- 標題 + 模板切換 -->
+Dashboard\templates\dashboard\landing.html#9#<!-- Inter Font（本地 vendor） -->
+Dashboard\tests.py#10#"""儀表板模板切換測試：classic（原版）與 industrial（工業風）可互相切換，偏好存於 session"""
+Dashboard\tests.py#14#dept = Department.objects.create(code='D001', name='管理部')
+Dashboard\tests.py#15#pos = Position.objects.create(code='P001', name='管理職')
+Dashboard\tests.py#17#user=self.user, emp_no='EMP-001', name='測試員',
+Dashboard\views.py#23#"""模板選擇：URL ?template= 優先，其次 session 偏好，預設 classic"""
+Dashboard\views.py#61#"""切換儀表板模板（classic / industrial），偏好存於 session"""

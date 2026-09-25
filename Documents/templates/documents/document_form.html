@@ -1,0 +1,451 @@
+{% extends "orgnization/base.html" %}
+{% load static %}
+
+{% block title %}{{ action }} Document - miniMES System{% endblock %}
+
+{% block content %}
+<!-- Quill CSS (pinned to 2.0.3 consistently) -->
+<link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
+<!-- Cropper.js CSS -->
+<link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper.min.css' %}">
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'documents-dashboard' %}" class="text-decoration-none">Document Center</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ action }} Document</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-transparent border-0 pt-4 px-4">
+                <h3 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-file-earmark-plus me-2"></i>{{ action }} Document
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" id="document-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Code Field -->
+                        <div class="col-md-4">
+                            <label for="id_code" class="form-label fw-bold">Document Code</label>
+                            {{ form.code }}
+                            <div id="doc-code-feedback" class="small mt-1 d-flex align-items-center gap-1" style="min-height:1.4em"></div>
+                            {% if form.code.errors %}
+                                <div class="text-danger small mt-1">{{ form.code.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Title Field -->
+                        <div class="col-md-8">
+                            <label for="id_title" class="form-label fw-bold">Document Title</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="col-12">
+                            <label for="id_description" class="form-label fw-bold">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Department and Category Field -->
+                        <div class="col-md-4">
+                            <label for="id_department" class="form-label fw-bold">Department</label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                                <div class="text-danger mt-1">{{ form.department.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="id_category" class="form-label fw-bold">Document Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="text-danger mt-1">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="id_expired_at" class="form-label fw-bold">Valid Until</label>
+                            {{ form.expired_at }}
+                            {% if form.expired_at.errors %}
+                                <div class="text-danger mt-1">{{ form.expired_at.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Approval Manager Field -->
+                        <div class="col-md-4">
+                            <label for="id_approval_manager" class="form-label fw-bold">Approval Manager</label>
+                            {{ form.approval_manager }}
+                            {% if form.approval_manager.errors %}
+                                <div class="text-danger mt-1">{{ form.approval_manager.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- WYSIWYG Content Field -->
+                        <div class="col-12 mt-4">
+                            <label class="form-label fw-bold">Document Content</label>
+                            
+                            <!-- Hidden original field -->
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="text-danger mt-1">{{ form.content.errors }}</div>
+                            {% endif %}
+
+                            <!-- Quill Editor Container -->
+                            <div id="editor-wrapper" class="border rounded-3" style="background-color: white;">
+                                <div id="editor-container" style="height: 400px; font-size: 16px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Image Upload Field (Below Editor with Multiple Cropper) -->
+                        <div class="col-12 mt-4">
+                            <label class="form-label fw-bold">Document Images and Descriptions</label>
+                            <div class="p-4 border rounded-3 bg-light">
+                                
+                                <!-- File input triggering crop -->
+                                <input type="file" id="id_image" accept="image/*" class="d-none" onchange="openCropModal(this)">
+                                <div class="mb-4">
+                                    <button type="button" class="btn btn-outline-primary rounded-pill px-4"
+                                            onclick="document.getElementById('id_image').click()">
+                                        <i class="bi bi-plus-circle me-1"></i>Add image and crop…
+                                    </button>
+                                    <span class="text-muted small ms-2">You can add multiple images and give each one a short description</span>
+                                </div>
+
+                                <!-- Container for Images list -->
+                                <div id="images-container" class="row g-3">
+                                    <!-- Existing Images -->
+                                    {% if document %}
+                                        {% for img in document.images.all %}
+                                        <div class="col-md-4 col-sm-6 image-card-wrap" id="existing-img-wrap-{{ img.id }}">
+                                            <input type="hidden" name="existing_image_ids" value="{{ img.id }}">
+                                            <div class="card h-100 shadow-sm border border-secondary-subtle">
+                                                <div class="position-relative bg-dark d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
+                                                    <img src="{{ img.image.url }}" alt="Attachment" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                                    <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-2"
+                                                            onclick="markImageDeleted('{{ img.id }}')" title="Delete">
+                                                        <i class="bi bi-x"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="card-body p-2">
+                                                    <label class="small fw-semibold text-secondary">Image Description</label>
+                                                    <input type="text" name="existing_image_desc_{{ img.id }}" class="form-control form-control-sm" value="{{ img.description|default:'' }}" placeholder="Enter a description…">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-12 mt-4 d-flex gap-2 justify-content-end">
+                            {% if document %}
+                                <a href="{% url 'document-detail' document.pk %}" class="btn btn-light rounded-pill px-4">Cancel</a>
+                            {% else %}
+                                <a href="{% url 'documents-dashboard' %}" class="btn btn-light rounded-pill px-4">Cancel</a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-check-circle me-1"></i>Save Document
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Cropper Modal ── #}
+<div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="cropModalLabel">
+                    <i class="bi bi-crop text-primary me-2"></i>Crop Document Image
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="bg-dark rounded-3 overflow-hidden" style="max-height:480px">
+                    <img id="crop-image" src="" alt="Image to crop" style="max-width:100%;display:block">
+                </div>
+                <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.rotate(-90)" title="Rotate left">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.rotate(90)" title="Rotate right">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.scaleX(-cropperInst.getData().scaleX||1)" title="Flip horizontally">
+                        <i class="bi bi-symmetry-vertical"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.reset()" title="Reset">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.setAspectRatio(16/9)" title="16:9 widescreen">
+                        <i class="bi bi-aspect-ratio"></i> 16:9
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.setAspectRatio(4/3)" title="4:3 standard screen">
+                        <i class="bi bi-aspect-ratio"></i> 4:3
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.setAspectRatio(1)" title="1:1 square">
+                        <i class="bi bi-aspect-ratio"></i> 1:1
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cropperInst.setAspectRatio(NaN)" title="Free ratio">
+                        <i class="bi bi-aspect-ratio"></i> Free
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="btn-crop-confirm">
+                    <i class="bi bi-check-lg me-1"></i>Apply Crop
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quill JS -->
+<script src="{% static 'vendor/quill/quill.js' %}"></script>
+<!-- Cropper.js JS -->
+<script src="{% static 'vendor/cropperjs/cropper.min.js' %}"></script>
+
+<script>
+    let cropperInst = null;
+    let newImageIdx = 0;
+
+    function openCropModal(input) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imgEl = document.getElementById('crop-image');
+            imgEl.src = e.target.result;
+
+            if (cropperInst) { cropperInst.destroy(); cropperInst = null; }
+
+            const modal = new bootstrap.Modal(document.getElementById('cropModal'));
+            modal.show();
+
+            document.getElementById('cropModal').addEventListener('shown.bs.modal', () => {
+                cropperInst = new Cropper(imgEl, {
+                    aspectRatio: NaN, // free cropping by default
+                    viewMode: 1,
+                    autoCropArea: 0.9,
+                    movable: true,
+                    zoomable: true,
+                    rotatable: true,
+                    scalable: true,
+                });
+            }, { once: true });
+        };
+        reader.readAsDataURL(input.files[0]);
+        // Reset input file value to allow choosing the same file again
+        input.value = '';
+    }
+
+    document.getElementById('btn-crop-confirm').addEventListener('click', () => {
+        if (!cropperInst) return;
+
+        const canvas = cropperInst.getCroppedCanvas({
+            imageSmoothingQuality: 'high',
+        });
+
+        const b64 = compressCroppedToDataUrl(canvas);
+
+        // Dynamically add a new card with base64 and description fields
+        addNewImageCard(b64);
+
+        bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+    });
+
+    function addNewImageCard(b64) {
+        newImageIdx++;
+        const container = document.getElementById('images-container');
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6 image-card-wrap';
+        col.id = `new-img-wrap-${newImageIdx}`;
+        
+        col.innerHTML = `
+            <input type="hidden" name="new_images_cropped" value="${b64}">
+            <div class="card h-100 shadow-sm border border-primary-subtle">
+                <div class="position-relative bg-dark d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
+                    <img src="${b64}" alt="New attachment" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-2"
+                            onclick="removeNewImageCard(${newImageIdx})" title="Delete">
+                        <i class="bi bi-x"></i>
+                    </button>
+                    <span class="badge bg-primary position-absolute bottom-0 start-0 m-2">New</span>
+                </div>
+                <div class="card-body p-2">
+                    <label class="small fw-semibold text-secondary">Image Description</label>
+                    <input type="text" name="new_images_descriptions" class="form-control form-control-sm" placeholder="Enter a description…">
+                </div>
+            </div>
+        `;
+        container.appendChild(col);
+    }
+
+    function removeNewImageCard(idx) {
+        const el = document.getElementById(`new-img-wrap-${idx}`);
+        if (el) {
+            el.remove();
+        }
+    }
+
+    function markImageDeleted(id) {
+        const el = document.getElementById(`existing-img-wrap-${id}`);
+        if (el) {
+            // Append a hidden input to mark this ID for deletion
+            const form = document.getElementById('document-form');
+            const delInput = document.createElement('input');
+            delInput.type = 'hidden';
+            delInput.name = 'delete_images';
+            delInput.value = id;
+            form.appendChild(delInput);
+            
+            // Remove from the UI
+            el.remove();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize Quill Editor
+        var quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['blockquote', 'code-block'],
+                    ['link'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Start writing the document content here...'
+        });
+
+        // Get hidden input and load initial HTML content if modifying
+        var contentInput = document.getElementById('quill-content-input');
+        if (contentInput && contentInput.value) {
+            quill.clipboard.dangerouslyPasteHTML(contentInput.value);
+        }
+
+        // On form submit
+        var form = document.getElementById('document-form');
+        form.addEventListener('submit', function(e) {
+            // Get the HTML content from the editor
+            var html = quill.getSemanticHTML();
+            contentInput.value = html;
+        });
+
+        // ── Live validation for the document code ──
+        const docCodeInput = document.getElementById('id_code');
+        const docCodeFeedback = document.getElementById('doc-code-feedback');
+        const docSubmitBtn = document.querySelector('#document-form [type=\"submit\"]');
+        const DOC_CURRENT_PK = "{% if document %}{{ document.pk }}{% endif %}";
+        let docCodeTimer = null;
+        let docCodeValid = {% if document %}true{% else %}false{% endif %};
+
+        function setDocCodeFeedback(state, msg) {
+            const icons = { ok: '✅', error: '❌', checking: '⏳', '': '' };
+            const colors = { ok: 'text-success', error: 'text-danger', checking: 'text-secondary', '': '' };
+            docCodeFeedback.className = `small mt-1 d-flex align-items-center gap-1 ${colors[state] || ''}`;
+            docCodeFeedback.innerHTML = state ? `<span>${icons[state] || ''}</span><span>${msg}</span>` : '';
+            docCodeValid = (state === 'ok');
+            if (docSubmitBtn && docCodeInput) {
+                docSubmitBtn.disabled = !docCodeValid && docCodeInput.value.trim().length > 0;
+            }
+        }
+
+        function checkDocCode(val) {
+            if (!val) { setDocCodeFeedback('', ''); return; }
+            if (val.length < 3) { setDocCodeFeedback('error', 'Document code must be at least 3 characters long'); return; }
+            if (!/^[A-Za-z0-9_\-]+$/.test(val)) { setDocCodeFeedback('error', 'Special characters are not allowed'); return; }
+
+            setDocCodeFeedback('checking', 'Checking…');
+            const url = `{% url 'check-doc-code' %}?code=${encodeURIComponent(val)}${DOC_CURRENT_PK ? '&pk=' + DOC_CURRENT_PK : ''}`;
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => setDocCodeFeedback(data.available ? 'ok' : 'error', data.message))
+                .catch(() => setDocCodeFeedback('', ''));
+        }
+
+        if (docCodeInput) {
+            docCodeInput.addEventListener('input', () => {
+                clearTimeout(docCodeTimer);
+                setDocCodeFeedback('', '');
+                docCodeTimer = setTimeout(() => checkDocCode(docCodeInput.value.trim()), 400);
+            });
+            docCodeInput.addEventListener('blur', () => {
+                clearTimeout(docCodeTimer);
+                checkDocCode(docCodeInput.value.trim());
+            });
+            if (docCodeInput.value.trim()) checkDocCode(docCodeInput.value.trim());
+        }
+
+        // ── Approval manager: department → employee cascade ──
+        const deptSelect = document.getElementById('id_department');
+        const mgrSelect = document.getElementById('id_approval_manager');
+        const mgrLoader = '{% url "load-department-reviewers" %}';
+
+        function setReviewerOptions(options) {
+            mgrSelect.innerHTML = '';
+            if (!options || !options.length) {
+                mgrSelect.innerHTML = '<option value=\"\">No manager/admin in this department</option>';
+                mgrSelect.disabled = true;
+                return;
+            }
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select an approval manager';
+            mgrSelect.appendChild(placeholder);
+            options.forEach(opt => {
+                const optionEl = document.createElement('option');
+                optionEl.value = opt.id;
+                optionEl.textContent = opt.name;
+                mgrSelect.appendChild(optionEl);
+            });
+            mgrSelect.disabled = false;
+        }
+
+        function loadReviewers(deptId) {
+            if (!deptId) {
+                mgrSelect.innerHTML = '<option value=\"\">Select the department first</option>';
+                mgrSelect.disabled = true;
+                return;
+            }
+            mgrSelect.innerHTML = '<option value=\"\">Loading…</option>';
+            mgrSelect.disabled = true;
+            fetch(`${mgrLoader}?department_id=${encodeURIComponent(deptId)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => setReviewerOptions(data.options))
+                .catch(() => {
+                    mgrSelect.innerHTML = '<option value=\"\">Select the department first</option>';
+                    mgrSelect.disabled = true;
+                });
+        }
+
+        if (deptSelect) {
+            deptSelect.addEventListener('change', () => loadReviewers(deptSelect.value));
+            if (deptSelect.value) loadReviewers(deptSelect.value);
+        }
+    });
+</script>
+{% endblock %}

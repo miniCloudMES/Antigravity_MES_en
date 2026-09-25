@@ -1,0 +1,49 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Equipment Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-tools me-2" style="color:var(--lin-accent);"></i>Equipment Management</h2>
+        <p class="text-muted mb-0" style="font-size:13px;">Manage every equipment category, record and maintenance status in the plant.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-3">
+        <i class="bi bi-arrow-left me-1"></i>Back to Main Dashboard
+    </a>
+</div>
+
+<div class="row g-3">
+    <!-- Card 1 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                        <i class="bi bi-tags" style="color:var(--lin-accent);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Equipment Categories</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Create and maintain category tags and groups for each type of equipment.</p>
+                <a href="{% url 'equipment-category-list' %}" class="btn btn-outline-primary px-3 w-100">Manage</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(16,185,129,0.1);">
+                        <i class="bi bi-pc-display" style="color:var(--lin-green);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Equipment List</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Register and track every physical machine and its operating status.</p>
+                <a href="{% url 'equipment-list' %}" class="btn btn-outline-primary px-3 w-100">Manage</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

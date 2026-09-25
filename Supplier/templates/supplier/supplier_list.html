@@ -1,0 +1,124 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Suppliers - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="bi bi-truck text-primary me-2"></i>Supplier List</h2>
+        <div>
+            <a href="{% url 'supplier-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            {% if is_manager %}
+            <a href="{% url 'supplier-add' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg"></i> New Supplier
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="row mb-3">
+    <div class="col-12">
+        <form method="get" class="d-flex gap-2 flex-wrap align-items-center">
+            <input type="text" name="search" value="{{ search }}" class="form-control" style="max-width:240px;" placeholder="Search ID or name...">
+            <select name="category" class="form-select" style="max-width:200px;">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.pk }}" {% if selected_category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-primary rounded-pill px-4">Filter</button>
+            {% if search or selected_category %}
+                <a href="{% url 'supplier-list' %}" class="btn btn-outline-secondary rounded-pill px-3">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Supplier ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Contact Person</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Links</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in suppliers %}
+                            <tr>
+                                <td><code>{{ s.supplier_id }}</code></td>
+                                <td class="fw-semibold">{{ s.name }}</td>
+                                <td>
+                                    {% if s.category %}
+                                    <span class="badge bg-light text-dark border">{{ s.category.name }}</span>
+                                    {% else %}<span class="text-muted">-</span>{% endif %}
+                                </td>
+                                <td>{{ s.contact_person|default:"-" }}</td>
+                                <td>{{ s.phone|default:"-" }}</td>
+                                <td class="text-muted small">{{ s.email|default:"-" }}</td>
+                                <td class="small">
+                                    {% if s.mat_count %}<span class="badge bg-info text-dark" title="Materials">Materials×{{ s.mat_count }}</span>{% endif %}
+                                    {% if s.eq_count %}<span class="badge bg-warning text-dark" title="Equipment">Equipment×{{ s.eq_count }}</span>{% endif %}
+                                    {% if not s.mat_count and not s.eq_count %}<span class="text-muted">-</span>{% endif %}
+                                </td>
+                                <td>
+                                    {% if s.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if is_manager %}
+                                    <a href="{% url 'supplier-edit' s.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'supplier-delete' s.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-5">
+                                    <i class="bi bi-truck fs-2 d-block mb-2"></i>No suppliers found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'orgnization/base.html' %}
+
+{% block title %}{% if object %}Edit Position{% else %}Add Position{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-body p-5">
+                <h3 class="card-title text-center mb-4 fw-bold text-dark">
+                    <i class="bi bi-pencil-square text-primary me-2"></i>{% if object %}Edit Position{% else %}Add Position{% endif %}
+                </h3>
+                <form method="post" id="position-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-container text-start">
+                        {% for field in form %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {% if field.name == 'code' %}
+                                    {{ field }}
+                                    <div id="position-code-feedback" class="small mt-1 d-flex align-items-center gap-1" style="min-height:1.4em"></div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-grid gap-3 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm fw-bold">
+                            <i class="bi bi-check-circle me-1"></i> Save Data
+                        </button>
+                        <a href="{% url 'position-list' %}" class="btn btn-light btn-lg rounded-pill border">
+                            Cancel &amp; Back
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dynamically add Bootstrap classes via JS to make the form look nice
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputs = document.querySelectorAll('.form-container input, .form-container textarea, .form-container select');
+        inputs.forEach(input => {
+            if(input.type !== 'submit' && input.type !== 'hidden' && input.type !== 'checkbox') {
+                input.classList.add('form-control', 'form-control-lg', 'bg-light');
+            }
+            if(input.type === 'checkbox') {
+                input.classList.add('form-check-input');
+            }
+        });
+        
+        const labels = document.querySelectorAll('.form-container label');
+        labels.forEach(label => {
+            label.classList.add('form-label', 'fw-semibold', 'text-secondary', 'small', 'mt-3');
+        });
+
+        // ── Position code real-time validation ──
+        const posCodeInput = document.getElementById('id_code');
+        const posCodeFeedback = document.getElementById('position-code-feedback');
+        const posSubmitBtn = document.querySelector('#position-form [type=\"submit\"]');
+        const POS_CURRENT_PK = "{% if object %}{{ object.pk }}{% endif %}";
+        let posCodeTimer = null;
+        let posCodeValid = {% if object %}true{% else %}false{% endif %};
+
+        function setPosCodeFeedback(state, msg) {
+            const icons = { ok: '✅', error: '❌', checking: '⏳', '': '' };
+            const colors = { ok: 'text-success', error: 'text-danger', checking: 'text-secondary', '': '' };
+            posCodeFeedback.className = `small mt-1 d-flex align-items-center gap-1 ${colors[state] || ''}`;
+            posCodeFeedback.innerHTML = state ? `<span>${icons[state] || ''}</span><span>${msg}</span>` : '';
+            posCodeValid = (state === 'ok');
+            if (posSubmitBtn && posCodeInput) {
+                posSubmitBtn.disabled = !posCodeValid && posCodeInput.value.trim().length > 0;
+            }
+        }
+
+        function checkPosCode(val) {
+            if (!val) { setPosCodeFeedback('', ''); return; }
+            if (val.length < 3) { setPosCodeFeedback('error', 'At least 3 characters are required'); return; }
+            if (!/^[A-Za-z0-9_\-]+$/.test(val)) { setPosCodeFeedback('error', 'Special characters are not allowed'); return; }
+
+            setPosCodeFeedback('checking', 'Checking...');
+            const url = `{% url 'check-position-code' %}?code=${encodeURIComponent(val)}${POS_CURRENT_PK ? '&pk=' + POS_CURRENT_PK : ''}`;
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => setPosCodeFeedback(data.available ? 'ok' : 'error', data.message))
+                .catch(() => setPosCodeFeedback('', ''));
+        }
+
+        if (posCodeInput) {
+            posCodeInput.addEventListener('input', () => {
+                clearTimeout(posCodeTimer);
+                setPosCodeFeedback('', '');
+                posCodeTimer = setTimeout(() => checkPosCode(posCodeInput.value.trim()), 400);
+            });
+            posCodeInput.addEventListener('blur', () => {
+                clearTimeout(posCodeTimer);
+                checkPosCode(posCodeInput.value.trim());
+            });
+            if (posCodeInput.value.trim()) checkPosCode(posCodeInput.value.trim());
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'orgnization/base.html' %}
+
+{% block title %}Department List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark"><i class="bi bi-buildings"></i> Organization Department Management</h2>
+    <div>
+        <a href="{% url 'org-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        {% if is_manager %}
+        <a href="{% url 'department-add' %}" class="btn btn-success shadow-sm fw-semibold rounded-pill px-4">
+            <i class="bi bi-plus-circle me-1"></i> Add Department
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow border-0 rounded-3">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col" class="py-3 px-4">Code</th>
+                        <th scope="col" class="py-3">Name</th>
+                        <th scope="col" class="py-3">Description</th>
+                        <th scope="col" class="text-center py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dept in departments %}
+                    <tr>
+                        <td class="px-4 fw-semibold text-primary"><i class="bi bi-hash"></i> {{ dept.code }}</td>
+                        <td class="fw-bold">{{ dept.name }}</td>
+                        <td class="text-muted">{{ dept.description }}</td>
+                        <td class="text-center">
+                            {% if is_manager %}
+                            <a href="{% url 'department-edit' dept.pk %}" class="btn btn-outline-primary btn-sm me-1 px-2" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="{% url 'department-delete' dept.pk %}" class="btn btn-outline-danger btn-sm px-2" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-3 text-secondary opacity-50"></i>
+                            No departments found. Click "Add Department" in the top-right corner.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

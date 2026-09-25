@@ -1,0 +1,482 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'Images/favicon.png' %}" type="image/png">
+    <title>{% block title %}miniMES System{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/font/bootstrap-icons.css' %}">
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="{% static 'vendor/jquery-ui/themes/base/jquery-ui.css' %}">
+    <style>
+        /* ═══════════════ Linear Light Design System ═══════════════ */
+        :root {
+            --lin-bg: #f7f8f8;
+            --lin-surface: #ffffff;
+            --lin-surface-alt: #f3f4f5;
+            --lin-border: #e6e6e6;
+            --lin-border-strong: #d0d6e0;
+            --lin-text: #171717;
+            --lin-text-secondary: #5c5f66;
+            --lin-text-muted: #8a8f98;
+            --lin-accent: #5e6ad2;
+            --lin-accent-hover: #7170ff;
+            --lin-green: #10b981;
+            --lin-red: #e5484d;
+            --lin-yellow: #f5a623;
+            --lin-radius-card: 8px;
+            --lin-radius-btn: 6px;
+            --lin-font: 'Inter', -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--lin-bg);
+            min-height: 100vh;
+            color: var(--lin-text);
+            font-family: var(--lin-font);
+            font-size: 14px;
+            letter-spacing: -0.1px;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            background: var(--lin-surface) !important;
+            border-bottom: 1px solid var(--lin-border);
+            box-shadow: none !important;
+        }
+        .navbar-brand {
+            color: var(--lin-text) !important;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+        }
+        .nav-link {
+            color: var(--lin-text-secondary) !important;
+            font-weight: 500;
+            font-size: 13.5px;
+            transition: color 0.15s;
+        }
+        .nav-link:hover {
+            color: var(--lin-accent) !important;
+        }
+
+        /* ── Layout: Topbar + Sidebar ── */
+        .app-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+            background: var(--lin-surface) !important;
+            border-bottom: 1px solid var(--lin-border);
+        }
+        .app-topbar .navbar-brand {
+            font-size: 15px;
+        }
+        /* Sidebar: offcanvas on mobile, fixed below the topbar on desktop */
+        .app-sidebar {
+            width: 280px;
+            background: var(--lin-surface) !important;
+            border-right: 1px solid var(--lin-border);
+        }
+        .app-sidebar .offcanvas-body {
+            padding: 10px 0 24px;
+            overflow-y: auto;
+        }
+        .app-sidenav {
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--lin-text-muted);
+            padding: 14px 18px 6px;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 1px 10px;
+            padding: 8px 12px;
+            color: var(--lin-text-secondary);
+            font-size: 13.5px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .sidebar-link .bi {
+            font-size: 15px;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .sidebar-link:hover {
+            background: var(--lin-surface-alt);
+            color: var(--lin-accent);
+        }
+        .sidebar-link.active {
+            background: rgba(94, 106, 210, 0.08);
+            color: var(--lin-accent);
+            font-weight: 600;
+        }
+        .main-content {
+            min-height: 100vh;
+        }
+        @media (min-width: 992px) {
+            .app-sidebar {
+                position: fixed;
+                top: 56px;
+                bottom: 0;
+                left: 0;
+                z-index: 1020;
+                width: 240px !important;
+                transform: none !important;
+                visibility: visible !important;
+                overflow-y: auto;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--lin-surface) !important;
+            border: 1px solid var(--lin-border) !important;
+            border-radius: var(--lin-radius-card) !important;
+            box-shadow: none !important;
+            transition: border-color 0.15s;
+        }
+        /* Strip all leftover Bootstrap shadows */
+        .shadow, .shadow-sm, .shadow-lg, .shadow-none {
+            box-shadow: none !important;
+        }
+        .card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: var(--lin-border-strong) !important;
+        }
+        .card-header {
+            background: var(--lin-surface-alt) !important;
+            border-bottom: 1px solid var(--lin-border) !important;
+        }
+
+        /* ── Headings ── */
+        h2.fw-bold {
+            color: var(--lin-text);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        h3.fw-bold, h4.fw-bold, h5.fw-bold {
+            color: var(--lin-text);
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            border-radius: var(--lin-radius-btn);
+            font-weight: 500;
+            font-size: 13.5px;
+            letter-spacing: -0.1px;
+        }
+        .btn-primary {
+            background: var(--lin-accent);
+            border-color: var(--lin-accent);
+        }
+        .btn-primary:hover {
+            background: var(--lin-accent-hover);
+            border-color: var(--lin-accent-hover);
+        }
+        .btn-success {
+            background: var(--lin-green);
+            border-color: var(--lin-green);
+        }
+        .btn-success:hover {
+            background: #0ea371;
+            border-color: #0ea371;
+        }
+        .btn-outline-primary {
+            color: var(--lin-accent);
+            border-color: var(--lin-border-strong);
+        }
+        .btn-outline-primary:hover {
+            background: var(--lin-accent);
+            border-color: var(--lin-accent);
+        }
+        .btn-outline-secondary, .btn-outline-danger, .btn-outline-success, .btn-outline-info, .btn-outline-warning {
+            color: var(--lin-text-secondary);
+            border-color: var(--lin-border-strong);
+            background: var(--lin-surface);
+        }
+        .btn-outline-danger:hover {
+            background: var(--lin-red);
+            border-color: var(--lin-red);
+            color: #fff;
+        }
+        /* Keep rounded-pill for filter chips only; everything else uses the smaller radius */
+        .rounded-pill {
+            border-radius: var(--lin-radius-btn) !important;
+        }
+
+        /* ── Tables ── */
+        .table {
+            background: var(--lin-surface);
+            color: var(--lin-text);
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background: var(--lin-surface-alt) !important;
+            color: var(--lin-text-secondary) !important;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--lin-border) !important;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .table tbody td {
+            border-bottom: 1px solid var(--lin-border);
+            font-size: 13.5px;
+            vertical-align: middle;
+        }
+        .table tbody tr:hover {
+            background: var(--lin-surface-alt) !important;
+        }
+        .table-dark thead th {
+            background: var(--lin-text) !important;
+            color: #fff !important;
+        }
+
+        /* ── Badges ── */
+        .badge {
+            font-weight: 500;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+        }
+
+        /* ── Forms ── */
+        .form-control, .form-select {
+            border-radius: var(--lin-radius-btn);
+            border-color: var(--lin-border-strong);
+            font-size: 13.5px;
+            padding: 8px 12px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--lin-accent);
+            box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.15);
+        }
+        .form-label {
+            font-weight: 600;
+            font-size: 12.5px;
+            color: var(--lin-text-secondary);
+            letter-spacing: 0.1px;
+        }
+
+        /* ── Pagination ── */
+        .pagination .page-link {
+            color: var(--lin-text-secondary);
+            border-color: var(--lin-border);
+        }
+        .pagination .page-item.active .page-link {
+            background: var(--lin-accent);
+            border-color: var(--lin-accent);
+        }
+
+        /* ── Alerts ── */
+        .alert {
+            border-radius: var(--lin-radius-card);
+            border: 1px solid var(--lin-border);
+        }
+
+        /* ── Modal ── */
+        .modal-content {
+            border: 1px solid var(--lin-border);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ── Text utilities ── */
+        .text-primary { color: var(--lin-accent) !important; }
+        .text-success { color: var(--lin-green) !important; }
+        .text-danger { color: var(--lin-red) !important; }
+        .text-muted { color: var(--lin-text-muted) !important; }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar (Dashboard / Profile / Logout) -->
+    <nav class="navbar app-topbar px-3">
+        <div class="d-flex align-items-center gap-2">
+            <button class="navbar-toggler d-lg-none border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand fw-bold" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'landing-page' %}{% endif %}">
+                <i class="bi bi-box-seam me-2"></i>miniMES System
+            </a>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-1">
+            {% if user.is_authenticated %}
+                <a class="nav-link px-2" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+                <a class="nav-link px-2" href="{% url 'profile' %}"><i class="bi bi-person-vcard me-1"></i>Profile</a>
+                <span class="nav-link d-none d-md-inline"><i class="bi bi-person-circle me-1 text-primary"></i>{{ user.username }}</span>
+                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn nav-link text-danger border-0 bg-transparent"><i class="bi bi-box-arrow-right me-1"></i>Sign Out</button>
+                </form>
+            {% else %}
+                <a class="nav-link text-primary" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-1"></i>Sign In</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if user.is_authenticated %}
+    <!-- Sidebar (Module Navigation; Fixed on desktop, Offcanvas on mobile) -->
+    <div class="offcanvas offcanvas-start app-sidebar" tabindex="-1" id="appSidebar" aria-labelledby="appSidebarLabel">
+        <div class="offcanvas-header d-lg-none border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="appSidebarLabel"><i class="bi bi-box-seam me-2"></i>miniMES System</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="app-sidenav">
+                <div class="nav-section-title">Master Data</div>
+                <a class="sidebar-link" data-nav="/org/" href="{% url 'org-dashboard' %}"><i class="bi bi-diagram-3"></i>Organization</a>
+                <a class="sidebar-link" data-nav="/equipment/" href="{% url 'equipment-dashboard' %}"><i class="bi bi-tools"></i>Equipment</a>
+                <a class="sidebar-link" data-nav="/material/" href="{% url 'material-dashboard' %}"><i class="bi bi-box-seam"></i>Materials</a>
+                <a class="sidebar-link" data-nav="/product/" href="{% url 'product-dashboard' %}"><i class="bi bi-layers"></i>Products</a>
+                <a class="sidebar-link" data-nav="/supplier/" href="{% url 'supplier-dashboard' %}"><i class="bi bi-truck"></i>Suppliers</a>
+                <a class="sidebar-link" data-nav="/customer/" href="{% url 'customer:customer-dashboard' %}"><i class="bi bi-person-vcard"></i>Customers</a>
+
+                <div class="nav-section-title">Inventory</div>
+                <a class="sidebar-link" data-nav="/material/transactions/" href="{% url 'stock-transaction-list' %}"><i class="bi bi-arrow-left-right"></i>Material Transactions</a>
+                <a class="sidebar-link" data-nav="/product/transactions/" href="{% url 'product-stock-transaction-list' %}"><i class="bi bi-arrow-repeat"></i>Product Transactions</a>
+
+                <div class="nav-section-title">Production</div>
+                <a class="sidebar-link" data-nav="/production/" href="{% url 'production-dashboard' %}"><i class="bi bi-speedometer2"></i>Production Dashboard</a>
+                <a class="sidebar-link" data-nav="/production/workorders" href="{% url 'workorder-list' %}"><i class="bi bi-list-check"></i>Work Orders</a>
+                <a class="sidebar-link" data-nav="/production/bom" href="{% url 'bom-list' %}"><i class="bi bi-diagram-2"></i>Bill of Materials (BOM)</a>
+                <a class="sidebar-link" data-nav="/production/process-cards" href="{% url 'process-card-list' %}"><i class="bi bi-signpost-split"></i>Process Cards</a>
+
+                <div class="nav-section-title">Knowledge Base</div>
+                <a class="sidebar-link" data-nav="/documents/" href="{% url 'documents-dashboard' %}"><i class="bi bi-file-earmark-text"></i>Documents</a>
+                <a class="sidebar-link" data-nav="/files/" href="{% url 'filelibrary:file-library-list' %}"><i class="bi bi-folder2-open"></i>File Library</a>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="{% if user.is_authenticated %}main-content{% endif %}">
+        <div class="container-fluid px-4 pt-4 pb-5">
+            {% if messages %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    
+    <!-- jQuery -->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    {% block jquery_ui %}
+    <!-- jQuery UI (loaded only on pages that need date pickers) -->
+    <script src="{% static 'vendor/jquery-ui/jquery-ui.min.js' %}"></script>
+    <script>
+        $(function() {
+            // Apply datepicker to any input with 'date' in its name
+            $('input[name*="date"], input[id*="date"]').datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true
+            });
+        });
+    </script>
+    {% endblock %}
+    {% block extra_js %}{% endblock %}
+
+    <script>
+    // ── Shared: highlight the active sidebar module (longest prefix match) ──
+    (function () {
+        var path = window.location.pathname;
+        var links = document.querySelectorAll('.app-sidebar .sidebar-link[data-nav]');
+        var best = null;
+        links.forEach(function (a) {
+            var nav = a.getAttribute('data-nav');
+            if (path === nav || path.indexOf(nav) === 0) {
+                if (!best || nav.length > best.getAttribute('data-nav').length) best = a;
+            }
+        });
+        if (best) best.classList.add('active');
+    })();
+    </script>
+
+    <script>
+    // ── Shared: after Cropper cropping, compress to the target size (default <100KB) before upload ──
+    function compressCroppedToDataUrl(canvas, maxBytes) {
+        maxBytes = maxBytes || 100 * 1024; // default 100KB
+        let result = null;
+
+        function tryEncode(w, h, q) {
+            const c = document.createElement('canvas');
+            c.width = w;
+            c.height = h;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(canvas, 0, 0, w, h);
+            const url = c.toDataURL('image/jpeg', q);
+            const bytes = Math.round((url.length - url.indexOf(',') - 1) * 3 / 4);
+            return { url: url, bytes: bytes };
+        }
+
+        // Phase 1: keep the size, lower the quality step by step
+        let quality = 0.9;
+        while (quality >= 0.3) {
+            const r = tryEncode(canvas.width, canvas.height, quality);
+            if (r.bytes <= maxBytes) return r.url;
+            result = r;
+            quality -= 0.1;
+        }
+
+        // Phase 2: still too large at the lowest quality → shrink the dimensions and retry
+        let width = canvas.width;
+        let height = canvas.height;
+        while (width > 100 && height > 100) {
+            width = Math.max(100, Math.round(width * 0.7));
+            height = Math.max(100, Math.round(height * 0.7));
+            quality = 0.8;
+            while (quality >= 0.4) {
+                const r = tryEncode(width, height, quality);
+                if (r.bytes <= maxBytes) return r.url;
+                result = r;
+                quality -= 0.1;
+            }
+        }
+
+        // Worst case: return the smallest result we have so far
+        return result ? result.url : canvas.toDataURL('image/jpeg', 0.3);
+    }
+    </script>
+</body>
+</html>

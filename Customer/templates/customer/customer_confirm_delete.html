@@ -1,0 +1,28 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Confirm Delete Customer - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:52px;height:52px;border-radius:12px;background:rgba(229,72,77,0.1);">
+                        <i class="bi bi-exclamation-triangle text-danger" style="font-size:1.6rem;"></i>
+                    </div>
+                    <h4 class="fw-bold">Are you sure you want to delete this customer?</h4>
+                    <p class="text-muted mb-0">Customer: <strong>{{ object.name }}</strong> ({{ object.customer_id }})</p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'customer:customer-list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Confirm Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

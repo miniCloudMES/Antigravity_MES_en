@@ -1,0 +1,72 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Stock Adjustment - {{ material.material_id }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold"><i class="bi bi-arrow-left-right text-success me-2"></i>Material Stock Adjustment</h2>
+        <p class="text-muted">Material: <strong class="text-success">{{ material.material_id }}</strong> {{ material.name }}; current stock: <strong>{{ material.stock_quantity }}</strong> {{ material.get_unit_display }}</p>
+    </div>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-body p-4">
+                <form method="post" class="row g-3">
+                    {% csrf_token %}
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Transaction Type <span class="text-danger">*</span></label>
+                        {{ form.type }}
+                        {% if form.type.errors %}
+                            <div class="text-danger small mt-1">{{ form.type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Quantity <span class="text-danger">*</span></label>
+                        {{ form.quantity }}
+                        {% if form.quantity.help_text %}
+                            <div class="text-muted small mt-1">{{ form.quantity.help_text }}</div>
+                        {% endif %}
+                        {% if form.quantity.errors %}
+                            <div class="text-danger small mt-1">{{ form.quantity.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Reference No.</label>
+                        {{ form.reference }}
+                        {% if form.reference.errors %}
+                            <div class="text-danger small mt-1">{{ form.reference.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Remark</label>
+                        {{ form.remark }}
+                        {% if form.remark.errors %}
+                            <div class="text-danger small mt-1">{{ form.remark.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'material-list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-success rounded-pill px-5">
+                            <i class="bi bi-check-lg me-1"></i> Apply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

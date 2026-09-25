@@ -1,0 +1,402 @@
+Customer\tests.py#11#"""Customer模組角色權限測試：新增/Edit/Delete僅限 admin 與 manager，operator 僅能瀏覽"""
+Customer\tests.py#36## force_login 直接以 auth.User 登入（繞過 EmployeeNoBackend 的 emp_no 查詢）
+Dashboard\templates\dashboard\dashboard_industrial.html#10#/* ═══════════════ Industrial Data-Dense Dashboard（ui-ux-pro-max 設計系統） ═══════════════
+Dashboard\templates\dashboard\dashboard_industrial.html#11#風格：Data-Dense Dashboard | 配色：#1E40AF 藍 + #F59E0B 琥珀 | 字型：Fira Sans / Fira Code（降級 Inter + 等寬） */
+Dashboard\templates\dashboard\dashboard_industrial.html#37#/* ── KPI 卡片（Data-Dense） ── */
+Dashboard\templates\dashboard\dashboard_industrial.html#68#/* ── 資料表（Data-Dense） ── */
+Dashboard\templates\dashboard\landing.html#9#<!-- Inter Font（本地 vendor） -->
+Dashboard\tests.py#10#"""儀表板模板切換測試：classic（原版）與 industrial（工業風）可互相切換，偏好存於 session"""
+Dashboard\views.py#23#"""模板選擇：URL ?template= 優先，其次 session 偏好，預設 classic"""
+Dashboard\views.py#61#"""切換儀表板模板（classic / industrial），偏好存於 session"""
+Documents\templates\documents\document_submit.html#24#Version: v{{ document.version }}　．　Current status: {% if document.status == 'draft' %}Draft{% endif %}
+Documents\views.py#209#messages.success(request, f'Document「{title}" has been deleted.')
+Documents\views.py#258#messages.success(request, f"Category「{name}" has been deleted.")
+Documents\views.py#307#messages.success(request, f"Document「{document.title}」Approved。")
+Documents\views.py#316#messages.warning(request, f"Document「{document.title}」Rejected。")
+Equipment\views.py#101#messages.success(self.request, f'Equipment Category「{self.object.name}" has been created.')
+Equipment\views.py#113#messages.success(self.request, f'Equipment Category「{self.object.name}" has been updated.')
+Equipment\views.py#123#messages.success(self.request, f'Equipment Category「{self.object.name}" has been deleted.')
+Equipment\views.py#144#messages.success(self.request, f'Equipment「{self.object.name}" has been created.')
+Equipment\views.py#156#messages.success(self.request, f'Equipment「{self.object.name}" has been updated.')
+Equipment\views.py#166#messages.success(self.request, f'Equipment「{self.object.name}" has been deleted.')
+FileLibrary\management\commands\retranscode_h265.py#7#help = '把Completed的 H.265 Standardized Video重置為待轉檔（改用 H.264 後重轉）'
+FileLibrary\management\commands\retranscode_h265.py#10#parser.add_argument('--sync', action='store_true', help='同步執行（等轉完才結束）')
+FileLibrary\management\commands\retranscode_h265.py#11#parser.add_argument('--list-only', action='store_true', help='只列出，不重轉')
+FileLibrary\management\commands\retranscode_h265.py#17#self.stdout.write(f'Completed的影片：{done.count()} 支')
+FileLibrary\management\commands\retranscode_h265.py#23#self.stdout.write('沒有需要重轉的影片。')
+FileLibrary\management\commands\retranscode_h265.py#26#self.stdout.write(f'重置 {done.count()} 支影片為待轉檔（H.264）…')
+FileLibrary\management\commands\retranscode_h265.py#33#self.stdout.write(self.style.SUCCESS('Completed。'))
+FileLibrary\management\commands\retry_transcodes.py#8#help = '掃描未Completed轉檔的影片並重新觸發轉檔（cron 用）'
+FileLibrary\management\commands\retry_transcodes.py#11#parser.add_argument('--sync', action='store_true', help='同步執行（等轉完才結束，適合 cron）')
+FileLibrary\management\commands\retry_transcodes.py#12#parser.add_argument('--list-only', action='store_true', help='只列出未Completed的影片，不轉檔')
+FileLibrary\management\commands\retry_transcodes.py#21#self.stdout.write(f'未Completed轉檔影片：{pending.count()} 支')
+FileLibrary\management\commands\retry_transcodes.py#27#self.stdout.write('沒有需要重新轉檔的影片。')
+FileLibrary\management\commands\retry_transcodes.py#37#self.stdout.write(self.style.SUCCESS('Completed。'))
+FileLibrary\templates\filelibrary\category_form.html#9#<p class="text-muted mb-0" style="font-size:13px;">{% if action == '建立' %}建立新的檔案分類。{% else %}更新分類資訊。{% endif %}</p>
+FileLibrary\templates\filelibrary\category_list.html#10#<p class="text-muted mb-0" style="font-size:13px;">管理檔案庫的分類項目。</p>
+FileLibrary\templates\filelibrary\category_list.html#45#<form method="post" action="{% url 'filelibrary:file-category-delete' cat.pk %}" class="d-inline" onsubmit="return confirm('確定要刪除分類「{{ cat.name }}」嗎？');">
+FileLibrary\templates\filelibrary\file_library_list.html#10#<p class="text-muted mb-0" style="font-size:13px;">集中管理系統檔案，支援上傳、下載與分類。</p>
+FileLibrary\templates\filelibrary\file_library_list.html#50#<strong>有 {{ pending_videos|length }} 支影片尚未完成轉檔：</strong>
+FileLibrary\templates\filelibrary\file_library_list.html#52#{% for f in pending_videos %}{{ f.title }}{% if not forloop.last %}、{% endif %}{% endfor %}
+FileLibrary\templates\filelibrary\file_library_list.html#56#<button type="submit" class="btn btn-warning btn-sm rounded-pill px-3" onclick="return confirm('確定要重新啟動這些影片的轉檔嗎？');">
+FileLibrary\templates\filelibrary\file_library_list.html#133#<a href="{% url 'filelibrary:file-video-play' f.pk %}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="播放（720p/H.264）">
+FileLibrary\templates\filelibrary\file_library_list.html#144#<form method="post" action="{% url 'filelibrary:file-delete' f.pk %}" class="d-inline" onsubmit="return confirm('確定要刪除檔案「{{ f.title }}」嗎？');">
+FileLibrary\templates\filelibrary\file_upload.html#5#{# 上傳頁不需要 jQuery UI/datepicker，跳過以減輕手機記憶體負擔 #}
+FileLibrary\templates\filelibrary\file_upload.html#13#{% if editing %}更新檔案資訊或替換檔案內容。{% else %}上傳檔案至檔案庫，支援 PDF、Excel、Word 等格式。{% endif %}
+FileLibrary\templates\filelibrary\file_upload.html#14#{% if not editing %}<span class="text-secondary">（單檔上限 {{ max_file_size|filesizeformat }}，超過 {{ chunk_size|filesizeformat }} 自動分片上傳）</span>{% endif %}
+FileLibrary\templates\filelibrary\file_upload.html#24#<!-- 編輯模式：一般表單 -->
+FileLibrary\templates\filelibrary\file_upload.html#43#<!-- 上傳模式：一般 or 分片 -->
+FileLibrary\templates\filelibrary\file_upload.html#71#<div class="form-text">單檔上限 {{ max_file_size|filesizeformat }}，超過 {{ chunk_size|filesizeformat }} 自動分片上傳並顯示進度。</div>
+FileLibrary\templates\filelibrary\file_upload.html#114#<textarea id="catDesc" class="form-control" rows="2" placeholder="描述（選填）"></textarea>
+FileLibrary\templates\filelibrary\file_upload.html#144#if (!name) { $('#catError').removeClass('d-none').text('請輸入分類名稱。'); return; }
+FileLibrary\templates\filelibrary\file_upload.html#153#$('#catError').removeClass('d-none').text(res.error || '建立失敗。');
+FileLibrary\templates\filelibrary\file_upload.html#156#let msg = '建立失敗，請稍後再試。';
+FileLibrary\templates\filelibrary\file_upload.html#162#// ── 上傳：小檔一般 POST，大檔分片 ──
+FileLibrary\templates\filelibrary\file_upload.html#175#alert('檔案超過 ' + (MAX_SIZE / 1024 / 1024) + 'MB 上限！');
+FileLibrary\templates\filelibrary\file_upload.html#193#// 查詢已接收分片（斷點續傳）
+FileLibrary\templates\filelibrary\file_upload.html#200#// 若所有分片都已存在但尚未合併，重發最後一片以觸發合併
+FileLibrary\templates\filelibrary\file_upload.html#202#if (nextIndex > 0) setProgress(Math.round((nextIndex / totalChunks) * 100), '續傳中：已存在 ' + nextIndex + ' 個分片…');
+FileLibrary\templates\filelibrary\file_upload.html#210#// 最後一片完成後，後端自動合併；此處再等合併結果
+FileLibrary\templates\filelibrary\file_upload.html#237#alert(res.error || '上傳失敗。');
+FileLibrary\templates\filelibrary\file_upload.html#242#setProgress(100, '合併完成，即將跳轉…');
+FileLibrary\templates\filelibrary\file_upload.html#250#let msg = '分片 ' + (index + 1) + ' 上傳失敗。';
+FileLibrary\templates\filelibrary\video_play.html#38#<p class="text-muted">系統正在背景將影片轉為 720p / H.264 / MP4，請稍候再重新整理此頁。</p>
+FileLibrary\templates\filelibrary\video_play.html#42#<p class="text-muted">{{ f.video_error|default:"無法轉檔此影片。" }}</p>
+FileLibrary\templates\filelibrary\video_play.html#46#<p class="text-muted">此影片尚未完成標準化轉檔。</p>
+FileLibrary\forms.py#13#'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description（選填）'}),
+FileLibrary\forms.py#29#'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'CategoryDescription（選填）'}),
+FileLibrary\tests.py#10#"""File庫：列表需登入、上傳僅限 admin/manager（operator 被拒絕）。"""
+FileLibrary\video.py#1#"""File庫影片標準化轉檔：720p 上限 + H.264 (libx264) + MP4，背景執行緒執行"""
+FileLibrary\video.py#11#VIDEO_CRF = 23                # 畫質參數（H.264 建議 18-28，越小越清晰）
+FileLibrary\video.py#26#"""把影片轉成 720p 上限 / H.264 / MP4，存為 video_standard。
+FileLibrary\video.py#27#sync=True 時同步執行（管理命令/cron 用）；否則背景執行緒。
+FileLibrary\video.py#50## 輸出檔名：<原名>_<uuid8>_720p.mp4（防路徑穿越、避免碰撞）
+FileLibrary\video.py#57## scale：min(1280,iw) / min(720,ih) 只縮不放大；force_original_aspect_ratio 保持比例。
+FileLibrary\video.py#58## 注意：filter 內的逗號必須用 \, 跳脫（subprocess 直傳無 shell 引號語法），
+FileLibrary\video.py#59## 且 libx264 要求偶數寬高 → pad 補齊。
+FileLibrary\video.py#79#_mark_failed(lib_file, '轉檔逾時（超過 1 小時）')
+FileLibrary\video.py#82#_mark_failed(lib_file, f'轉檔執行失敗：{e}')
+FileLibrary\video.py#87#_mark_failed(lib_file, f'ffmpeg 錯誤：{err[-400:]}')
+FileLibrary\video.py#90## 成功：關聯標準版
+FileLibrary\views.py#56## 未Completed轉檔的影片（PENDING 等待 / PROCESSING 卡住 / FAILED 失敗）
+FileLibrary\views.py#78#"""重新觸發未Completed影片的轉檔（可指定單支或全部未Completed）"""
+FileLibrary\views.py#80#messages.error(request, '您沒有權限執行此Action。')
+FileLibrary\views.py#92#messages.error(request, '此File不是影片。')
+FileLibrary\views.py#95#messages.info(request, f'「{target.title}」Completed轉檔，無需重試。')
+FileLibrary\views.py#100#messages.info(request, '沒有需要重新轉檔的影片。')
+FileLibrary\views.py#111#suffix = f'（{target_name}）' if pk else ''
+FileLibrary\views.py#112#messages.success(request, f'已重新啟動 {count} 支影片的轉檔{suffix}，請稍候查看狀態。')
+FileLibrary\views.py#119#messages.error(request, '您沒有權限上傳File。')
+FileLibrary\views.py#128## 影片：背景標準化轉檔（720p / H.264 / MP4）
+FileLibrary\views.py#134#messages.success(request, f'File「{f.title}」已上傳，影片正在背景轉檔（720p/H.264）。')
+FileLibrary\views.py#136#messages.success(request, f'File「{f.title}」已上傳。')
+FileLibrary\views.py#147## ── 分片上傳（Chunk） ───────────────────────────────────────────────────────
+FileLibrary\views.py#150#"""分片暫存目錄：media/chunk_tmp/<upload_id>/"""
+FileLibrary\views.py#162#"""查詢已收到的分片編號（支援斷點續傳）"""
+FileLibrary\views.py#164#return JsonResponse({'success': False, 'error': '無權限。'}, status=403)
+FileLibrary\views.py#167#return JsonResponse({'success': False, 'error': '缺少 upload_id。'}, status=400)
+FileLibrary\views.py#183#"""接收一個分片；最後一片到達時合併為完整File"""
+FileLibrary\views.py#185#return JsonResponse({'success': False, 'error': '您沒有權限上傳File。'}, status=403)
+FileLibrary\views.py#200#return JsonResponse({'success': False, 'error': '分片參數格式錯誤。'}, status=400)
+FileLibrary\views.py#203#return JsonResponse({'success': False, 'error': '缺少必要參數。'}, status=400)
+FileLibrary\views.py#205#return JsonResponse({'success': False, 'error': '分片編號錯誤。'}, status=400)
+FileLibrary\views.py#207#return JsonResponse({'success': False, 'error': f'File超過 {MAX_FILE_SIZE // 1024 // 1024}MB 上限。'}, status=400)
+FileLibrary\views.py#209## 檢查 upload_id 合法性（只允許 uuid 格式，防路徑穿越）
+FileLibrary\views.py#213#return JsonResponse({'success': False, 'error': '無效的 upload_id。'}, status=400)
+FileLibrary\views.py#223## 若未全部到達，回報目前進度
+FileLibrary\views.py#244#raise ValueError(f'合併大小不符：{merged_size} != {total_size}')
+FileLibrary\views.py#249#return JsonResponse({'success': False, 'error': f'合併失敗：{e}'}, status=500)
+FileLibrary\views.py#278## 影片：背景標準化轉檔（720p / H.264 / MP4）
+FileLibrary\views.py#297#messages.error(request, '只有系統管理員可以EditFile。')
+FileLibrary\views.py#305#messages.success(request, f'File「{f.title}" has been updated.')
+FileLibrary\views.py#316#messages.error(request, '只有系統管理員可以DeleteFile。')
+FileLibrary\views.py#330#messages.success(request, f'File「{title}" has been deleted.')
+FileLibrary\views.py#344## 用 X-Accel-Redirect 交給 nginx 直接傳檔（不佔 uWSGI worker）
+FileLibrary\views.py#354#"""影片標準版僅供線上播放（720p/H.264/MP4），不提供下載"""
+FileLibrary\views.py#363## 一律 inline 播放（X-Accel-Redirect 交給 nginx 串流，支援 Range），不下載
+FileLibrary\views.py#374#"""影片播放頁（新分頁）：黑底播放器，串流壓縮後的標準版（720p/H.264）"""
+FileLibrary\views.py#379## 尚未轉檔Completed：提供狀態提示
+FileLibrary\views.py#390## ── Image預覽（後端壓縮 <100KB） ────────────────────────────────────────────
+FileLibrary\views.py#399#"""Image格式：後端用 Pillow 壓縮到 <100KB 後回傳 JPEG（SVG 直接回傳原檔）"""
+FileLibrary\views.py#413## SVG：向量格式，直接回傳原檔
+FileLibrary\views.py#421## Other格式：Pillow 開啟 → 縮尺寸 → 品質階梯壓縮 <100KB
+FileLibrary\views.py#429## 多幀格式（GIF）取第一幀；統一 RGB
+FileLibrary\views.py#445## 第一階段：固定尺寸，品質 85 → 75 → … → 20
+FileLibrary\views.py#452## 第二階段：品質到底仍超標 → 縮小尺寸（1200 → 800 → 500 → 300）再配品質
+FileLibrary\views.py#460## 極限：300px / q=20
+FileLibrary\views.py#466## ── Category管理（僅 admin） ────────────────────────────────────────────────────
+FileLibrary\views.py#470#"""上傳表單內建的新增Category端點（admin/manager 可用）"""
+FileLibrary\views.py#472#return JsonResponse({'success': False, 'error': '您沒有權限新增Category。'}, status=403)
+FileLibrary\views.py#483#return JsonResponse({'success': False, 'error': '僅支援 POST。'}, status=405)
+FileLibrary\views.py#489#messages.error(request, '只有系統管理員可以管理Category。')
+FileLibrary\views.py#498#messages.error(request, '只有系統管理員可以新增Category。')
+FileLibrary\views.py#504#messages.success(request, 'Category已Create。')
+FileLibrary\views.py#514#messages.error(request, '只有系統管理員可以EditCategory。')
+FileLibrary\views.py#521#messages.success(request, 'Category已更新。')
+FileLibrary\views.py#532#messages.error(request, '只有系統管理員可以DeleteCategory。')
+FileLibrary\views.py#536#messages.error(request, f'Category「{category.name}」下仍有File，無法Delete。')
+FileLibrary\views.py#539#messages.success(request, f'Category「{category.name}" has been deleted.')
+Material\templates\material\stock_transaction_list.html#48#<span class="text-muted">～</span>
+Material\tests.py#12#"""Material模組：列表需登入、新增僅限 admin/manager。
+Material\tests.py#14#注意：Material 有資料搬遷種子資料（MAT-001~005、MAT-T9 等），
+Material\tests.py#15#因此斷言一律以「相對變化」為準，不可假設資料表為空。
+Material\tests.py#52## 新建MaterialStock一律為 0，Inbound須透過Stock交易留下紀錄
+Material\tests.py#56#"""表單已移除Stock欄位，即使 POST 帶 stock_quantity 也不可寫入。"""
+Material\tests.py#70#"""EditMaterial時不得改動StockQuantity。"""
+Material\tests.py#78#'name': '測試Material三（改名）',
+Material\tests.py#86#self.assertEqual(mat.name, '測試Material三（改名）')
+Material\tests.py#90#"""Edit頁僅顯示唯讀Stock，不提供可Edit的Stock欄位。"""
+Material\tests.py#103#"""MaterialStock交易清單：日期區間篩選、單一項目檢視、合計。"""
+Material\tests.py#143#"""從Material列表點進來的 ?material=<pk> 只顯示該Material。"""
+Material\tests.py#156#"""日期區間之外（未來）不得出現任何資料。"""
+Material\tests.py#173#"""Material列表每列要有可點的交易紀錄連結。"""
+Material\views.py#166#messages.success(self.request, f'Material Category「{self.object.name}" has been created.')
+Material\views.py#179#messages.success(self.request, f'Material Category「{self.object.name}" has been updated.')
+Material\views.py#190#messages.success(self.request, f'Material Category「{self.object.name}" has been deleted.')
+Material\views.py#228#messages.success(self.request, f'Material「{self.object.name}" has been created.')
+Material\views.py#241#messages.success(self.request, f'Material「{self.object.name}" has been updated.')
+Material\views.py#252#messages.success(self.request, f'Material「{self.object.name}" has been deleted.')
+miniMES\settings.py#32## 生產環境務必透過環境變數 DJANGO_SECRET_KEY 提供（例如：openssl rand -hex 32）。
+miniMES\settings.py#33## 未設定時Reject開發用金鑰，僅供本機開發。
+miniMES\settings.py#40## 生產環境請設定 DJANGO_DEBUG=false。
+miniMES\settings.py#43## 逗號分隔的允許主機清單，例如：DJANGO_ALLOWED_HOSTS=example.com,www.example.com
+miniMES\settings.py#44## 未設定時Reject '*'（僅建議開發環境使用）。
+miniMES\settings.py#51## 選擇性生產安全強化（皆預設關閉，不會影響開發環境）：
+miniMES\settings.py#178## 影片轉檔用 ffmpeg（伺服器通常為系統 ffmpeg；開發機可用 imageio-ffmpeg）
+Orgnization\templates\orgnization\employee_form.html#140#{# ── Cropper.js（本地 vendor）── #}
+Orgnization\tests_base.py#2#共用的角色權限測試基底。
+Orgnization\tests_base.py#4#Create admin / manager / operator 三位員工並提供登入輔助，
+Orgnization\tests_base.py#5#讓各模組的 tests.py 直接繼承，避免重複 boilerplate。
+Orgnization\tests_base.py#6#（檔名不以 test_ 開頭，故不會被 Django 測試探索器當成測試模組。）
+Orgnization\tests_base.py#17#"""提供三位不同角色員工與登入輔助的測試基底。"""
+Orgnization\tests_base.py#42## force_login 直接以 auth.User 登入（繞過 EmployeeNoBackend 的 emp_no 查詢）
+Orgnization\tests.py#11#"""組織模組：員工列表需登入、新增僅限 admin/manager。"""
+Orgnization\tests.py#47#"""列表應帶出部門/職位名稱（select_related）。"""
+Orgnization\tests.py#56#"""側邊欄導覽：Stock交易入口須可直接點選。"""
+Orgnization\tests.py#67#"""側邊欄指到的兩個 URL 都要能正常開啟。"""
+Product\templates\product\product_stock_transaction_list.html#53#<span class="text-muted">～</span>
+Production\templates\production\bom_confirm_delete.html#12#<h4 class="fw-bold mb-2">確認刪除 BOM？</h4>
+Production\templates\production\bom_confirm_delete.html#13#<p class="text-muted mb-1">您即將刪除以下 BOM 及其所有子件明細：</p>
+Production\templates\production\bom_confirm_delete.html#14#<p class="fw-bold fs-5 mb-4">{{ object.product.name }}（版本 {{ object.version }}）</p>
+Production\templates\production\bom_confirm_delete.html#15#<p class="text-danger small mb-4">此操作無法復原，相關子件明細也將一併刪除。</p>
+Production\templates\production\bom_detail.html#10#<p class="text-muted mb-0">成品：<strong>{{ bom.product.name }}</strong>（{{ bom.product.product_id }}）　版本：<span class="badge bg-secondary">{{ bom.version }}</span></p>
+Production\templates\production\bom_detail.html#97#<i class="bi bi-inbox me-1"></i>此 BOM 尚無子件，請編輯後新增。
+Production\templates\production\bom_form.html#26#<label class="form-label fw-semibold">成品（母件）<span class="text-danger">*</span></label>
+Production\templates\production\bom_list.html#9#<h2 class="fw-bold"><i class="bi bi-diagram-2 text-info me-2"></i>物料清單（BOM）</h2>
+Production\templates\production\bom_list.html#10#<p class="text-muted mb-0">管理各成品的物料組成與用量。</p>
+Production\templates\production\bom_list.html#30#<th>成品（母件）</th>
+Production\templates\production\bom_list.html#72#<i class="bi bi-inbox fs-2 d-block mb-2"></i>尚無 BOM 資料，請先新增。
+Production\templates\production\process_card_detail.html#10#<p class="text-muted mb-0" style="font-size:13px;">產品編號：<code>{{ product.product_id }}</code>　工序數：<span class="badge bg-primary rounded-pill">{{ steps|length }}</span></p>
+Production\templates\production\process_card_detail.html#68#<div class="text-muted small mb-1"><i class="bi bi-file-earmark-text me-1"></i>參考文件（SOP）</div>
+Production\templates\production\process_card_detail.html#72#<i class="bi bi-file-earmark-text me-1"></i>{{ step.document.title }}{% if step.document.code %}（{{ step.document.code }}）{% endif %}
+Production\templates\production\process_card_form.html#18#<p class="text-muted mb-0" style="font-size:13px;">產品：<strong>{{ product.name }}</strong>（<code>{{ product.product_id }}</code>）— 依序填寫各工序的加工指導。</p>
+Production\templates\production\process_card_form.html#32#<h6 class="fw-bold text-muted mb-0"><i class="bi bi-list-ol me-1"></i>工序明細（依序號排列）</h6>
+Production\templates\production\process_card_form.html#96#<label class="form-label fw-semibold small">標準工時（分）</label>
+Production\templates\production\process_card_form.html#143#// 載入既有內容（Django textarea 值）
+Production\templates\production\process_card_form.html#147#// 編輯時同步回 textarea（form 提交靠它）
+Production\templates\production\process_card_form.html#176#// 移除被 clone 的 Quill 產生物，避免衝突
+Production\templates\production\process_card_list.html#10#<p class="text-muted mb-0" style="font-size:13px;">各產品的標準製程工序：人員、設備、物料、文件與品管要求。工單建立時自動帶入。</p>
+Production\templates\production\production_dashboard.html#9#<p class="text-muted mb-0" style="font-size:13px;">管理生產工單、追蹤生產進度與相關資源。</p>
+Production\templates\production\production_dashboard.html#82#<p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">建立、編輯與追蹤所有生產工單的狀態。</p>
+Production\templates\production\production_dashboard.html#94#<h5 class="fw-semibold mb-0">物料清單（BOM）</h5>
+Production\templates\production\production_dashboard.html#96#<p class="text-muted mb-2" style="font-size:13px;">定義成品的子件組成與用量。</p>
+Production\templates\production\production_dashboard.html#98#共 <strong style="color:var(--lin-text);">{{ total_boms }}</strong> 筆 BOM，
+Production\templates\production\production_dashboard.html#99#啟用中 <strong style="color:var(--lin-green);">{{ active_boms }}</strong> 筆。
+Production\templates\production\production_dashboard.html#114#<p class="text-muted mb-2" style="font-size:13px;">定義各產品標準製程：人員、設備、物料、文件與品管要求。</p>
+Production\templates\production\production_dashboard.html#116#已定義 <strong style="color:var(--lin-text);">{{ process_card_count }}</strong> 個產品的製程。
+Production\templates\production\production_dashboard.html#131#<p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">查看各站別良品/不良品/遺失數量、工單流轉與總損耗分析。</p>
+Production\templates\production\workorder_confirm_delete.html#11#<p class="text-muted">您確定要刪除工單 <strong>{{ workorder.order_number }}</strong> 嗎？</p>
+Production\templates\production\workorder_confirm_delete.html#12#<p class="text-danger">這個操作無法復原！</p>
+Production\templates\production\workorder_detail.html#11#生產產品：<strong>{{ object.product.name }}</strong>；數量：<strong>{{ object.quantity }}</strong>
+Production\templates\production\workorder_detail.html#12#{% if object.customer %}；客戶：<strong>{{ object.customer.name }}</strong>{% endif %}
+Production\templates\production\workorder_detail.html#13#{% if object.lot_number %}；批號：<strong><code>{{ object.lot_number }}</code></strong>{% endif %}
+Production\templates\production\workorder_detail.html#29#<!-- 工單 QR-Code（工單開頭） -->
+Production\templates\production\workorder_detail.html#98#工序 {{ object.current_step.step_number }}：{{ object.current_step.name }}
+Production\templates\production\workorder_detail.html#100#<span class="text-muted">—（無進行中工序）</span>
+Production\templates\production\workorder_detail.html#126#<small class="text-muted">工序 {{ object.previous_step.step_number }}：{{ object.previous_step.name }}</small>
+Production\templates\production\workorder_detail.html#188#<small class="d-block text-muted">依 BOM 確認物料數量（已確認 {{ picking_confirmed|default:0 }}/{{ picking_total|default:0 }}）</small>
+Production\templates\production\workorder_detail.html#199#<small class="d-block text-info" title="進站備註：{{ step.track_in_note }}"><i class="bi bi-box-arrow-in-right me-1"></i>{{ step.track_in_note|truncatechars:30 }}</small>
+Production\templates\production\workorder_detail.html#202#<small class="d-block text-success" title="出站備註：{{ step.track_out_note }}"><i class="bi bi-box-arrow-right me-1"></i>{{ step.track_out_note|truncatechars:30 }}</small>
+Production\templates\production\workorder_detail.html#213#<a href="{% url 'document-detail' step.document.pk %}" target="_blank" title="開啟文件：{{ step.document.title }}">
+Production\templates\production\workorder_detail.html#251#<a href="{% url 'workorder-picking' object.pk %}" class="btn btn-sm btn-outline-primary" title="領料確認（依 BOM 核對物料數量）">
+Production\templates\production\workorder_detail.html#257#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#267#<a href="{% url 'workorder-step-track-in' step.pk %}" class="btn btn-sm btn-outline-info" title="進站（Track In）">
+Production\templates\production\workorder_detail.html#273#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#281#<a href="{% url 'workorder-step-quantity' step.pk %}?action=trackout" class="btn btn-sm btn-outline-success" title="出站（Track Out）">
+Production\templates\production\workorder_detail.html#294#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#299#<a href="{% url 'workorder-step-track-in' step.pk %}" class="btn btn-sm btn-outline-info" title="重新進站（Track In）">
+Production\templates\production\workorder_detail.html#302#<a href="{% url 'workorder-step-quantity' step.pk %}?action=trackout" class="btn btn-sm btn-outline-success" title="出站（Track Out）">
+Production\templates\production\workorder_detail.html#308#<button type="submit" class="btn btn-sm btn-outline-secondary" title="取消此工序" onclick="return confirm('確定要取消此工序嗎？');">
+Production\templates\production\workorder_detail.html#330#此工單無加工流程卡{% if object.product.process_steps.exists %}（產品「{{ object.product.name }}」有標準製程，但工單建立於製程定義之前）{% endif %}
+Production\templates\production\workorder_picking.html#9#<h2 class="fw-bold"><i class="bi bi-box-seam text-primary me-2"></i>領料確認（第一站）</h2>
+Production\templates\production\workorder_picking.html#11#工單：<strong>{{ work_order.order_number }}</strong>；
+Production\templates\production\workorder_picking.html#12#產品：<strong>{{ work_order.product.name }}</strong>；
+Production\templates\production\workorder_picking.html#13#數量：<strong>{{ work_order.quantity }}</strong>
+Production\templates\production\workorder_picking.html#14#{% if work_order.bom %}；BOM 版本：<strong>{{ work_order.bom.version }}</strong>{% endif %}
+Production\templates\production\workorder_picking.html#27#<i class="bi bi-exclamation-triangle me-1"></i>此工單沒有領料站（無啟用 BOM），無需領料確認。
+Production\templates\production\workorder_picking.html#31#<i class="bi bi-check-circle me-1"></i><strong>領料已確認完成</strong>（{{ picking_step.actual_end_date|date:"Y-m-d H:i" }}，
+Production\templates\production\workorder_picking.html#32#由 {{ picking_step.track_out_by.employee.name|default:picking_step.track_out_by.username }} 確認）。
+Production\templates\production\workorder_picking.html#36#<i class="bi bi-x-circle me-1"></i>領料站已取消。
+Production\templates\production\workorder_picking.html#40#<i class="bi bi-info-circle me-1"></i>請依 BOM 清單逐項核對物料數量，確認數量正確後點擊「確認領料完成」。
+Production\templates\production\workorder_picking.html#41#確認完成後將<strong>直接扣減庫存</strong>（OUTBOUND 交易）並放行下一工序。
+Production\templates\production\workorder_picking.html#42#確認數量低於應領數量將視為短缺並記錄；確認數量不可超過目前庫存。
+Production\templates\production\workorder_picking.html#88#class="form-control form-control-sm" placeholder="短缺/異常說明（可留空）">
+Production\templates\production\workorder_picking.html#125#<i class="bi bi-box-seam fs-2 d-block mb-2"></i>此工單沒有領料明細（無啟用 BOM）。
+Production\templates\production\workorder_step_quantity.html#11#工單：<strong>{{ step.work_order.order_number }}</strong>；
+Production\templates\production\workorder_step_quantity.html#12#工序：<strong>{{ step.step_number }}. {{ step.name }}</strong>
+Production\templates\production\workorder_step_quantity.html#25#<i class="bi bi-box-arrow-right me-1"></i><strong>出站（Track Out）</strong>：
+Production\templates\production\workorder_step_quantity.html#26#請填報良品 / 不良品 / 遺失數量（須平衡：良品 + 不良品 + 遺失 = 進站數量），並記錄出站時發現的狀況後點擊「確認出站」。
+Production\templates\production\workorder_step_quantity.html#31#<strong><i class="bi bi-signpost-split me-1"></i>加工指導說明：</strong>
+Production\templates\production\workorder_step_quantity.html#68#<i class="bi bi-box-arrow-right"></i> 確認出站（Track Out）
+Production\templates\production\workorder_step_quantity.html#76#<strong>平衡檢查：</strong>
+Production\templates\production\workorder_step_quantity.html#85#<br><strong>下一站應領：</strong>{{ step.passed_quantity }}
+Production\templates\production\workorder_step_track_in.html#9#<h2 class="fw-bold"><i class="bi bi-box-arrow-in-right text-info me-2"></i>進站（Track In）</h2>
+Production\templates\production\workorder_step_track_in.html#11#工單：<strong>{{ step.work_order.order_number }}</strong>；
+Production\templates\production\workorder_step_track_in.html#12#工序：<strong>{{ step.step_number }}. {{ step.name }}</strong>
+Production\templates\production\workorder_step_track_in.html#13#{% if step.equipment %}；設備：<strong>{{ step.equipment.name }}</strong>{% endif %}
+Production\templates\production\workorder_step_track_in.html#26#<strong><i class="bi bi-arrow-right-circle me-1 text-primary"></i>前一站「{{ prev_step.name }}」流轉數量：</strong>
+Production\templates\production\workorder_step_track_in.html#27#良品 <strong>{{ prev_step.good_quantity|default:0 }}</strong>、
+Production\templates\production\workorder_step_track_in.html#31#<br><small class="text-muted"><i class="bi bi-chat-left-text me-1"></i>前站出站備註：{{ prev_step.track_out_note }}</small>
+Production\templates\production\workorder_step_track_in.html#38#<strong><i class="bi bi-signpost-split me-1"></i>加工指導說明：</strong>
+Production\templates\production\workorder_step_track_in.html#44#<i class="bi bi-info-circle me-1"></i>進站時請確認本站進站數量，並記錄進站時發現的狀況（外觀異常、缺料、前站問題等）。
+Production\templates\production\workorder_step_track_in.html#53#<div class="form-text">本站實際收到的數量（預設由前一站流轉帶入）</div>
+Production\forms.py#48#self.fields['customer'].empty_label = '--- 請選擇Customer（可留空）---'
+Production\forms.py#103#'personnel_requirement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '補充Description（可留空）'}),
+Production\forms.py#110#continue  # description 已是 Quill textarea（保留 quill-input class）
+Production\forms.py#132#"""進站（Track In）表單：確認進站Quantity並記錄進站Remarks/狀況"""
+Production\forms.py#143#'placeholder': '例如：外觀Abnormal、前站問題、缺料、等待確認…',
+Production\forms.py#157#'placeholder': '出站時發現的狀況，例如：良品Abnormal、Equipment問題、Quantity差異…',
+Production\tests.py#40## 注意：名稱需避開 migration seed（0003_populate_material_categories）已Create的「電子零件」，
+Production\tests.py#41## 否則 UNIQUE 衝突導致測試失敗。
+Production\tests.py#43## BOM 零件（原料）：螢幕
+Production\tests.py#47## 成品Material（用於成品Inbound驗證，ID 與 product_id 相同）
+Production\tests.py#52## 3. Create BOM 關係（生產 1 個智慧手錶需要 1 個螢幕）
+Production\tests.py#86## op_user 的 position 是 pos_op (Action工)，但工序要求 pos_qa (QC員)
+Production\tests.py#115## 情況 A: 齊Set性檢查成功 (缺料檢查) -> 原料 stock_quantity=10，Work Order需要 5x1=5，夠用
+Production\tests.py#121## 情況 B: 完工扣料與成品Inbound（Track Out 強制填Quantity且須平衡）
+Production\tests.py#158#"""測試 6: 一站Cancelled、其餘Completed → Work Order應為Completed（Cancelled視為跳站）"""
+Production\tests.py#165## 工序 1、3 Completed，工序 2 Cancelled
+Production\tests.py#190#"""測試 8: Work Order QR-Code 端點回傳 PNG（編碼Work Order編號）"""
+Production\tests.py#200#"""測試 9: 嚴格串行 — 前一站尚未出站，下一站無法 Track In"""
+Production\tests.py#207## 前一站（工序1）尚未出站 → 阻擋
+Production\tests.py#233## Quantity不平衡（良品 3 + 不良品 0 + 遺失 1 = 4 ≠ 領取 5）→ 阻擋
+Production\tests.py#242#"""測試 11: Track In/Out 記錄Operator、實際Equipment與時間"""
+Production\tests.py#262#"""測試 12: 上一站出站後，良品/不良品/領取Quantity自動流轉到下一站"""
+Production\tests.py#271## 出站：領取 7 = 良品 5 + 不良品 1 + 遺失 1
+Production\tests.py#278#self.assertEqual(s2.received_quantity, 6)   # 流轉 = 良品 5 + 不良品 1（遺失不流轉）
+Production\tests.py#283#"""測試 13: 下一站Cancelled時，Quantity流轉到再下一站（跳過Cancelled工序）"""
+Production\tests.py#307#"""測試 14: Track In 表單頁（GET）可正常渲染"""
+Production\tests.py#312#self.assertContains(response, '進站（Track In）')
+Production\tests.py#321#'track_in_note': '外觀檢查發現 2 件刮傷，等待確認',
+Production\tests.py#326#self.assertEqual(self.wo_step.track_in_note, '外觀檢查發現 2 件刮傷，等待確認')
+Production\tests.py#338#'track_out_note': 'Equipment運轉Abnormal，CompletedMaintenance',
+Production\tests.py#344#self.assertEqual(self.wo_step.track_out_note, 'Equipment運轉Abnormal，CompletedMaintenance')
+Production\tests.py#347## ── 領料站（第一站）────────────────────────────────────────────────────
+Production\tests.py#350#"""透過Create視圖Create含領料站的Work Order（Product有 BOM + Standard Process）"""
+Production\tests.py#365#"""測試 17: CreateWork Order（有 BOM）→ 自動Create領料第一站與Material確認清單"""
+Production\tests.py#371## Material確認清單：BOM Quantity 1.0 × Work OrderQuantity 5 = 應領 5
+Production\tests.py#378#"""測試 18: 領料確認頁（GET）可正常渲染並列出Material"""
+Production\tests.py#387#"""測試 19: 領料未確認 → 下一道製程無法進站；確認後放行（嚴格串行）"""
+Production\tests.py#399## 確認領料（每項填應領Quantity）
+Production\tests.py#419#data[f'note_{it.pk}'] = '短缺 1，後補'
+Production\tests.py#431#self.assertEqual(it.note, '短缺 1，後補')
+Production\tests.py#466#"""測試 23: 領料已扣Stock → Work Order完工時不重複扣料（仍自動Inbound成品）"""
+Production\tests.py#470## 領料確認並扣Stock（10 - 5 = 5）
+Production\tests.py#475## 走完整製程：Track In → Track Out（Quantity平衡）→ Work OrderCompleted
+Production\tests.py#487## 領料已扣 5，完工不重複扣（仍維持 5）
+Production\urls.py#43## 加工流程卡（Standard Process）
+Production\views.py#80#"""儲存Work Order後：Create領料第一站（依 BOM 產生Material確認清單），再從Standard Process帶入工序快照"""
+Production\views.py#84## ── 領料站（第一站，step 0）── 依Active BOM 產生Material確認清單
+Production\views.py#93#description='依 BOM 領取Material並確認Quantity，確認Completed後才能進站下一工序',
+Production\views.py#130#f'Work Order已Create，並從「{self.object.product.name}」Standard Process帶入 {source_steps.count()} 道工序。第1道製程已自動填入領取Quantity {self.object.quantity}。',
+Production\views.py#135#f'已Create「領料」第一站，依 BOM 產生 {bom.items.count()} 項Material確認清單（依Work OrderQuantity {self.object.quantity} 計算應領Quantity）。',
+Production\views.py#150#messages.error(request, f'Work Order「{obj.order_number}」Completed，無法修改。')
+Production\views.py#156#messages.success(self.request, f'Work Order「{self.object.order_number}" has been updated.')
+Production\views.py#172#messages.success(self.request, f'Work Order「{self.object.order_number}" has been deleted.')
+Production\views.py#230#messages.success(self.request, f'「{self.object.product.name}」的 BOM 已Create。')
+Production\views.py#258#messages.success(self.request, f'「{self.object.product.name}」的 BOM 已更新。')
+Production\views.py#269#messages.success(self.request, 'BOM 已Delete。')
+Production\views.py#273## ── 加工流程卡（Standard Process）Views ──────────────────────────────────────────────
+Production\views.py#276#"""列出所有Product，標示是否已定義Standard Process"""
+Production\views.py#293#"""單一Product的加工流程卡（含所有工序）"""
+Production\views.py#305#"""EditProduct的加工流程卡（formset 管理工序）"""
+Production\views.py#311#fields = []  # Product本身欄位不需Edit，只Edit工序 formset
+Production\views.py#332#messages.success(self.request, f'「{self.object.name}」加工流程卡已更新。')
+Production\views.py#340#"""檢查Work Order BOM 子件Stock是否足夠，返回缺料列表"""
+Production\views.py#352#"""Work Order全部工序Completed時：扣減 BOM 子件Stock（防重複扣料；領料確認已扣則跳過），並自動增加Inbound成品Stock"""
+Production\views.py#353## ── Material扣減（領料確認已Create OUTBOUND 則跳過，避免重複扣料）──
+Production\views.py#357#msg = 'Stock不足，無法CompletedWork Order：'
+Production\views.py#359#msg += f' {mat.material_id}({mat.name}) 需 {need} 現有 {stock}；'
+Production\views.py#375#remark=f'生產領料：{order.order_number} ({order.product.name} × {order.quantity})',
+Production\views.py#379## ── 成品Inbound（各自防重複）──
+Production\views.py#381## 成品MaterialInbound：如果 Material 中有與成品 product_id 相同的Material
+Production\views.py#394#remark=f'生產完工自動Inbound：{order.order_number} ({order.product.name} × {order.quantity})',
+Production\views.py#397## 成品自身Stock自動Inbound（Product Stock控制），防重複Inbound
+Production\views.py#408#remark=f'生產完工自動Inbound：{order.order_number} ({prod.name} × {order.quantity})',
+Production\views.py#417#"""更新Work OrderStep Status — 僅限Abnormal / Cancelled / 複查Abnormal。
+Production\views.py#418#進站（Track In）與出站（Track Out）請使用專屬端點 workorder_step_track_in / workorder_step_track_out。
+Production\views.py#423#messages.error(request, '無有效員工身份，無法更新Step Status。')
+Production\views.py#428#messages.error(request, '無效的Step Status。')
+Production\views.py#432## 允許的狀態流轉（進站/出站已由專屬端點處理）
+Production\views.py#436#'ABNORMAL': {'CANCELLED'},                      # Abnormal → Cancelled（復工走 Track In、出站走 Track Out）
+Production\views.py#437#'COMPLETED': {'ABNORMAL'},                      # Completed → Abnormal（複查發現問題）
+Production\views.py#441#messages.info(request, f'工序「{step.name}」已是此狀態。')
+Production\views.py#445#messages.success(request, f'工序「{step.name}」狀態已更新為 {step.get_status_display()}。')
+Production\views.py#447#messages.info(request, f'Work Order Status自動更新為「{step.work_order.get_status_display()}」。')
+Production\views.py#451#f'工序「{step.name}」目前為「{step.get_status_display()}」，無法變更為「{dict(WorkOrderStep.STATUS_CHOICES)[new_status]}」。',
+Production\views.py#459#"""嚴格串行：目前工序的前一站（跳過Cancelled工序），無則 None"""
+Production\views.py#467#"""Track In 進站：可填寫進站Quantity與進站Remarks/狀況。
+Production\views.py#468#GET 顯示進站表單；POST 驗證嚴格串行 / Personnel Position / Equipment Status / BOM 齊Set後，
+Production\views.py#469#記錄進站Quantity、Remarks、人員、實際Equipment與實際Start Time，狀態 → IN_PROGRESS"""
+Production\views.py#473#messages.error(request, '無有效員工身份，無法進站。')
+Production\views.py#478#messages.error(request, f'工序「{step.name}」目前狀態為「{step.get_status_display()}」，無法進站。')
+Production\views.py#481## 嚴格串行：前一站（非Cancelled）必須已出站
+Production\views.py#486#f'嚴格串行流程：前一站「{prev.name}」尚未出站（目前「{prev.get_status_display()}」），無法進站「{step.name}」。',
+Production\views.py#490## Personnel Position匹配校驗（operator 限定）
+Production\views.py#495#f'Operator職位「{emp.position.name if emp.position else "無"}」不符合工序要求的職位「{step.personnel.name}」。'
+Production\views.py#499## Equipment Status防呆（非 active Equipment阻擋進站）
+Production\views.py#503#f'關聯Equipment「{step.equipment.name}」目前狀態為「{step.equipment.get_status_display()}」，非Active狀態，無法進站。'
+Production\views.py#507## 開工齊Set性檢查（Work Order尚未開工）
+Production\views.py#511#msg = '開工齊Set性檢查失敗，Stock不足以進站：'
+Production\views.py#513#msg += f' {mat.material_id}({mat.name}) 需 {need} 現有 {stock}；'
+Production\views.py#522#messages.error(request, f'進站資料錯誤：{e}')
+Production\views.py#531#step.actual_equipment = step.equipment  # 未指定實際Equipment時，快照計畫Equipment
+Production\views.py#539#msg = f'工序「{step.name}」已進站（Track In）。'
+Production\views.py#541#msg += f' 進站Remarks：{step.track_in_note}'
+Production\views.py#545## GET：顯示進站表單（含前一站流轉Quantity提示）
+Production\views.py#557#"""Track Out 出站：強制填報領取/良品/不良品/遺失Quantity且平衡後，
+Production\views.py#558#記錄Track-Out Operator與實際End Time，狀態 → COMPLETED，並自動帶入下一站與完工扣料"""
+Production\views.py#566#messages.error(request, f'Quantity填報錯誤：{e}')
+Production\views.py#568#obj = form.save()  # Quantity一律先儲存，避免使用者輸入流失
+Production\views.py#571#msg = f'工序「{obj.name}」Quantity已儲存。'
+Production\views.py#573#msg += f' 出站Remarks：{obj.track_out_note}'
+Production\views.py#577## ── 出站（Track Out）──
+Production\views.py#580#messages.error(request, '無有效員工身份，無法出站。')
+Production\views.py#584#messages.error(request, f'工序「{step.name}」目前狀態為「{step.get_status_display()}」，無法出站。')
+Production\views.py#589#messages.error(request, '出站前必須填報領取Quantity。')
+Production\views.py#594#f'Quantity不平衡，無法出站：領取 {obj.received_quantity}，但良品+不良品+遺失 = {(obj.good_quantity or 0)+(obj.defect_quantity or 0)+(obj.loss_quantity or 0)}。請確認Quantity後再出站。',
+Production\views.py#604## 自動流轉Quantity到下一站（跳過Cancelled工序；下一站尚未進站才帶入，避免覆蓋In Progress的站）
+Production\views.py#616#f'下一站「{next_step.name}」已自動流轉：領取 {step.passed_quantity}（良品 {step.good_quantity or 0}、不良品 {step.defect_quantity or 0}）。',
+Production\views.py#621#msg = f'工序「{step.name}」已出站（Track Out），Work Order Status自動更新為「{step.work_order.get_status_display()}」。'
+Production\views.py#623#msg += f' 出站Remarks：{step.track_out_note}'
+Production\views.py#634#messages.success(request, f'Work Order {step.work_order.order_number} Completed，並扣減 BOM 子件Stock，且成品自動Inbound。')
+Production\views.py#638## ── 領料確認（第一站）────────────────────────────────────────────────────────
+Production\views.py#642#"""領料站確認：依 BOM 顯示各Material應領Quantity，員工確認Quantity正確後才能進站下一工序"""
+Production\views.py#646#messages.error(request, '無有效員工身份，無法進行領料確認。')
+Production\views.py#654#messages.error(request, '領料站目前無法確認。')
+Production\views.py#657## 1. 解析並驗證每項確認Quantity（格式 / 非負 / 不可超過目前Stock）
+Production\views.py#667#errors.append(f'「{item.material.material_id}」確認Quantity格式錯誤')
+Production\views.py#671#f'「{item.material.material_id}」確認Quantity {qty} 超過目前Stock {item.material.stock_quantity}，無法領料。'
+Production\views.py#692## 3. Completed領料站 + 直接扣減Stock（同一交易，防重複扣料）
+Production\views.py#710#remark=f'領料確認：{wo.order_number} ({wo.product.name} × {qty} {mat.unit})',
+Production\views.py#725#msg = '領料確認Completed，已直接扣減Stock，可以前往下一站。'
+Production\views.py#727#msg += '（注意：有Material確認Quantity低於應領Quantity，請留意短缺）'
+Production\views.py#748#messages.success(request, f'工序「{obj.name}」Quantity已更新。')
+Production\views.py#752#f'工序「{obj.name}」Quantity已儲存，但尚未平衡：領取 {obj.received_quantity}，良品+不良品+遺失 = {(obj.good_quantity or 0)+(obj.defect_quantity or 0)+(obj.loss_quantity or 0)}。',
+Production\views.py#805#"""產生Work Order QR-Code PNG（編碼Work Order編號），供列印貼於Shop Floor"""
+Production\views.py#820#response['Cache-Control'] = 'max-age=86400'  # QR 內容不變，快取一天
+Supplier\tests.py#8#"""Supplier模組：列表需登入、新增僅限 admin/manager。"""
+Supplier\tests.py#46#self.assertEqual(response.status_code, 200)  # 表單驗證失敗，停留在表單頁
+clock.html#383#// 類比（秒針平滑掃動）
+clock.html#391#// 日期（每日更新一次）
+clock.html#401#// 世界時鐘（每秒更新）

@@ -1,0 +1,130 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Picking Confirmation - {{ work_order.order_number }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-box-seam text-primary me-2"></i>Picking Confirmation (First Station)</h2>
+            <p class="text-muted mb-0">
+                Work Order: <strong>{{ work_order.order_number }}</strong>;
+                Product: <strong>{{ work_order.product.name }}</strong>;
+                Quantity: <strong>{{ work_order.quantity }}</strong>
+                {% if work_order.bom %}; BOM Version: <strong>{{ work_order.bom.version }}</strong>{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'workorder-detail' work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to Work Order Detail
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:16px;">
+    <div class="card-body">
+        {% if not picking_step %}
+        <div class="alert alert-warning mb-4">
+            <i class="bi bi-exclamation-triangle me-1"></i>This work order has no picking station (no active BOM), so no picking confirmation is needed.
+        </div>
+        {% elif picking_step.status == 'COMPLETED' %}
+        <div class="alert alert-success mb-4">
+            <i class="bi bi-check-circle me-1"></i><strong>Picking has been confirmed</strong> ({{ picking_step.actual_end_date|date:"Y-m-d H:i" }},
+            confirmed by {{ picking_step.track_out_by.employee.name|default:picking_step.track_out_by.username }}).
+        </div>
+        {% elif picking_step.status == 'CANCELLED' %}
+        <div class="alert alert-secondary mb-4">
+            <i class="bi bi-x-circle me-1"></i>The picking station has been cancelled.
+        </div>
+        {% else %}
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-1"></i>Verify each material quantity against the BOM list, then click "Confirm Picking Complete".
+            This will <strong>directly deduct stock</strong> (OUTBOUND transaction) and release the next step.
+            Confirm quantities below the required amount are treated as a shortage and recorded; confirmed quantity cannot exceed current stock.
+        </div>
+        {% endif %}
+
+        {% if items %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Material ID</th>
+                            <th>Material Name</th>
+                            <th class="text-center">Unit</th>
+                            <th class="text-center">Required Qty</th>
+                            <th class="text-center">Current Stock</th>
+                            <th class="text-center">Confirmed Qty</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td class="text-center"><span class="badge bg-primary rounded-pill">{{ forloop.counter }}</span></td>
+                            <td><code>{{ item.material.material_id }}</code></td>
+                            <td class="fw-semibold">{{ item.material.name }}</td>
+                            <td class="text-center small">{{ item.material.get_unit_display|default:item.material.unit }}</td>
+                            <td class="text-center"><strong>{{ item.required_quantity|floatformat:2 }}</strong></td>
+                            <td class="text-center">
+                                {{ item.material.stock_quantity|floatformat:2 }}
+                                {% if item.material.stock_quantity < item.required_quantity %}
+                                <span class="badge bg-danger ms-1">Insufficient Stock</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center" style="width:130px;">
+                                {% if picking_step.status == 'PENDING' %}
+                                <input type="number" step="0.01" min="0" name="qty_{{ item.pk }}" value="{{ item.confirmed_quantity|default:item.required_quantity|floatformat:2 }}"
+                                       class="form-control form-control-sm text-center">
+                                {% else %}
+                                <strong>{{ item.confirmed_quantity|floatformat:2 }}</strong>
+                                {% endif %}
+                            </td>
+                            <td style="width:220px;">
+                                {% if picking_step.status == 'PENDING' %}
+                                <input type="text" name="note_{{ item.pk }}" value="{{ item.note }}" maxlength="255"
+                                       class="form-control form-control-sm" placeholder="Shortage / abnormal explanation (optional)">
+                                {% else %}
+                                <small class="text-muted">{{ item.note|default:"-" }}</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if picking_step.status == 'PENDING' %}
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-check-lg"></i> Confirm Picking Complete
+                </button>
+                <a href="{% url 'workorder-detail' work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+            </div>
+            {% endif %}
+        </form>
+
+        {% if picking_step.status == 'COMPLETED' %}
+        <div class="mt-3">
+            <table class="table table-sm table-borderless mb-0" style="max-width:520px;">
+                {% for item in items %}
+                <tr>
+                    <td class="text-muted small">{{ item.material.material_id }} {{ item.material.name }}</td>
+                    <td class="small">Required <strong>{{ item.required_quantity|floatformat:2 }}</strong></td>
+                    <td class="small">Confirmed <strong>{{ item.confirmed_quantity|floatformat:2 }}</strong></td>
+                    <td class="small text-muted">by {{ item.confirmed_by.employee.name|default:item.confirmed_by.username|default:"-" }} on {{ item.confirmed_at|date:"m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-box-seam fs-2 d-block mb-2"></i>This work order has no picking items (no active BOM).
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

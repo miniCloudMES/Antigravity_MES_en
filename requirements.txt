@@ -1,0 +1,9 @@
+asgiref==3.11.1
+bleach==6.4.0
+crispy-bootstrap5==2026.3
+Django==5.2
+django-crispy-forms==2.6
+pillow==12.2.0
+qrcode==8.2
+sqlparse==0.5.5
+tzdata==2026.2

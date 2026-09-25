@@ -1,0 +1,94 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}BOM Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-diagram-2 text-info me-2"></i>Bill of Materials (BOM)</h2>
+            <p class="text-muted mb-0">Manage the material components and quantities for each finished product.</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if is_manager %}
+            <a href="{% url 'bom-add' %}" class="btn btn-info text-white rounded-pill px-4">
+                <i class="bi bi-plus-circle me-1"></i>Add BOM
+            </a>
+            {% endif %}
+            <a href="{% url 'production-dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Finished Product (Parent)</th>
+                    <th>Version</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Updated At</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bom in boms %}
+                <tr>
+                    <td>
+                        <span class="fw-semibold">{{ bom.product.name }}</span>
+                        <small class="text-muted ms-1">{{ bom.product.product_id }}</small>
+                    </td>
+                    <td><span class="badge bg-secondary">{{ bom.version }}</span></td>
+                    <td>{{ bom.items.count }} item(s)</td>
+                    <td>
+                        {% if bom.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">{{ bom.updated_at|date:"Y-m-d H:i" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'bom-detail' bom.pk %}" class="btn btn-sm btn-outline-info me-1" title="View">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if is_manager %}
+                        <a href="{% url 'bom-edit' bom.pk %}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'bom-delete' bom.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>No BOM records yet. Please add one.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

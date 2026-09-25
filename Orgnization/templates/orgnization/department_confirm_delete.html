@@ -1,0 +1,36 @@
+{% extends 'orgnization/base.html' %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5 text-center">
+        <div class="card border-0 mb-3 shadow rounded-4 overflow-hidden">
+            <div class="card-header bg-danger text-white py-3 fs-5 fw-bold border-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Deletion
+            </div>
+            <div class="card-body py-5 px-4 bg-white">
+                <h4 class="card-title text-danger mb-3 fw-bold">Warning: This action cannot be undone!</h4>
+                <p class="card-text text-secondary mb-4">Are you sure you want to permanently delete this department and all its data?</p>
+                
+                <div class="bg-light p-4 rounded-3 my-4 border">
+                    <div class="fw-bold fs-3 text-dark mb-1">{{ object.name }}</div>
+                    <div class="text-muted"><i class="bi bi-hash"></i> Code: {{ object.code }}</div>
+                </div>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                        <button type="submit" class="btn btn-danger btn-lg px-5 shadow-sm rounded-pill fw-bold">
+                            <i class="bi bi-trash-fill me-1"></i> Delete
+                        </button>
+                        <a href="{% url 'department-list' %}" class="btn btn-light btn-lg px-5 border shadow-sm rounded-pill">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

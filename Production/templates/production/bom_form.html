@@ -1,0 +1,136 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}{{ form_title }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="bi bi-diagram-2 text-info me-2"></i>{{ form_title }}</h2>
+        <a href="{% url 'bom-list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<form method="post" id="bom-form">
+    {% csrf_token %}
+
+    <!-- BOM Header -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 pb-0">
+            <h6 class="fw-bold text-muted"><i class="bi bi-info-circle me-1"></i>BOM Information</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold">Finished Product (Parent)<span class="text-danger">*</span></label>
+                    {{ form.product }}
+                    {% if form.product.errors %}<div class="text-danger small mt-1">{{ form.product.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Version<span class="text-danger">*</span></label>
+                    {{ form.version }}
+                    {% if form.version.errors %}<div class="text-danger small mt-1">{{ form.version.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-2 d-flex align-items-end pb-1">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">Active</label>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">Description</label>
+                    {{ form.description }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOM Items Formset -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-muted mb-0"><i class="bi bi-list-ul me-1"></i>Item Details</h6>
+            <button type="button" class="btn btn-sm btn-outline-info rounded-pill" id="add-item-btn">
+                <i class="bi bi-plus-circle me-1"></i>Add Item
+            </button>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+            <div id="formset-container">
+                {% for item_form in formset %}
+                <div class="bom-item-row row g-2 align-items-end mb-3 p-3 border rounded" style="background:rgba(13,110,253,0.03);">
+                    {% if item_form.instance.pk %}
+                        {{ item_form.id }}
+                    {% else %}
+                        {{ item_form.id }}
+                    {% endif %}
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Component Material<span class="text-danger">*</span></label>
+                        {{ item_form.component }}
+                        {% if item_form.component.errors %}<div class="text-danger small">{{ item_form.component.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold small">Quantity<span class="text-danger">*</span></label>
+                        {{ item_form.quantity }}
+                        {% if item_form.quantity.errors %}<div class="text-danger small">{{ item_form.quantity.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold small">Unit</label>
+                        {{ item_form.unit }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">Remarks</label>
+                        {{ item_form.notes }}
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        {% if item_form.DELETE %}
+                        <div class="form-check mb-2" title="Check to delete this row">
+                            {{ item_form.DELETE }}
+                            <label class="form-check-label text-danger small" for="{{ item_form.DELETE.id_for_label }}">
+                                <i class="bi bi-trash"></i>
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a href="{% url 'bom-list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+        <button type="submit" class="btn btn-info text-white rounded-pill px-5">
+            <i class="bi bi-check-circle me-1"></i>{% if object %}Update{% else %}Save{% endif %}
+        </button>
+    </div>
+</form>
+
+<script>
+(function () {
+    const container = document.getElementById('formset-container');
+    const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+    const addBtn = document.getElementById('add-item-btn');
+
+    addBtn.addEventListener('click', function () {
+        const rows = container.querySelectorAll('.bom-item-row');
+        const idx = rows.length;
+        // Clone the last row and update indices
+        const template = rows[rows.length - 1].cloneNode(true);
+        template.querySelectorAll('[name],[id],[for]').forEach(el => {
+            ['name', 'id', 'for'].forEach(attr => {
+                if (el.getAttribute(attr)) {
+                    el.setAttribute(attr, el.getAttribute(attr).replace(/items-\d+-/, `items-${idx}-`));
+                }
+            });
+            if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                el.value = '';
+                if (el.type === 'checkbox') el.checked = false;
+            }
+        });
+        container.appendChild(template);
+        totalForms.value = idx + 1;
+    });
+})();
+</script>
+{% endblock %}

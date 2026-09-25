@@ -1,0 +1,46 @@
+Documents\templates\documents\document_detail.html#182#<img src="{{ img.image.url }}" alt="附圖" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
+Documents\forms.py#9#'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '請輸入Category Name'}),
+Documents\forms.py#10#'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '請輸入CategoryDescription（選填）'}),
+Documents\forms.py#18#'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如: DOC-001'}),
+Documents\forms.py#19#'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '請輸入Document Title'}),
+Documents\forms.py#20#'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '請輸入Description（選填）'}),
+Documents\forms.py#45#self.fields['approval_manager'].empty_label = '請先選擇Department'
+Documents\forms.py#59#raise forms.ValidationError('此Document Code已被使用，請改用Other編號。')
+Documents\forms.py#64#label='審核Remarks',
+Documents\forms.py#66#widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '請輸入Submit for ReviewRemarks（選填）'})
+Documents\models.py#86#review_notes = models.TextField(blank=True, verbose_name="審核Remarks")
+Documents\models.py#117#verbose_name="關聯Document"
+Documents\models.py#145#('recall', '撤回Submit for Review'),
+Documents\models.py#146#('toggle_active', 'Active/禁用切換'),
+Documents\models.py#168#verbose_name = "Document審核紀錄"
+Documents\models.py#169#verbose_name_plural = "Document審核紀錄"
+Documents\tests.py#8#"""Document模組：CreateDraft為登入即可（Submit for Review/審核另有權限控管）。"""
+Documents\tests.py#12#self.category = DocumentCategory.objects.create(name='作業規範')
+Documents\tests.py#22#'title': '測試Document',
+Documents\tests.py#27#self.assertEqual(response.status_code, 302)  # 成功 → 導向Document明細
+Documents\views.py#44#"""處理並儲存多SheetImage及其Description"""
+Documents\views.py#45## 1. 處理既有Image的修改與Delete
+Documents\views.py#66## 2. 處理新增的裁剪Image
+Documents\views.py#135#messages.success(request, f"Document「{document.title}」已成功Create！")
+Documents\views.py#155#messages.warning(request, 'Submit for Review中Document無法Edit。')
+Documents\views.py#160#messages.error(request, '您沒有權限Edit此Document。')
+Documents\views.py#164#messages.error(request, 'ApprovedDocument僅管理員可Edit。')
+Documents\views.py#173#messages.success(request, f'Document「{document.title}」已更新！')
+Documents\views.py#193#messages.warning(request, 'Submit for Review中Document無法Delete。')
+Documents\views.py#198#messages.error(request, '您沒有權限Delete此Document。')
+Documents\views.py#202#messages.error(request, 'ApprovedDocument僅管理員可Delete。')
+Documents\views.py#227#messages.success(request, f"Category「{category.name}」已成功Create！")
+Documents\views.py#241#messages.success(request, f"Category「{category.name}」已更新！")
+Documents\views.py#269#messages.warning(request, "只有Draft或Rejected的Document才能Submit for Review。")
+Documents\views.py#283#messages.success(request, f"Document「{document.title}」已Submit for Review。")
+Documents\views.py#294#messages.warning(request, "只有Submit for Review中的Document才能審核。")
+Documents\views.py#325#messages.warning(request, "只有Submit for Review中的Document才能撤回。")
+Documents\views.py#328#messages.error(request, '僅有Submitted By本人能撤回Submit for Review。')
+Documents\views.py#335#messages.info(request, f"Document「{document.title}」已撤回Submit for Review，回到Draft。")
+Documents\views.py#371#notes=f"启用状态变更为：{'启用' if document.is_active else '禁用'}"
+Documents\views.py#373#state = '启用' if document.is_active else '停用'
+Documents\views.py#374#messages.success(request, f"Document「{document.title}」已{state}。")
+Documents\views.py#384#return JsonResponse({'available': False, 'message': '請輸入Document Code'})
+Documents\views.py#386#return JsonResponse({'available': False, 'message': 'Document Code至少需要 3 個字元'})
+Documents\views.py#395#return JsonResponse({'available': False, 'message': '此編碼已存在，請更換'})
+Documents\views.py#396#return JsonResponse({'available': True, 'message': '此編碼可以使用'})

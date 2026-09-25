@@ -1,0 +1,122 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Material Management - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-boxes text-success me-2"></i>Material Management</h2>
+            <p class="text-muted">Manage every material category, stock level and supplier detail in the plant.</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to Main Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center h-100" style="border-radius:14px;">
+            <div class="card-body p-4">
+                <i class="bi bi-archive text-success" style="font-size:2.2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ total_materials }}</h3>
+                <p class="text-muted small mb-0">Total Materials</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center h-100" style="border-radius:14px;">
+            <div class="card-body p-4">
+                <i class="bi bi-tags text-info" style="font-size:2.2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ total_categories }}</h3>
+                <p class="text-muted small mb-0">Categories</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center h-100" style="border-radius:14px;">
+            <div class="card-body p-4">
+                <i class="bi bi-exclamation-triangle text-warning" style="font-size:2.2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ low_stock_count }}</h3>
+                <p class="text-muted small mb-0">Low Stock Alerts</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius:16px;">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Low Stock Alerts</h5>
+        <a href="{% url 'material-list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">View All</a>
+    </div>
+    <div class="card-body p-0">
+        {% if low_stock_materials %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Material ID</th>
+                        <th>Material Name</th>
+                        <th>Unit</th>
+                        <th>Current Stock</th>
+                        <th>Safety Stock</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in low_stock_materials %}
+                    <tr>
+                        <td class="fw-bold text-danger">{{ m.material_id }}</td>
+                        <td>{{ m.name }}</td>
+                        <td>{{ m.get_unit_display }}</td>
+                        <td class="fw-bold text-danger">{{ m.stock_quantity }}</td>
+                        <td>{{ m.min_stock|default:"-" }}</td>
+                        <td>
+                            {% if is_manager %}
+                            <a href="{% url 'material-quick-transaction' m.pk %}" class="btn btn-sm btn-outline-success rounded-pill">
+                                <i class="bi bi-arrow-left-right me-1"></i>Quick Replenish
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">No low-stock alerts at the moment.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Action Cards -->
+<div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 h-100" style="border-radius:14px;">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-tags text-info" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Material Categories</h5>
+                <p class="text-muted small mb-4">Create and maintain category tags and groups for each type of material.</p>
+                <a href="{% url 'material-category-list' %}" class="btn btn-outline-info rounded-pill px-4">Manage</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 h-100" style="border-radius:14px;">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-boxes text-success" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Material List</h5>
+                <p class="text-muted small mb-4">Register and track stock levels and supplier information for every material.</p>
+                <a href="{% url 'material-list' %}" class="btn btn-outline-success rounded-pill px-4">Manage</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

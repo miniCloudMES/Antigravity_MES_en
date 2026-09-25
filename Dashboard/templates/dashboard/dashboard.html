@@ -1,0 +1,268 @@
+{% extends "orgnization/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - miniMES System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Welcome back, {{ user.username }}</h2>
+        <p class="text-muted mb-0" style="font-size:13px;">System overview dashboard. Select a module to proceed.</p>
+    </div>
+    <div>
+        <form method="post" action="{% url 'dashboard-template-switch' %}">
+            {% csrf_token %}
+            <input type="hidden" name="template" value="industrial">
+            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3" title="Switch to Industrial (Data-Dense) Dashboard">
+                <i class="bi bi-layout-split"></i> Industrial Dashboard
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Alert Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body d-flex align-items-center gap-3 py-3">
+                <div class="d-flex align-items-center justify-content-center" style="width:40px;height:40px;border-radius:8px;background:rgba(229,72,77,0.1);">
+                    <i class="bi bi-exclamation-triangle" style="color:var(--lin-red);font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-semibold" style="font-size:14px;">Low Stock Alert</div>
+                    <div class="text-muted" style="font-size:12.5px;"><strong style="color:var(--lin-red);">{{ low_stock_count }}</strong> items below safety stock</div>
+                </div>
+                <a href="{% url 'material-dashboard' %}" class="btn btn-outline-secondary btn-sm ms-auto px-3">View</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body d-flex align-items-center gap-3 py-3">
+                <div class="d-flex align-items-center justify-content-center" style="width:40px;height:40px;border-radius:8px;background:rgba(245,166,35,0.1);">
+                    <i class="bi bi-calendar-x" style="color:var(--lin-yellow);font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-semibold" style="font-size:14px;">Overdue Work Orders</div>
+                    <div class="text-muted" style="font-size:12.5px;"><strong style="color:var(--lin-yellow);">{{ overdue_workorders }}</strong> work orders overdue</div>
+                </div>
+                <a href="{% url 'workorder-list' %}" class="btn btn-outline-secondary btn-sm ms-auto px-3">View</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="fw-semibold mb-3" style="font-size:14px;"><i class="bi bi-pie-chart me-2" style="color:var(--lin-accent);"></i>Work Order Status Distribution</div>
+                <canvas id="workorderStatusChart" style="max-height:300px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="fw-semibold mb-3" style="font-size:14px;"><i class="bi bi-bar-chart me-2" style="color:var(--lin-green);"></i>Material Inventory Overview</div>
+                <canvas id="materialChart" style="max-height:300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="fw-semibold mb-3" style="font-size:14px;"><i class="bi bi-file-earmark-text me-2" style="color:var(--lin-accent);"></i>Document Review Status</div>
+                <canvas id="documentStatusChart" style="max-height:200px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module Cards -->
+<div class="row g-3">
+    <!-- Card 1 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                        <i class="bi bi-diagram-3" style="color:var(--lin-accent);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Organization</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Manage departments, job positions, and employee profiles.</p>
+                <a href="{% url 'org-dashboard' %}" class="btn btn-outline-primary px-3 w-100">Enter Organization</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(16,185,129,0.1);">
+                        <i class="bi bi-tools" style="color:var(--lin-green);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Equipment</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Manage plant machinery categories, equipment inventory, and maintenance logs.</p>
+                <a href="{% url 'equipment-dashboard' %}" class="btn btn-outline-primary px-3 w-100">Enter Equipment</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(16,185,129,0.1);">
+                        <i class="bi bi-box-seam" style="color:var(--lin-green);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Materials</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Manage raw materials, stock levels, transactions, and supplier details.</p>
+                <a href="{% url 'material-dashboard' %}" class="btn btn-outline-primary px-3 w-100">Enter Materials</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                        <i class="bi bi-cpu" style="color:var(--lin-accent);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Production</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Manage production work orders, track schedules, and allocate resources.</p>
+                <a href="{% url 'production-dashboard' %}" class="btn btn-outline-primary px-3 w-100">Enter Production</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(94,106,210,0.1);">
+                        <i class="bi bi-file-earmark-richtext" style="color:var(--lin-accent);font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Documents</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Create, categorize, and maintain system SOPs, specifications, and manuals.</p>
+                <a href="{% url 'documents-dashboard' %}" class="btn btn-outline-primary px-3 w-100">Enter Documents</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;border-radius:8px;background:rgba(139,92,246,0.1);">
+                        <i class="bi bi-people" style="color:#8b5cf6;font-size:1.3rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold mb-0">Customers</h5>
+                </div>
+                <p class="text-muted mb-4" style="font-size:13px;line-height:1.6;">Maintain customer master records, contact info, tax IDs, and communications.</p>
+                <a href="{% url 'customer:customer-dashboard' %}" class="btn btn-outline-primary px-3 w-100">Enter Customers</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'vendor/chart.js/chart.umd.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const woCtx = document.getElementById('workorderStatusChart');
+    if (woCtx) {
+        new Chart(woCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [
+                        {{ pending_workorders|default:0 }},
+                        {{ in_progress_workorders|default:0 }},
+                        {{ completed_workorders|default:0 }},
+                        {{ cancelled_workorders|default:0 }}
+                    ],
+                    backgroundColor: ['#f5a623', '#5e6ad2', '#10b981', '#d0d6e0'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16, font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    const matCtx = document.getElementById('materialChart');
+    if (matCtx) {
+        new Chart(matCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Materials', 'Low Stock'],
+                datasets: [{
+                    label: 'Materials',
+                    data: [{{ total_materials|default:0 }}, {{ low_stock_count|default:0 }}],
+                    backgroundColor: ['#5e6ad2', '#e5484d'],
+                    borderRadius: 6,
+                    barThickness: 48,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
+            }
+        });
+    }
+
+    const docCtx = document.getElementById('documentStatusChart');
+    if (docCtx) {
+        new Chart(docCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Draft', 'Pending', 'Approved', 'Rejected'],
+                datasets: [{
+                    label: 'Documents',
+                    data: [
+                        {{ draft_documents|default:0 }},
+                        {{ pending_documents|default:0 }},
+                        {{ approved_documents|default:0 }},
+                        {{ rejected_documents|default:0 }}
+                    ],
+                    backgroundColor: ['#d0d6e0', '#f5a623', '#10b981', '#e5484d'],
+                    borderRadius: 6,
+                    barThickness: 36,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

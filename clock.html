@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>時鐘 Clock</title>
+<style>
+  :root {
+    --neon: #00e5ff;
+    --neon-dim: #0a3d47;
+    --neon-glow: rgba(0, 229, 255, 0.35);
+    --amber: #ffb300;
+    --bg: #05070a;
+    --card: rgba(10, 16, 22, 0.75);
+    --text-dim: #5b7480;
+    --mono: 'SF Mono', 'Consolas', 'Roboto Mono', 'Courier New', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 229, 255, 0.06), transparent 70%),
+      radial-gradient(ellipse 60% 50% at 50% 100%, rgba(255, 179, 0, 0.04), transparent 70%);
+    color: var(--neon);
+    font-family: var(--mono);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    gap: 2.5rem;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 掃描線效果 */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 229, 255, 0.025) 0px,
+      rgba(0, 229, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* ── 數位時鐘 ── */
+  .digital {
+    display: flex;
+    align-items: baseline;
+    gap: 0.05em;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 12px var(--neon-glow), 0 0 45px var(--neon-glow);
+    line-height: 1;
+    user-select: none;
+  }
+
+  .digital .hms {
+    font-size: clamp(3.5rem, 16vw, 11rem);
+    font-weight: 300;
+  }
+
+  .digital .sec {
+    font-size: clamp(1.3rem, 5vw, 3.5rem);
+    font-weight: 300;
+    color: var(--amber);
+    text-shadow: 0 0 12px rgba(255, 179, 0, 0.4), 0 0 40px rgba(255, 179, 0, 0.25);
+    margin-left: 0.15em;
+    opacity: 0.9;
+  }
+
+  .digital .colon {
+    animation: blink 2s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  /* ── 類比時鐘 ── */
+  .analog-wrap {
+    position: relative;
+    width: clamp(160px, 32vw, 260px);
+    height: clamp(160px, 32vw, 260px);
+  }
+
+  .analog-wrap svg { width: 100%; height: 100%; display: block; }
+
+  .face {
+    fill: var(--card);
+    stroke: var(--neon-dim);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.12));
+  }
+
+  .tick { stroke: var(--neon-dim); stroke-width: 2; stroke-linecap: round; }
+  .tick-major { stroke: var(--neon); stroke-width: 2.5; opacity: 0.55; }
+
+  .hand { stroke-linecap: round; transform-origin: 100px 100px; }
+  .hand-hour { stroke: var(--neon); stroke-width: 6; }
+  .hand-min  { stroke: var(--neon); stroke-width: 4; opacity: 0.85; }
+  .hand-sec  { stroke: var(--amber); stroke-width: 1.8; }
+  .pin { fill: var(--amber); }
+  .pin-core { fill: var(--bg); }
+
+  /* ── 日期列 ── */
+  .date-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem 1.4rem;
+    font-size: clamp(0.8rem, 2.2vw, 1.15rem);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .date-row .val { color: var(--neon); opacity: 0.85; }
+  .date-row .sep { color: var(--neon-dim); }
+
+  .weekday { color: var(--amber) !important; }
+
+  /* ── 時區列 ── */
+  .zones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.9rem;
+    font-size: clamp(0.62rem, 1.7vw, 0.82rem);
+    letter-spacing: 0.12em;
+  }
+
+  .zone {
+    background: var(--card);
+    border: 1px solid var(--neon-dim);
+    border-radius: 999px;
+    padding: 0.4rem 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    backdrop-filter: blur(6px);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .zone:hover {
+    border-color: var(--neon);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+  }
+
+  .zone .city { color: var(--text-dim); }
+  .zone .time { color: var(--neon); font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 480px) {
+    body { gap: 1.8rem; padding: 1.2rem; }
+    .date-row { letter-spacing: 0.12em; gap: 0.4rem 0.9rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .digital .colon { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 數位時鐘 -->
+  <div class="digital" aria-live="off">
+    <span class="hms" id="hms">--<span class="colon">:</span>--</span>
+    <span class="sec" id="sec">--</span>
+  </div>
+
+  <!-- 類比時鐘 -->
+  <div class="analog-wrap">
+    <svg viewBox="0 0 200 200" role="img" aria-label="類比時鐘">
+      <circle class="face" cx="100" cy="100" r="94"/>
+      <g id="ticks"></g>
+      <line class="hand hand-hour" id="handHour" x1="100" y1="100" x2="100" y2="52"/>
+      <line class="hand hand-min"  id="handMin"  x1="100" y1="100" x2="100" y2="30"/>
+      <line class="hand hand-sec"  id="handSec"  x1="100" y1="112" x2="100" y2="26"/>
+      <circle class="pin" cx="100" cy="100" r="5"/>
+      <circle class="pin-core" cx="100" cy="100" r="2"/>
+    </svg>
+  </div>
+
+  <!-- 日期 -->
+  <div class="date-row">
+    <span class="val" id="dateYmd">----</span>
+    <span class="sep">/</span>
+    <span class="weekday" id="weekday">--</span>
+    <span class="sep">/</span>
+    <span class="val" id="lunar">--</span>
+  </div>
+
+  <!-- 世界時鐘 -->
+  <div class="zones" id="zones"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  var LUNAR_INFO = [
+    0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+    0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+    0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+    0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+    0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+    0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+    0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,
+    0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+    0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+    0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+    0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+    0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+    0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+    0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+    0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+    0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+    0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+    0x0d520
+  ];
+  var LUNAR_MONTHS = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  var LUNAR_DAYS = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+                    '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+                    '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+
+  // ── 建置類比時鐘刻度 ──
+  (function buildTicks() {
+    var g = document.getElementById('ticks');
+    var NS = 'http://www.w3.org/2000/svg';
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < 60; i++) {
+      var major = i % 5 === 0;
+      var angle = (i * 6) * Math.PI / 180;
+      var rOuter = 88;
+      var rInner = major ? 76 : 82;
+      var line = document.createElementNS(NS, 'line');
+      line.setAttribute('x1', 100 + rInner * Math.sin(angle));
+      line.setAttribute('y1', 100 - rInner * Math.cos(angle));
+      line.setAttribute('x2', 100 + rOuter * Math.sin(angle));
+      line.setAttribute('y2', 100 - rOuter * Math.cos(angle));
+      line.setAttribute('class', major ? 'tick tick-major' : 'tick');
+      frag.appendChild(line);
+    }
+    g.appendChild(frag);
+  })();
+
+  // ── 農曆換算 ──
+  function lYearDays(y) {
+    var sum = 348;
+    for (var i = 0x8000; i > 0x8; i >>= 1) sum += (LUNAR_INFO[y - 1900] & i) ? 1 : 0;
+    return sum + leapDays(y);
+  }
+
+  function leapMonth(y) { return LUNAR_INFO[y - 1900] & 0xf; }
+
+  function leapDays(y) {
+    if (leapMonth(y)) return (LUNAR_INFO[y - 1900] & 0x10000) ? 30 : 29;
+    return 0;
+  }
+
+  function monthDays(y, m) {
+    return (LUNAR_INFO[y - 1900] & (0x10000 >> m)) ? 30 : 29;
+  }
+
+  function solarToLunar(date) {
+    var offset = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
+                             Date.UTC(1900, 0, 31)) / 86400000);
+    var i, temp = 0;
+    for (i = 1900; i < 2101 && offset > 0; i++) {
+      temp = lYearDays(i);
+      offset -= temp;
+    }
+    if (offset < 0) { offset += temp; i--; }
+    var year = i;
+
+    var leap = leapMonth(year);
+    var isLeap = false;
+    for (i = 1; i < 13 && offset > 0; i++) {
+      if (leap > 0 && i === (leap + 1) && !isLeap) {
+        --i; isLeap = true; temp = leapDays(year);
+      } else {
+        temp = monthDays(year, i);
+      }
+      if (isLeap && i === (leap + 1)) isLeap = false;
+      offset -= temp;
+    }
+    if (offset === 0 && leap > 0 && i === leap + 1) {
+      if (isLeap) { isLeap = false; } else { isLeap = true; --i; }
+    }
+    if (offset < 0) { offset += temp; --i; }
+    var month = i;
+    var day = offset + 1;
+
+    return {
+      month: (isLeap ? '閏' : '') + LUNAR_MONTHS[month - 1],
+      day: LUNAR_DAYS[day - 1],
+      year: year
+    };
+  }
+
+  // ── 世界時區設定 ──
+  var ZONES = [
+    { city: '台北', tz: 'Asia/Taipei' },
+    { city: '東京', tz: 'Asia/Tokyo' },
+    { city: '倫敦', tz: 'Europe/London' },
+    { city: '紐約', tz: 'America/New_York' },
+    { city: 'UTC',  tz: 'UTC' }
+  ];
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function fmtZone(date, tz) {
+    try {
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: tz, hour: '2-digit', minute: '2-digit',
+        second: '2-digit', hour12: false
+      }).format(date);
+    } catch (e) {
+      return '--:--:--';
+    }
+  }
+
+  // ── 建置時區卡片 ──
+  (function buildZones() {
+    var wrap = document.getElementById('zones');
+    var frag = document.createDocumentFragment();
+    ZONES.forEach(function (z) {
+      var el = document.createElement('div');
+      el.className = 'zone';
+      var city = document.createElement('span');
+      city.className = 'city';
+      city.textContent = z.city;
+      var time = document.createElement('span');
+      time.className = 'time';
+      time.textContent = '--:--:--';
+      time.dataset.tz = z.tz;
+      el.appendChild(city);
+      el.appendChild(time);
+      frag.appendChild(el);
+    });
+    wrap.appendChild(frag);
+  })();
+
+  var elHms = document.getElementById('hms');
+  var elSec = document.getElementById('sec');
+  var elYmd = document.getElementById('dateYmd');
+  var elWeekday = document.getElementById('weekday');
+  var elLunar = document.getElementById('lunar');
+  var handHour = document.getElementById('handHour');
+  var handMin = document.getElementById('handMin');
+  var handSec = document.getElementById('handSec');
+  var zoneEls = Array.prototype.slice.call(document.querySelectorAll('.zone .time'));
+
+  var lastDate = '';
+
+  function render() {
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    var s = now.getSeconds();
+    var ms = now.getMilliseconds();
+
+    // 數位
+    elHms.innerHTML = pad2(h) + '<span class="colon">:</span>' + pad2(m);
+    elSec.textContent = pad2(s);
+
+    // 類比（秒針平滑掃動）
+    var secAngle = (s + ms / 1000) * 6;
+    var minAngle = (m + s / 60) * 6;
+    var hourAngle = ((h % 12) + m / 60) * 30;
+    handSec.style.transform = 'rotate(' + secAngle + 'deg)';
+    handMin.style.transform = 'rotate(' + minAngle + 'deg)';
+    handHour.style.transform = 'rotate(' + hourAngle + 'deg)';
+
+    // 日期（每日更新一次）
+    var dateKey = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+    if (dateKey !== lastDate) {
+      lastDate = dateKey;
+      elYmd.textContent = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+      elWeekday.textContent = WEEKDAYS[now.getDay()];
+      var lu = solarToLunar(now);
+      elLunar.textContent = '農曆 ' + lu.month + lu.day;
+    }
+
+    // 世界時鐘（每秒更新）
+    for (var i = 0; i < zoneEls.length; i++) {
+      zoneEls[i].textContent = fmtZone(now, zoneEls[i].dataset.tz);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

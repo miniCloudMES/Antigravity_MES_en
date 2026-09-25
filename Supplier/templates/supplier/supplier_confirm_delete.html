@@ -1,0 +1,34 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Delete Supplier - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 text-center" style="border-radius: 16px;">
+            <div class="card-body p-5">
+                <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+                <h4 class="fw-bold mt-3 mb-2">Confirm Delete Supplier</h4>
+                <p class="text-muted">Are you sure you want to delete supplier "<strong>{{ object.supplier_id }} - {{ object.name }}</strong>"?</p>
+
+                {% if mat_count or eq_count %}
+                <div class="alert alert-warning text-start small">
+                    <i class="bi bi-exclamation-circle me-1"></i>This supplier has related records and deletion may be restricted:
+                    <ul class="mb-0 mt-1">
+                        {% if mat_count %}<li>{{ mat_count }} Material item(s)</li>{% endif %}
+                        {% if eq_count %}<li>{{ eq_count }} Equipment item(s)</li>{% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <p class="text-danger small">This action cannot be undone.</p>
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'supplier-list' %}" class="btn btn-outline-secondary rounded-pill px-4 me-2">Cancel</a>
+                    <button type="submit" class="btn btn-danger rounded-pill px-5">Confirm Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

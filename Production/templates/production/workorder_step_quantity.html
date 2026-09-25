@@ -1,0 +1,91 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Quantity Report - {{ step.name }} - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-calculator text-success me-2"></i>Quantity Report</h2>
+            <p class="text-muted mb-0">
+                Work Order: <strong>{{ step.work_order.order_number }}</strong>;
+                Step: <strong>{{ step.step_number }}. {{ step.name }}</strong>
+            </p>
+        </div>
+        <a href="{% url 'workorder-detail' step.work_order.pk %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to Work Order Detail
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:16px;">
+    <div class="card-body">
+        {% if trackout_mode %}
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-box-arrow-right me-1"></i><strong>Track Out</strong>:
+            Enter the good / defect / loss quantities (must balance: good + defect + loss = received quantity), note any issues found, then click "Confirm Track Out".
+        </div>
+        {% endif %}
+        {% if step.description %}
+        <div class="alert alert-light mb-4">
+            <strong><i class="bi bi-signpost-split me-1"></i>Process Guidelines:</strong>
+            <div class="mt-2">{{ step.description|safe }}</div>
+        </div>
+        {% endif %}
+        <form method="post" action="{% url 'workorder-step-track-out' step.pk %}">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Received Quantity</label>
+                    {{ form.received_quantity }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Good Quantity</label>
+                    {{ form.good_quantity }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Defect Quantity</label>
+                    {{ form.defect_quantity }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Loss Quantity</label>
+                    {{ form.loss_quantity }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted small">Quantity Remarks</label>
+                    {{ form.remarks }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted small">Track Out Note / Condition</label>
+                    {{ form.track_out_note }}
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" name="action" value="save" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-save"></i> Save Quantities
+                    </button>
+                    {% if step.status == 'IN_PROGRESS' or step.status == 'ABNORMAL' %}
+                    <button type="submit" name="action" value="trackout" class="btn btn-success rounded-pill px-4">
+                        <i class="bi bi-box-arrow-right"></i> Confirm Track Out
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+        {% if step.received_quantity is not None %}
+        <div class="alert alert-light mt-4">
+            <strong>Balance Check:</strong>
+            {% if step.balance_ok %}
+                <span class="badge bg-success">Balanced</span>
+                Received {{ step.received_quantity }} = Good {{ step.good_quantity|default:0 }} + Defect {{ step.defect_quantity|default:0 }} + Loss {{ step.loss_quantity|default:0 }}
+            {% else %}
+                <span class="badge bg-warning text-dark">Unbalanced</span>
+                Received {{ step.received_quantity }} &ne; Good {{ step.good_quantity|default:0 }} + Defect {{ step.defect_quantity|default:0 }} + Loss {{ step.loss_quantity|default:0 }}
+            {% endif %}
+            {% if step.passed_quantity %}
+            <br><strong>Next station receives:</strong>{{ step.passed_quantity }}
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

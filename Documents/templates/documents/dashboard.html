@@ -1,0 +1,190 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}Document Center - miniMES System{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2" style="color:var(--lin-accent);"></i>Document Center</h2>
+        <p class="text-muted mb-0" style="font-size:13px;">Create, categorize and manage internal documents and operation manuals.</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        {% if is_manager %}
+        <a href="{% url 'category-list' %}" class="btn btn-outline-secondary px-3 me-2">
+            <i class="bi bi-tags me-1"></i>Category Management
+        </a>
+        {% endif %}
+        <a href="{% url 'document-create' %}{% if selected_category %}?category={{ selected_category.id }}{% endif %}" class="btn btn-primary px-3">
+            <i class="bi bi-plus-circle me-1"></i>New Document
+        </a>
+    </div>
+</div>
+
+<style>
+@media (min-width: 992px) {
+    .doc-row:hover { background-color: rgba(0,0,0,0.015); }
+}
+.btn-xs { padding: 0.15rem 0.5rem; font-size: 0.75rem; border-radius: 9999px; }
+.list-group-item.active {
+    background: var(--lin-surface-alt) !important;
+    color: var(--lin-accent) !important;
+    border-color: var(--lin-border) !important;
+}
+</style>
+<div class="row">
+    <!-- Categories Sidebar -->
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                <h5 class="fw-bold mb-0"><i class="bi bi-funnel me-2 text-primary"></i>Document Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'documents-dashboard' %}" class="list-group-item list-group-item-action border-0 rounded-3 mb-1 {% if not selected_category %}active bg-primary text-white{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-folder2-open me-2"></i>All Documents</span>
+                        </div>
+                    </a>
+                    {% for cat in categories %}
+                    <a href="{% url 'documents-dashboard' %}?category={{ cat.id }}" class="list-group-item list-group-item-action border-0 rounded-3 mb-1 {% if selected_category and selected_category.id == cat.id %}active bg-primary text-white{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-folder2 me-2"></i>{{ cat.name }}</span>
+                            <span class="badge rounded-pill {% if selected_category and selected_category.id == cat.id %}bg-white text-primary{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                {{ cat.documents.count }}
+                            </span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-inbox fs-4 d-block mb-1"></i>
+                        <small>No categories yet</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                <hr class="my-3">
+                <a href="{% url 'documents-dashboard' %}?status=pending" class="list-group-item list-group-item-action border-0 rounded-3 mb-1 {% if request.GET.status == 'pending' %}active bg-primary text-white{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-clock-history me-2"></i>Documents Pending Review</span>
+                        {% if pending_count %}
+                        <span class="badge rounded-pill {% if request.GET.status == 'pending' %}bg-white text-primary{% else %}bg-danger text-white{% endif %}">
+                            {{ pending_count }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents List -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">
+                    {% if status_filter == 'pending' %}
+                        Documents Pending Review
+                    {% elif selected_category %}
+                        Category: {{ selected_category.name }}
+                    {% else %}
+                        All Documents
+                    {% endif %}
+                </h5>
+
+                {% if documents %}
+                <div class="d-none d-lg-block">
+                    <div class="table-responsive">
+                        <div class="row fw-bold text-muted small g-2 mb-3">
+                            <div class="col-3 text-start">Document Title</div>
+                            <div class="col-2 text-start">Department</div>
+                            <div class="col-1 text-center">Version</div>
+                            {% if status_filter == 'pending' %}
+                            <div class="col-2 text-center">Submitted Date</div>
+                            <div class="col-3 text-center">Approval Manager</div>
+                            {% else %}
+                            <div class="col-5 text-center">Status</div>
+                            {% endif %}
+                            <div class="col-1 text-center">Actions</div>
+                        </div>
+                        <hr class="mt-0 mb-3">
+                        {% for doc in documents %}
+                        <div class="row doc-row rounded-3 align-items-center py-3 mb-2 g-2">
+                            <div class="col-3">
+                                <a href="{% url 'document-detail' doc.pk %}" class="fw-bold text-decoration-none text-dark">{{ doc.title }}</a>
+                                <div class="text-muted" style="font-size: 0.8rem;">Created by: {{ doc.created_by.username|default:"System" }}</div>
+                            </div>
+                            <div class="col-2 text-muted" style="font-size: 0.9rem;">
+                                {{ doc.department.name|default:"-" }}
+                            </div>
+                            <div class="col-1 text-center text-muted">v{{ doc.version }}</div>
+                            {% if status_filter == 'pending' %}
+                            <div class="col-2 text-center text-muted">
+                                {{ doc.submitted_at|date:"Y-m-d"|default:"-" }}
+                            </div>
+                            <div class="col-3 text-center text-muted">
+                                {% if doc.approval_manager %}
+                                    {{ doc.approval_manager.name|default:doc.approval_manager.emp_no }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="col-5 text-center">
+                                <span class="badge rounded-pill px-3 py-2
+                                    {% if doc.is_active %}bg-success
+                                    {% else %}bg-secondary text-white
+                                    {% endif %}">
+                                    {{ doc.is_active|yesno:"Active,Disabled" }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            <div class="col-1 text-center">
+                                <a href="{% url 'document-detail' doc.pk %}" class="btn btn-sm btn-outline-info px-2" title="View"><i class="bi bi-eye"></i></a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if status_filter == 'pending' %}
+                <div class="d-lg-none">
+                    {% for doc in documents %}
+                    <div class="card mb-3">
+                        <div class="card-body py-3">
+                            <div class="fw-bold">{{ doc.title }}</div>
+                            <div class="small text-muted">{{ doc.department.name|default:"-" }} · v{{ doc.version }} · Submitted: {{ doc.submitted_at|date:"Y-m-d"|default:"-" }} · Approval Manager: {% if doc.approval_manager %}{{ doc.approval_manager.name|default:doc.approval_manager.emp_no }}{% else %}-{% endif %}</div>
+                            <div class="mt-2">
+                                <a href="{% url 'document-detail' doc.pk %}" class="btn btn-sm btn-outline-info px-2" title="View"><i class="bi bi-eye"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+{% else %}
+                <div class="d-lg-none">
+                    {% for doc in documents %}
+                    <div class="card mb-3">
+                        <div class="card-body py-3">
+                            <div class="fw-bold">{{ doc.title }}</div>
+                            <div class="small text-muted">{{ doc.department.name|default:"-" }} · v{{ doc.version }} · {{ doc.is_active|yesno:"Active,Disabled" }}</div>
+                            <div class="mt-2">
+                                <a href="{% url 'document-detail' doc.pk %}" class="btn btn-sm btn-outline-info px-2" title="View"><i class="bi bi-eye"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-5 my-3 text-muted">
+                    <i class="bi bi-file-earmark-x fs-1 d-block mb-3 text-secondary"></i>
+                    <p class="mb-0">No documents in this category yet.</p>
+                    <a href="{% url 'document-create' %}{% if selected_category %}?category={{ selected_category.id }}{% endif %}" class="btn btn-sm btn-primary rounded-pill mt-3">
+                        <i class="bi bi-plus-circle me-1"></i>Create the first document
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

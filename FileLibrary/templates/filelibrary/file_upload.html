@@ -1,0 +1,265 @@
+{% extends "orgnization/base.html" %}
+
+{% block title %}{% if editing %}Edit File{% else %}Upload File{% endif %} - miniMES System{% endblock %}
+
+{# Upload page does not require jQuery UI/datepicker, skipped to reduce mobile memory usage #}
+{% block jquery_ui %}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold mb-1"><i class="bi {% if editing %}bi-pencil-square{% else %}bi-cloud-arrow-up{% endif %} me-2" style="color:var(--lin-accent);"></i>{% if editing %}Edit File{% else %}Upload File{% endif %}</h2>
+        <p class="text-muted mb-0" style="font-size:13px;">
+            {% if editing %}Update file information or replace file content.{% else %}Upload files to the file library, supporting PDF, Excel, Word, and other formats.{% endif %}
+            {% if not editing %}<span class="text-secondary">(Single file limit {{ max_file_size|filesizeformat }}, automatic chunked upload for files over {{ chunk_size|filesizeformat }})</span>{% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                {% if editing %}
+                <!-- Edit Mode: Regular Form -->
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+                    {% endif %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-lg me-1"></i>Save Changes</button>
+                        <a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+                {% else %}
+                <!-- Upload Mode: Regular or Chunked -->
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-tags me-1"></i>Category</label>
+                        <div class="d-flex gap-2 align-items-start">
+                            <div style="flex:1;">{{ form.category }}</div>
+                            <button type="button" class="btn btn-outline-primary" id="btnAddCategory" style="white-space:nowrap;" title="Add Category">
+                                <i class="bi bi-plus-lg me-1"></i>Add Category
+                            </button>
+                        </div>
+                        {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors|striptags }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-type me-1"></i>File Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-paperclip me-1"></i>Select File</label>
+                        {{ form.file }}
+                        {% if form.file.errors %}<div class="text-danger small mt-1">{{ form.file.errors|striptags }}</div>{% endif %}
+                        <div class="form-text">Single file limit {{ max_file_size|filesizeformat }}, automatic chunked upload and progress display for files over {{ chunk_size|filesizeformat }}.</div>
+                    </div>
+
+                    <div class="mb-3 d-none" id="progressWrap">
+                        <label class="form-label"><i class="bi bi-arrow-repeat me-1"></i>Upload Progress</label>
+                        <div class="progress" style="height:22px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width:0%;">0%</div>
+                        </div>
+                        <div class="form-text mt-1" id="progressMsg"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-chat-left-text me-1"></i>Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors|striptags }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4" id="btnSubmit"><i class="bi bi-check-lg me-1"></i>Upload</button>
+                        <a href="{% url 'filelibrary:file-library-list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-tags me-2" style="color:var(--lin-accent);"></i>Add Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Category Name</label>
+                    <input type="text" id="catName" class="form-control" placeholder="Enter category name">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category Description</label>
+                    <textarea id="catDesc" class="form-control" rows="2" placeholder="Description (optional)"></textarea>
+                </div>
+                <div id="catError" class="text-danger small d-none"></div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveCategory"><i class="bi bi-check-lg me-1"></i>Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(function() {
+    const csrf = $('input[name="csrfmiddlewaretoken"]').val();
+    const CHUNK_SIZE = {{ chunk_size }};
+    const MAX_SIZE = {{ max_file_size }};
+
+    // ── Add Category modal ──
+    const $modal = $('#addCategoryModal');
+    $('#btnAddCategory').on('click', function() {
+        $('#catName').val(''); $('#catDesc').val('');
+        $('#catError').addClass('d-none').text('');
+        $modal.modal('show');
+    });
+    $('#btnSaveCategory').on('click', function() {
+        const name = $('#catName').val().trim();
+        const desc = $('#catDesc').val().trim();
+        if (!name) { $('#catError').removeClass('d-none').text('Please enter category name.'); return; }
+        $('#btnSaveCategory').prop('disabled', true);
+        $.post('{% url "filelibrary:file-category-create-ajax" %}', {
+            csrfmiddlewaretoken: csrf, name: name, description: desc
+        }).done(function(res) {
+            if (res.success) {
+                $('#id_category').append($('<option>', { value: res.id, text: res.name })).val(res.id);
+                $modal.modal('hide');
+            } else {
+                $('#catError').removeClass('d-none').text(res.error || 'Failed to create category.');
+            }
+        }).fail(function(xhr) {
+            let msg = 'Creation failed, please try again later.';
+            if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+            $('#catError').removeClass('d-none').text(msg);
+        }).always(function() { $('#btnSaveCategory').prop('disabled', false); });
+    });
+
+    // ── Upload: Small files regular POST, large files chunked ──
+    const $form = $('#uploadForm');
+    if ($form.length && !$form.data('editing')) {
+        $form.on('submit', function(e) {
+            const fileInput = document.getElementById('id_file');
+            if (!fileInput || !fileInput.files.length) return true; // Let HTML5 required handle
+
+            const file = fileInput.files[0];
+            if (file.size <= CHUNK_SIZE) return true; // Regular upload
+
+            // Large file → Chunked
+            e.preventDefault();
+            if (file.size > MAX_SIZE) {
+                alert('File exceeds the ' + (MAX_SIZE / 1024 / 1024) + 'MB limit!');
+                return;
+            }
+            uploadChunked(file);
+        });
+    }
+
+    function uploadChunked(file) {
+        const uploadId = crypto.randomUUID ? crypto.randomUUID() : 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        const title = $('#id_title').val().trim() || file.name.replace(/\.[^.]+$/, '');
+        const category = $('#id_category').val();
+        const description = $('#id_description').val().trim();
+
+        $('#btnSubmit').prop('disabled', true);
+        $('#progressWrap').removeClass('d-none');
+        setProgress(0, 'Preparing upload...');
+
+        // Check already received chunks (resumable upload)
+        $.get('{% url "filelibrary:chunk-status" %}', { upload_id: uploadId }).done(function(res) {
+            let received = (res.received || []);
+            // Find the first non-uploaded chunk
+            let nextIndex = 0;
+            const receivedSet = new Set(received);
+            while (receivedSet.has(nextIndex) && nextIndex < totalChunks) nextIndex++;
+            // If all chunks exist but not merged yet, resend the last one to trigger merge
+            if (nextIndex >= totalChunks && totalChunks > 0) nextIndex = totalChunks - 1;
+            if (nextIndex > 0) setProgress(Math.round((nextIndex / totalChunks) * 100), 'Resuming upload: ' + nextIndex + ' chunks already exist...');
+            uploadNext(nextIndex);
+        }).fail(function() {
+            uploadNext(0);
+        });
+
+        function uploadNext(index) {
+            if (index >= totalChunks) {
+                // After the last chunk is completed, the backend automatically merges; wait for merge result
+                return;
+            }
+            const start = index * CHUNK_SIZE;
+            const blob = file.slice(start, Math.min(start + CHUNK_SIZE, file.size));
+
+            const fd = new FormData();
+            fd.append('csrfmiddlewaretoken', csrf);
+            fd.append('upload_id', uploadId);
+            fd.append('chunk_index', index);
+            fd.append('total_chunks', totalChunks);
+            fd.append('filename', file.name);
+            fd.append('total_size', file.size);
+            fd.append('title', title);
+            fd.append('category', category);
+            fd.append('description', description);
+            fd.append('chunk', blob, 'chunk_' + index);
+
+            $.ajax({
+                url: '{% url "filelibrary:chunk-upload" %}',
+                type: 'POST',
+                data: fd,
+                processData: false,
+                contentType: false,
+                headers: { 'X-CSRFToken': csrf }
+            }).done(function(res) {
+                if (!res.success) {
+                    alert(res.error || 'Upload failed.');
+                    $('#btnSubmit').prop('disabled', false);
+                    return;
+                }
+                if (res.done) {
+                    setProgress(100, 'Merge completed, redirecting...');
+                    setTimeout(function() { window.location.href = '{% url "filelibrary:file-library-list" %}'; }, 800);
+                    return;
+                }
+                const pct = Math.round(((index + 1) / totalChunks) * 100);
+                setProgress(pct, 'Chunk ' + (index + 1) + ' / ' + totalChunks);
+                uploadNext(index + 1);
+            }).fail(function(xhr) {
+                let msg = 'Failed to upload chunk ' + (index + 1) + '.';
+                if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                setProgress(0, msg);
+                alert(msg);
+                $('#btnSubmit').prop('disabled', false);
+            });
+        }
+
+        function setProgress(pct, msg) {
+            $('#progressBar').css('width', pct + '%').text(pct + '%');
+            $('#progressMsg').text(msg || '');
+        }
+    }
+});
+</script>
+{% endblock %}
