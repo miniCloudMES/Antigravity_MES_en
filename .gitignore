@@ -54,6 +54,7 @@ coverage.xml
 # Translations
 *.mo
 *.pot
+_zh_*.txt
 
 # Django stuff:
 migrations/
@@ -136,3 +137,9 @@ dmypy.json
 .pyre/
 client_secrets.json
 
+# Nginx
+Nginx.md
+nginx.conf
+uwsgi.ini
+uwsgi.log
+uwsgi_params
