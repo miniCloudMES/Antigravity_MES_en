@@ -6,9 +6,12 @@ from django.views.decorators.http import require_POST
 from django.db import models
 from django.conf import settings
 import os
+import re
 import shutil
+import unicodedata
 import uuid
 import io
+from urllib.parse import quote
 
 from .models import LibraryFile, FileCategory
 from .forms import LibraryFileForm, FileCategoryForm
@@ -17,6 +20,36 @@ from Orgnization.models import Employee
 # Chunked upload settings
 CHUNK_SIZE = 5 * 1024 * 1024          # 5MB
 MAX_FILE_SIZE = 100 * 1024 * 1024     # 100MB
+
+
+def _accel_redirect_uri(file_name):
+    """Build the nginx X-Accel-Redirect URI for a stored file.
+
+    Django encodes header values that are not latin-1 as RFC 2047
+    encoded-words (``=?utf-8?b?...?=``). nginx cannot decode those, treats the
+    value as a relative path and returns 404, so any file whose name contains
+    non-ASCII characters (e.g. a Chinese PDF name) fails to download.
+    Percent-encode the path instead -- nginx decodes %XX escapes when it maps
+    the URI through ``alias`` in the ``/internal_media/`` location.
+    """
+    return '/internal_media/' + quote(file_name)
+
+
+def _content_disposition(filename, disposition='attachment'):
+    """Build a Content-Disposition value that survives non-ASCII filenames.
+
+    The plain ``filename`` is an ASCII-only fallback; ``filename*`` carries the
+    real UTF-8 name (RFC 5987/6266) and is what modern browsers actually use.
+    A purely non-ASCII name transliterates to nothing, so fall back to
+    ``download<ext>`` rather than serving a header like ``filename=".pdf"``.
+    """
+    orig_stem, orig_ext = os.path.splitext(filename)
+    fallback = unicodedata.normalize('NFKD', orig_stem).encode('ascii', 'ignore').decode('ascii')
+    fallback = re.sub(r'[\\"\r\n]', '_', fallback).strip(' .-_')
+    if not fallback:
+        fallback = 'download'
+    ext = re.sub(r'[^A-Za-z0-9.]', '', orig_ext)
+    return f"{disposition}; filename=\"{fallback + ext}\"; filename*=UTF-8''{quote(filename)}"
 
 
 def _user_role(request):
@@ -342,10 +375,11 @@ def file_download(request, pk):
     except (OSError, ValueError):
         raise Http404('File could not be read')
     # Use X-Accel-Redirect to hand off to nginx directly
+    # percent-encoded URI + RFC 5987 filename so non-ASCII names also work
     response = HttpResponse()
-    response['X-Accel-Redirect'] = f'/internal_media/{f.file.name}'
+    response['X-Accel-Redirect'] = _accel_redirect_uri(f.file.name)
     response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = f'attachment; filename="{f.filename}"'
+    response['Content-Disposition'] = _content_disposition(f.filename, 'attachment')
     return response
 
 
@@ -362,7 +396,7 @@ def file_standard_download(request, pk):
         raise Http404('File could not be read')
     # Always inline playback via X-Accel-Redirect
     response = HttpResponse()
-    response['X-Accel-Redirect'] = f'/internal_media/{f.video_standard.name}'
+    response['X-Accel-Redirect'] = _accel_redirect_uri(f.video_standard.name)
     response['Content-Type'] = 'video/mp4'
     response['Accept-Ranges'] = 'bytes'
     response['Content-Disposition'] = 'inline'
