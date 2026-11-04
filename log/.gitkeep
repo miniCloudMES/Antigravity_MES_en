@@ -1,0 +1,2 @@
+Log files live here. Runtime logs (*.log) are git-ignored, only this file is
+tracked so the directory exists in a fresh clone.

@@ -82,9 +82,16 @@ INSTALLED_APPS = [
 
     'crispy_forms',
     'crispy_bootstrap5',
+
+    # Project package itself: its AppConfig connects the audit signal
+    # receivers (login/logout + create/update/delete logging).
+    'miniMES',
 ]
 
 MIDDLEWARE = [
+    # Outermost middleware: keeps the active request in a thread-local so audit
+    # log records know the actor, the IP and the URL.
+    'miniMES.middleware.RequestAuditMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -191,3 +198,135 @@ LOGOUT_REDIRECT_URL = '/'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+
+# --------------------------------------------------------------------------- #
+# Logging
+# --------------------------------------------------------------------------- #
+# Three rotating files under BASE_DIR/log:
+#   miniMES_info.log   everything at INFO and above
+#   miniMES_error.log  system errors: uncaught exceptions (500), 4xx, security
+#   miniMES_audit.log  who logged in/out, and every create/update/delete
+# The console handler is DEBUG-only so production output stays clean.
+
+LOG_DIR = BASE_DIR / 'log'
+LOG_DIR.mkdir(parents=True, exist_ok=True)  # file handlers can't create the dir
+
+LOG_LEVEL = os.environ.get('DJANGO_LOG_LEVEL', 'INFO').upper()
+
+# Models kept out of the data-audit trail ("app_label.ModelName"), and the
+# maximum length of a single logged field value before it is truncated.
+AUDIT_IGNORED_MODELS = [
+    'sessions.Session',
+    'admin.LogEntry',
+    'contenttypes.ContentType',
+    'auth.Permission',
+    'Documents.DocumentAuditLog',
+]
+AUDIT_MAX_VALUE_LENGTH = 200
+
+# Field names whose values are never written to the audit log (matched
+# case-insensitively; anything containing password/secret/token is always masked).
+AUDIT_SENSITIVE_FIELDS = [
+    'password', 'raw_password', 'secret', 'token', 'api_key', 'apikey',
+    'private_key', 'access_token', 'refresh_token',
+]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] '
+                      'user=%(user)s ip=%(ip)s %(method)s %(path)s | %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'audit': {
+            'format': '[%(asctime)s] %(levelname)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        # Adds user/ip/path/method to every record (see the verbose format).
+        'request_context': {
+            '()': 'miniMES.logging_filters.RequestContextFilter',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true', 'request_context'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'info_file': {
+            'level': LOG_LEVEL,
+            'filters': ['request_context'],
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': str(LOG_DIR / 'miniMES_info.log'),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'error_file': {
+            'level': 'WARNING',
+            'filters': ['request_context'],
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': str(LOG_DIR / 'miniMES_error.log'),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'audit_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': str(LOG_DIR / 'miniMES_audit.log'),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 10,
+            'formatter': 'audit',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        # Application code.
+        'miniMES': {
+            'handlers': ['info_file', 'console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        # Authentication + data changes.
+        'miniMES.audit': {
+            'handlers': ['audit_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # System errors raised by application code on purpose.
+        'miniMES.error': {
+            'handlers': ['error_file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # Uncaught exceptions (500), missing pages (404) and suspicious requests.
+        'django.request': {
+            'handlers': ['error_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['error_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        # Everything else from Django itself.
+        'django': {
+            'handlers': ['info_file', 'console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+    },
+}
