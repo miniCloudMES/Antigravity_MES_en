@@ -60,6 +60,7 @@ _zh_*.txt
 migrations/
 media/
 uploads/
+static_collect/
 *.log
 # miniMES/settings.py
 # miniMES/local_settings.py
