@@ -48,6 +48,18 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Origins trusted for CSRF validation. Required whenever the site is reached
+# through a TLS-terminating proxy or tunnel (ngrok, nginx + HTTPS): browsers
+# send "Origin: https://<host>" on POST and Django 5 rejects the request unless
+# that origin is listed here ("Origin checking failed ... does not match any
+# trusted origins"). Comma-separated, e.g.
+#   DJANGO_CSRF_TRUSTED_ORIGINS=https://mes.example.com,https://other.example.com
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
+
 # Optional production security hardening (all default to off, won't affect development environment):
 #   DJANGO_SECURE_SSL_REDIRECT=true   # Force HTTPS redirect
 #   DJANGO_SECURE_COOKIES=true        # Session/CSRF cookie sent over HTTPS only
