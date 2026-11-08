@@ -41,12 +41,36 @@ def get_client_ip(request=None):
 
 
 def get_current_user():
-    """Return the authenticated user of the current request, or ``None``."""
+    """Return the authenticated user of the current request, or ``None``.
+
+    Resolving ``request.user`` is not free: it reads the session, and Django
+    logs "Session data corrupted" when the session cookie cannot be verified
+    (rotated ``SECRET_KEY``, stale cookie, tampering).  Our logging filter runs
+    on that very record, so evaluating the user from inside the filter used to
+    re-enter this function while the first evaluation was still in flight ->
+    recursion until ``RecursionError`` -> HTTP 500.  The re-entrancy guard makes
+    the nested call return ``None`` instead.
+
+    ``request.user`` is a ``SimpleLazyObject``: ``getattr`` only hands back the
+    lazy wrapper, the session is read on the *first attribute access*.  The
+    whole evaluation therefore has to stay inside the guard, not just the
+    ``getattr``.
+    """
+    if getattr(_state, 'resolving_user', False):
+        return None
     request = get_current_request()
-    user = getattr(request, 'user', None)
-    if user is not None and getattr(user, 'is_authenticated', False):
-        return user
-    return None
+    if request is None:
+        return None
+    _state.resolving_user = True
+    try:
+        user = getattr(request, 'user', None)
+        if user is not None and getattr(user, 'is_authenticated', False):
+            return user
+        return None
+    except Exception:  # a broken session/auth backend must never break logging
+        return None
+    finally:
+        _state.resolving_user = False
 
 
 def describe_user(user=None):

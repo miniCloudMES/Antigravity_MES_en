@@ -26,3 +26,12 @@ def user_create_view(request):
 def boom_view(request):
     """Raise, to prove uncaught exceptions reach the error log."""
     raise RuntimeError('logging system smoke test')
+
+
+def whoami_view(request):
+    """Resolve ``request.user`` on purpose.
+
+    Used by the regression test for a corrupt session cookie: that is the code
+    path that used to send the logging filter into infinite recursion.
+    """
+    return HttpResponse(str(request.user))

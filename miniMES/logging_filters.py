@@ -18,11 +18,19 @@ class RequestContextFilter(logging.Filter):
     """
 
     def filter(self, record):
-        request = get_current_request()
-        user = get_current_user()
+        # Logging must never break a request: an exception raised here travels
+        # back through the logging machinery and can turn a 200 into a 500.
+        try:
+            request = get_current_request()
+            user = get_current_user()
 
-        record.user = user.get_username() if user is not None else '-'
-        record.ip = get_client_ip(request)
-        record.path = getattr(request, 'path', '-') if request is not None else '-'
-        record.method = getattr(request, 'method', '-') if request is not None else '-'
+            record.user = user.get_username() if user is not None else '-'
+            record.ip = get_client_ip(request)
+            record.path = getattr(request, 'path', '-') if request is not None else '-'
+            record.method = getattr(request, 'method', '-') if request is not None else '-'
+        except Exception:
+            record.user = getattr(record, 'user', None) or '-'
+            record.ip = getattr(record, 'ip', None) or '-'
+            record.path = getattr(record, 'path', None) or '-'
+            record.method = getattr(record, 'method', None) or '-'
         return True
