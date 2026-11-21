@@ -1,55 +1,55 @@
-# Nginx + uWSGI 佈署筆記
+# Nginx + uWSGI Deployment Notes
 
-## 安裝
+## Installation
 
 ```bash
 # Linux
 sudo apt install nginx
-# 或 macOS
+# or macOS
 brew install nginx
 
 pip install uwsgi
 ```
 
-## uWSGI 操作
+## uWSGI Operations
 
 ```bash
-# 啟動
+# Start
 uwsgi --ini uwsgi.ini
 
-# 停止
+# Stop
 uwsgi --stop uwsgi.pid
 
-# 查看狀態
+# Check status
 ps -ef | grep uwsgi
 ```
 
-## Nginx 操作
+## Nginx Operations
 
 ```bash
-# 測試設定
+# Test configuration
 sudo nginx -t -c /path/to/nginx.conf
 
-# 啟動
+# Start
 sudo nginx -c /path/to/nginx.conf
 
-# 優雅退出
+# Graceful shutdown
 sudo nginx -s quit
 
-# 重載
+# Reload
 sudo nginx -s reload
 
-# 查看狀態
+# Check status
 ps -ef | grep nginx
 ```
 
-## 常見問題
+## Troubleshooting
 
-若上傳檔案出現 Permission denied：
+If file uploads fail with `Permission denied`:
 ```
 "/run/nginx/client_body_temp/..." failed (13: Permission denied)
 ```
-請執行：
+Run:
 ```bash
 sudo chmod -R 775 /run/nginx/client_body_temp
 ```

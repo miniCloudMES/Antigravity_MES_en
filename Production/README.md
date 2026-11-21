@@ -1,81 +1,83 @@
-# Production App (生產與工單模組)
+# Production App (Production & Work Order Module)
 
-## Description (模組說明)
-Production 模組是整個 MES 系統的核心，負責工單執行追蹤、生產工序規劃與成品 BOM 的關係配置。管理從工單建立、現場開工生產到完工扣料的完整生命週期。
+## Description
+The Production module is the core of the whole MES system. It handles work order execution tracking, production routing, and the BOM relationships for finished goods, covering the full lifecycle from creating a work order, through shop-floor start-up, to material backflushing on completion.
 
-## Models (資料模型)
-* **WorkOrder (工單)**: 管理工單編號（唯一）、成品產品、計畫生產數量、工單狀態（待處理、進行中、已完成、已取消、異常）與計畫/實際起迄時間。
-* **BOM (物料清單標頭)**: 與成品一對一綁定，控制 BOM 的版本與啟用狀態。
-* **BOMItem (BOM明細)**: 記錄 BOM 中的各項原料子件及其單位用量。
-* **ProcessStep (標準製程工序)**: 產品標準流程卡，定義每道工序的順序、名稱、加工指導、職位需求、設備、物料、參考文件與品管要求。
-* **WorkOrderStep (工單工序快照)**: 工單建立時自動從標準製程複製而來的快照，供現場操作員進行實際報工與狀態異動。
+## Models
+* **WorkOrder**: Manages the work order number (unique), the finished product, the planned quantity, the work order status (pending, in progress, completed, cancelled, abnormal) and the planned/actual start and end dates.
+* **BOM**: Bound one-to-one to a finished product; controls the BOM version and its active state.
+* **BOMItem**: Records each raw material component in the BOM together with its per-unit quantity.
+* **ProcessStep**: The product's standard process card; defines the sequence, name, process instructions, required position, equipment, material, reference documents and QC requirements for each step.
+* **WorkOrderStep**: A snapshot copied automatically from the standard process when a work order is created, used by shop-floor operators for actual reporting and status changes.
 
-## Key Features & Logic (核心功能與邏輯)
-* **狀態自動推導**: 工單狀態基於其所屬工單工序狀態的最新進展自動推導（例如，當所有工序完成時，工單自動轉為已完成）。
-* **後扣料機制 (Backflushing)**: 工單完工時，自動比對並扣除 BOM 中所需原料庫存。
-
----
-
-## Change Notice (變更記錄) - 重要優化
-
-近期本模組進行了重大的生產流程改進與安全機制強化：
-
-1. **現場操作防呆機制**：
-   * **職位技能匹配**：工序若指定了職位需求（如品管員 `pos_qa`），僅允許匹配該職位的一般操作工（`operator`）或擁有管理權限的 `admin`/`manager` 執行操作，防範未經授權的跨崗位報工。
-   * **設備故障鎖死**：開工工序時，系統會自動校驗關聯設備狀態，若設備處於 `broken`（故障）或 `maintenance`（保養）等非活動狀態，則強制阻止開工。
-2. **開工齊套性檢查 (Pre-check)**：
-   * 當工單第一個工序啟用、使工單即將轉入 `IN_PROGRESS` 時，系統會主動發起 BOM 物料庫存齊套性檢查，若有缺料則禁止工單開工，避免現場生產到一半被迫中斷。
-3. **工序工時精密追蹤**：
-   * 在 `WorkOrderStep` 新增了 `actual_start_date` 與 `actual_end_date` 欄位。工序開工與完工時自動填入時間戳，便於後續計算實際工時與 IE 效率分析。
-4. **完工成品自動入庫**：
-   * 工單完全完工後，系統除扣除原料庫存外，會自動尋找 `Material` 中與該成品 `product_id` 相同的項目，自動增加其庫存，並生成一筆 `INBOUND` 庫存交易紀錄，完成物流自動化閉環。
-
-
-在 MES 系統環境下，當站工卡的界面呈現與作業員的具體操作如下：
-
-## **一、 MES 當站電子工卡（螢幕畫面）應具備的訊息**
-
-作業員登入工站後，MES 螢幕上會清楚顯示以下三大類即時資訊：
-
-> * **工單與產品狀態**：  
-  * **生產基本資料**：工單號（WO）、產品料號、品名、客戶名稱。  
-  * **本批狀態**：當前批號（Lot ID）、目前所在工站、前一站完工時間。  
-  * **數量統計**：本批在線總數、目前已刷入數量。  
-> * **製程控制與防錯（Poka-Yoke）**：  
-  * **SOP 超連結**：點選可直接查看當站的電子標準作業書。  
-  * **參數提示**：該料號所需的機台設定值（如：溫度、壓力、配方編號）。  
-  * **專用治模具清單**：系統指定必須使用的模具、夾具編號。  
-> * **品質管制（SPC/QA）**：  
-  * **首件狀態**：顯示「首件待檢」、「首件合格」或「首件不合格」的系統防鎖燈號。  
-  * **出退料管制**：本站需要綁定的原物料/副資材清單。
-
-## ---
-
-**二、 作業員在 MES 系統中的「操作與輸入」流程**
-
-作業員不需要拿筆寫字，而是透過**「刷、選、點」**三個動作完成資料收集：
-
-## **1\. 進站階段（Track-In / 開工）**
-
-> * **刷入身分**：刷讀作業員自己的工牌（工號），系統自動綁定責任人與開工時間。  
-> * **刷入工卡/批號**：刷讀隨線籃組或產品上的條碼（Lot ID / Serial Number），系統會**自動檢查**這批貨是否走錯工站（防錯功能）。  
-> * **綁定設備與治模具**：刷讀當前使用的機台編號、模具條碼。若模具壽命到期或未保養，系統會跳出警告並鎖機。  
-> * **上料綁定（Material Loading）**：若本站有組裝線，需刷讀所投入原物料的批號（Reel ID / Lot ID），進行物料追溯（Traceability）。
-
-## **2\. 加工與檢驗階段（Data Collection / 數據收集）**
-
-> * **首件與量測輸入**：若有抽檢規範，作業員需在螢幕上輸入量測數據（如尺寸、重量）。  
-  * *註：若量具已連線（藍牙/RS232），數值會自動帶入，作業員只需點選「確認」。*  
-> * **呼叫異常（Andon 功能）**：加工中若發生設備故障、缺料或品質異常，作業員點選螢幕上的「呼叫異常」按鈕，系統會自動發出通知給工程師，並記錄**停機時間（Downtime）**。
-
-## **3\. 出站階段（Track-Out / 完工）**
-
-> * **點選完工**：加工完成後，系統通常會連線機台計數自動帶入數量，或由作業員點選完工。  
-> * **輸入不良類別與數量**：  
-  * 若有不良品，作業員在螢幕上點選**不良原因代碼（Defect Code）**（例如：A01-外觀刮傷、B03-尺寸超差）。  
-  * 輸入對應的 NG 數量，系統會自動扣除並將其導向「重工（Rework）流程」或「報廢倉」。  
-> * **列印與流轉**：確認無誤後點選送出，系統自動結算本站良率，並更新下一站的待加工清單。
+## Key Features & Logic
+* **Automatic status derivation**: the work order status is derived automatically from the latest progress of its steps (for example, once every step is complete the work order becomes completed).
+* **Backflushing**: when a work order is completed, the required raw materials in the BOM are automatically matched against and deducted from stock.
 
 ---
 
-MES 系統的核心在於**「即時性」**與**「防錯」**。如果想要讓系統介面與作業動線更流暢，您可以告訴我：
+## Change Notice - Major Improvements
+
+This module recently received significant production-flow and safety improvements:
+
+1. **Shop-floor poka-yoke guards**:
+   * **Position skill matching**: if a step specifies a required position (e.g. QC inspector `pos_qa`), only an `operator` matching that position, or an `admin`/`manager` with management rights, may perform the action — preventing unauthorised cross-station reporting.
+   * **Equipment fault lockout**: when starting a step the system validates the associated equipment status; if the equipment is in a non-active state such as `broken` or `maintenance`, start-up is blocked.
+2. **Start-up readiness pre-check**:
+   * When the first step of a work order starts and the work order is about to move to `IN_PROGRESS`, the system proactively runs a BOM material readiness check. If any material is short, start-up is blocked, avoiding a production line being forced to stop halfway.
+
+3. **Precise step time tracking**:
+   * Added the `actual_start_date` and `actual_end_date` fields to `WorkOrderStep`. Timestamps are filled in automatically on start and completion, making it easier to compute actual labour hours and run IE efficiency analysis.
+4. **Automatic finished-goods inbound on completion**:
+   * Once a work order is fully complete, besides deducting raw material stock, the system looks for a `Material` whose `product_id` matches the finished product, increases its stock automatically and writes an `INBOUND` stock transaction — closing the material-flow loop.
+
+---
+
+In an MES environment, the on-station work card display and the operator's specific actions are as follows:
+
+## 1. Information the MES Station Work Card (Screen) Should Show
+
+After an operator logs in at a station, the MES screen clearly displays the following three categories of real-time information:
+
+> * **Work order and product status**:
+  * **Production basics**: work order number (WO), product part number, product name, customer name.
+  * **Batch status**: current lot ID, current station, previous station's completion time.
+  * **Quantity statistics**: total quantity in line for this batch, quantity scanned in so far.
+> * **Process control and error-proofing (Poka-Yoke)**:
+  * **SOP hyperlink**: click to open the electronic standard operating procedure for the station.
+  * **Parameter prompts**: the machine settings required for this part number (e.g. temperature, pressure, recipe number).
+  * **Dedicated tooling list**: the mould/fixture numbers the system requires to be used.
+> * **Quality control (SPC/QA)**:
+  * **First-article status**: a system lockout light showing "first article pending", "first article passed" or "first article failed".
+  * **Material issue/return control**: the raw materials and auxiliary materials that must be bound at this station.
+
+---
+
+## 2. The Operator's "Actions and Inputs" Flow in the MES
+
+Operators do not write anything by hand; data is collected through three actions: **scan, select, tap**.
+
+### 2.1 Track-In (Start)
+
+> * **Scan identity**: the operator scans their own badge (employee number); the system automatically binds the responsible person and the start time.
+> * **Scan work card / lot**: scan the barcode on the line basket or the product (Lot ID / Serial Number); the system **automatically checks** whether this batch has arrived at the wrong station (error-proofing).
+> * **Bind equipment and tooling**: scan the current machine number and mould barcode. If the mould is past its life or not maintained, the system raises a warning and locks the machine.
+> * **Material loading**: if this station has an assembly line, the lot IDs (Reel ID / Lot ID) of the raw materials being loaded must be scanned for traceability.
+
+### 2.2 Processing and Inspection (Data Collection)
+
+> * **First-article and measurement entry**: where sampling rules apply, the operator enters measurement data on screen (e.g. dimensions, weight).
+  * *Note: if the gauge is connected (Bluetooth/RS232), values are filled in automatically and the operator only needs to tap "Confirm".*
+> * **Calling an abnormality (Andon)**: if an equipment fault, material shortage or quality problem occurs during processing, the operator taps the "Call abnormality" button; the system notifies the engineer automatically and records the **downtime**.
+
+### 2.3 Track-Out (Completion)
+
+> * **Tap to complete**: when processing finishes, the system usually pulls the quantity automatically from the machine counter, or the operator taps to complete.
+> * **Enter defect category and quantity**:
+  * If there are defects, the operator taps a **defect code** on screen (e.g. A01 - cosmetic scratch, B03 - out-of-tolerance dimension).
+  * Enter the corresponding NG quantity; the system deducts it automatically and routes it to the rework flow or the scrap store.
+> * **Print and hand off**: once confirmed, tap submit; the system settles the station yield automatically and updates the pending list for the next station.
+
+---
+
+The core of an MES system is **real-time data** and **error-proofing**. If you would like the interface and the operator flow to run more smoothly, tell me:

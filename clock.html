@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>時鐘 Clock</title>
+<title>Clock</title>
 <style>
   :root {
     --neon: #00e5ff;
@@ -38,7 +38,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* 掃描線效果 */
+  /* Scanline effect */
   body::after {
     content: '';
     position: fixed;
@@ -54,7 +54,7 @@
     z-index: 10;
   }
 
-  /* ── 數位時鐘 ── */
+  /* ── Digital clock ── */
   .digital {
     display: flex;
     align-items: baseline;
@@ -89,7 +89,7 @@
     50% { opacity: 0.35; }
   }
 
-  /* ── 類比時鐘 ── */
+  /* ── Analog clock ── */
   .analog-wrap {
     position: relative;
     width: clamp(160px, 32vw, 260px);
@@ -115,7 +115,7 @@
   .pin { fill: var(--amber); }
   .pin-core { fill: var(--bg); }
 
-  /* ── 日期列 ── */
+  /* ── Date row ── */
   .date-row {
     display: flex;
     flex-wrap: wrap;
@@ -133,7 +133,7 @@
 
   .weekday { color: var(--amber) !important; }
 
-  /* ── 時區列 ── */
+  /* ── Time zone row ── */
   .zones {
     display: flex;
     flex-wrap: wrap;
@@ -175,15 +175,15 @@
 </head>
 <body>
 
-  <!-- 數位時鐘 -->
+  <!-- Digital clock -->
   <div class="digital" aria-live="off">
     <span class="hms" id="hms">--<span class="colon">:</span>--</span>
     <span class="sec" id="sec">--</span>
   </div>
 
-  <!-- 類比時鐘 -->
+  <!-- Analog clock -->
   <div class="analog-wrap">
-    <svg viewBox="0 0 200 200" role="img" aria-label="類比時鐘">
+    <svg viewBox="0 0 200 200" role="img" aria-label="Analog clock">
       <circle class="face" cx="100" cy="100" r="94"/>
       <g id="ticks"></g>
       <line class="hand hand-hour" id="handHour" x1="100" y1="100" x2="100" y2="52"/>
@@ -194,7 +194,7 @@
     </svg>
   </div>
 
-  <!-- 日期 -->
+  <!-- Date -->
   <div class="date-row">
     <span class="val" id="dateYmd">----</span>
     <span class="sep">/</span>
@@ -203,14 +203,14 @@
     <span class="val" id="lunar">--</span>
   </div>
 
-  <!-- 世界時鐘 -->
+  <!-- World clocks -->
   <div class="zones" id="zones"></div>
 
 <script>
 (function () {
   'use strict';
 
-  var WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var LUNAR_INFO = [
     0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
     0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
@@ -234,12 +234,13 @@
     0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
     0x0d520
   ];
+  // Lunar month/day names are intentionally kept in Chinese.
   var LUNAR_MONTHS = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
   var LUNAR_DAYS = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
                     '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
                     '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
 
-  // ── 建置類比時鐘刻度 ──
+  // ── Build the analog clock ticks ──
   (function buildTicks() {
     var g = document.getElementById('ticks');
     var NS = 'http://www.w3.org/2000/svg';
@@ -260,7 +261,7 @@
     g.appendChild(frag);
   })();
 
-  // ── 農曆換算 ──
+  // ── Lunar calendar conversion ──
   function lYearDays(y) {
     var sum = 348;
     for (var i = 0x8000; i > 0x8; i >>= 1) sum += (LUNAR_INFO[y - 1900] & i) ? 1 : 0;
@@ -314,13 +315,13 @@
     };
   }
 
-  // ── 世界時區設定 ──
+  // ── World time zone settings ──
   var ZONES = [
-    { city: '台北', tz: 'Asia/Taipei' },
-    { city: '東京', tz: 'Asia/Tokyo' },
-    { city: '倫敦', tz: 'Europe/London' },
-    { city: '紐約', tz: 'America/New_York' },
-    { city: 'UTC',  tz: 'UTC' }
+    { city: 'Taipei',   tz: 'Asia/Taipei' },
+    { city: 'Tokyo',    tz: 'Asia/Tokyo' },
+    { city: 'London',   tz: 'Europe/London' },
+    { city: 'New York', tz: 'America/New_York' },
+    { city: 'UTC',      tz: 'UTC' }
   ];
 
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
@@ -336,7 +337,7 @@
     }
   }
 
-  // ── 建置時區卡片 ──
+  // ── Build the time zone cards ──
   (function buildZones() {
     var wrap = document.getElementById('zones');
     var frag = document.createDocumentFragment();
@@ -376,11 +377,11 @@
     var s = now.getSeconds();
     var ms = now.getMilliseconds();
 
-    // 數位
+    // Digital
     elHms.innerHTML = pad2(h) + '<span class="colon">:</span>' + pad2(m);
     elSec.textContent = pad2(s);
 
-    // 類比（秒針平滑掃動）
+    // Analog (smooth sweeping second hand)
     var secAngle = (s + ms / 1000) * 6;
     var minAngle = (m + s / 60) * 6;
     var hourAngle = ((h % 12) + m / 60) * 30;
@@ -388,7 +389,7 @@
     handMin.style.transform = 'rotate(' + minAngle + 'deg)';
     handHour.style.transform = 'rotate(' + hourAngle + 'deg)';
 
-    // 日期（每日更新一次）
+    // Date (updated once per day)
     var dateKey = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
     if (dateKey !== lastDate) {
       lastDate = dateKey;
@@ -398,7 +399,7 @@
       elLunar.textContent = '農曆 ' + lu.month + lu.day;
     }
 
-    // 世界時鐘（每秒更新）
+    // World clocks (updated every second)
     for (var i = 0; i < zoneEls.length; i++) {
       zoneEls[i].textContent = fmtZone(now, zoneEls[i].dataset.tz);
     }
