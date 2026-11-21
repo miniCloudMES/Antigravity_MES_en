@@ -1,0 +1,474 @@
+{% comment %}
+Navbar clock modal.
+
+Ports the standalone clock page (clock.html) into a Bootstrap modal. All of the
+original CSS is scoped under `.mes-clock` so the page-level rules it used --
+`:root`, `*` and `body` -- cannot leak into the rest of the app. Every element id
+is prefixed with `mesClock` to avoid clashing with other pages.
+
+The animation only runs while the modal is open: it starts on `shown.bs.modal`
+and is cancelled on `hidden.bs.modal`, so a closed clock costs nothing.
+{% endcomment %}
+
+<div class="modal fade" id="mesClockModal" tabindex="-1" aria-labelledby="mesClockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="background:#05070a; border-radius:14px; overflow:hidden;">
+            <div class="modal-header border-0 pb-1">
+                <h5 class="modal-title fw-bold text-white" id="mesClockModalLabel">
+                    <i class="bi bi-clock me-2"></i>Clock
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <div class="mes-clock">
+
+                    <!-- Digital clock -->
+                    <div class="digital" aria-live="off">
+                        <span class="hms" id="mesClockHms">--<span class="colon">:</span>--</span>
+                        <span class="sec" id="mesClockSec">--</span>
+                    </div>
+
+                    <!-- Analog clock -->
+                    <div class="analog-wrap">
+                        <svg viewBox="0 0 200 200" role="img" aria-label="Analog clock">
+                            <circle class="face" cx="100" cy="100" r="94"/>
+                            <g id="mesClockTicks"></g>
+                            <line class="hand hand-hour" id="mesClockHandHour" x1="100" y1="100" x2="100" y2="52"/>
+                            <line class="hand hand-min"  id="mesClockHandMin"  x1="100" y1="100" x2="100" y2="30"/>
+                            <line class="hand hand-sec"  id="mesClockHandSec"  x1="100" y1="112" x2="100" y2="26"/>
+                            <circle class="pin" cx="100" cy="100" r="5"/>
+                            <circle class="pin-core" cx="100" cy="100" r="2"/>
+                        </svg>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="date-row">
+                        <span class="val" id="mesClockDate">----</span>
+                        <span class="sep">/</span>
+                        <span class="weekday" id="mesClockWeekday">--</span>
+                        <span class="sep">/</span>
+                        <span class="val" id="mesClockLunar">--</span>
+                    </div>
+
+                    <!-- World clocks -->
+                    <div class="zones" id="mesClockZones"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── Clock (scoped: nothing here touches the surrounding page) ── */
+    .mes-clock {
+        --neon: #00e5ff;
+        --neon-dim: #0a3d47;
+        --neon-glow: rgba(0, 229, 255, 0.35);
+        --amber: #ffb300;
+        --bg: #05070a;
+        --card: rgba(10, 16, 22, 0.75);
+        --text-dim: #5b7480;
+        --mono: 'SF Mono', 'Consolas', 'Roboto Mono', 'Courier New', monospace;
+
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.8rem;
+        padding: 1.75rem 1.25rem 1.5rem;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--bg);
+        background-image:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 229, 255, 0.06), transparent 70%),
+            radial-gradient(ellipse 60% 50% at 50% 100%, rgba(255, 179, 0, 0.04), transparent 70%);
+        color: var(--neon);
+        font-family: var(--mono);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .mes-clock * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Scanline effect */
+    .mes-clock::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 229, 255, 0.025) 0px,
+            rgba(0, 229, 255, 0.025) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* ── Digital clock ── */
+    .mes-clock .digital {
+        display: flex;
+        align-items: baseline;
+        gap: 0.05em;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        text-shadow: 0 0 12px var(--neon-glow), 0 0 45px var(--neon-glow);
+        line-height: 1;
+        user-select: none;
+    }
+
+    .mes-clock .digital .hms {
+        font-size: clamp(2.2rem, 8vw, 5.2rem);
+        font-weight: 300;
+    }
+
+    .mes-clock .digital .sec {
+        font-size: clamp(1rem, 3vw, 1.9rem);
+        font-weight: 300;
+        color: var(--amber);
+        text-shadow: 0 0 12px rgba(255, 179, 0, 0.4), 0 0 40px rgba(255, 179, 0, 0.25);
+        margin-left: 0.15em;
+        opacity: 0.9;
+    }
+
+    .mes-clock .digital .colon { animation: mesClockBlink 2s step-end infinite; }
+
+    @keyframes mesClockBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.35; }
+    }
+
+    /* ── Analog clock ── */
+    .mes-clock .analog-wrap {
+        position: relative;
+        width: clamp(130px, 22vw, 180px);
+        height: clamp(130px, 22vw, 180px);
+    }
+
+    .mes-clock .analog-wrap svg { width: 100%; height: 100%; display: block; }
+
+    .mes-clock .face {
+        fill: var(--card);
+        stroke: var(--neon-dim);
+        stroke-width: 1.5;
+        filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.12));
+    }
+
+    .mes-clock .tick { stroke: var(--neon-dim); stroke-width: 2; stroke-linecap: round; }
+    .mes-clock .tick-major { stroke: var(--neon); stroke-width: 2.5; opacity: 0.55; }
+
+    .mes-clock .hand { stroke-linecap: round; transform-origin: 100px 100px; }
+    .mes-clock .hand-hour { stroke: var(--neon); stroke-width: 6; }
+    .mes-clock .hand-min  { stroke: var(--neon); stroke-width: 4; opacity: 0.85; }
+    .mes-clock .hand-sec  { stroke: var(--amber); stroke-width: 1.8; }
+    .mes-clock .pin { fill: var(--amber); }
+    .mes-clock .pin-core { fill: var(--bg); }
+
+    /* ── Date row ── */
+    .mes-clock .date-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem 1rem;
+        font-size: clamp(0.7rem, 1.8vw, 0.95rem);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+    }
+
+    .mes-clock .date-row .val { color: var(--neon); opacity: 0.85; }
+    .mes-clock .date-row .sep { color: var(--neon-dim); }
+    .mes-clock .weekday { color: var(--amber) !important; }
+
+    /* ── Time zone row ── */
+    .mes-clock .zones {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6rem;
+        font-size: clamp(0.6rem, 1.4vw, 0.78rem);
+        letter-spacing: 0.12em;
+    }
+
+    .mes-clock .zone {
+        background: var(--card);
+        border: 1px solid var(--neon-dim);
+        border-radius: 999px;
+        padding: 0.35rem 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(6px);
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .mes-clock .zone:hover {
+        border-color: var(--neon);
+        box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+    }
+
+    .mes-clock .zone .city { color: var(--text-dim); }
+    .mes-clock .zone .time { color: var(--neon); font-variant-numeric: tabular-nums; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .mes-clock .digital .colon { animation: none; }
+    }
+
+    /* ── Navbar mini clock (sits after the clock icon in the top bar) ──
+       Time only, no date. tabular-nums + a fixed min-width keep the ticking
+       digits from nudging the rest of the navbar around every second. */
+    .mes-clock-nav-time {
+        font-size: 0.875rem;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum" 1;
+        letter-spacing: 0.02em;
+        min-width: 4.75em;
+        text-align: center;
+        line-height: 1;
+    }
+</style>
+
+<script>
+// ── Navbar clock: same clock as the standalone clock page, rendered in a modal ──
+(function () {
+    'use strict';
+
+    var root = document.getElementById('mesClockModal');
+    if (!root) return;
+
+    var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var LUNAR_INFO = [
+        0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+        0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+        0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+        0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+        0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+        0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+        0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+        0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+        0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+        0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,
+        0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+        0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+        0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+        0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+        0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+        0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+        0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+        0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+        0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+        0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+        0x0d520
+    ];
+    // Lunar month/day names are intentionally kept in Chinese.
+    var LUNAR_MONTHS = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    var LUNAR_DAYS = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+                      '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+                      '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+
+    // ── Build the analog clock ticks ──
+    (function buildTicks() {
+        var g = document.getElementById('mesClockTicks');
+        if (!g) return;
+        var NS = 'http://www.w3.org/2000/svg';
+        var frag = document.createDocumentFragment();
+        for (var i = 0; i < 60; i++) {
+            var major = i % 5 === 0;
+            var angle = (i * 6) * Math.PI / 180;
+            var rOuter = 88;
+            var rInner = major ? 76 : 82;
+            var line = document.createElementNS(NS, 'line');
+            line.setAttribute('x1', 100 + rInner * Math.sin(angle));
+            line.setAttribute('y1', 100 - rInner * Math.cos(angle));
+            line.setAttribute('x2', 100 + rOuter * Math.sin(angle));
+            line.setAttribute('y2', 100 - rOuter * Math.cos(angle));
+            line.setAttribute('class', major ? 'tick tick-major' : 'tick');
+            frag.appendChild(line);
+        }
+        g.appendChild(frag);
+    })();
+
+    // ── Lunar calendar conversion ──
+    function lYearDays(y) {
+        var sum = 348;
+        for (var i = 0x8000; i > 0x8; i >>= 1) sum += (LUNAR_INFO[y - 1900] & i) ? 1 : 0;
+        return sum + leapDays(y);
+    }
+
+    function leapMonth(y) { return LUNAR_INFO[y - 1900] & 0xf; }
+
+    function leapDays(y) {
+        if (leapMonth(y)) return (LUNAR_INFO[y - 1900] & 0x10000) ? 30 : 29;
+        return 0;
+    }
+
+    function monthDays(y, m) {
+        return (LUNAR_INFO[y - 1900] & (0x10000 >> m)) ? 30 : 29;
+    }
+
+    function solarToLunar(date) {
+        var offset = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
+                                 Date.UTC(1900, 0, 31)) / 86400000);
+        var i, temp = 0;
+        for (i = 1900; i < 2101 && offset > 0; i++) {
+            temp = lYearDays(i);
+            offset -= temp;
+        }
+        if (offset < 0) { offset += temp; i--; }
+        var year = i;
+
+        var leap = leapMonth(year);
+        var isLeap = false;
+        for (i = 1; i < 13 && offset > 0; i++) {
+            if (leap > 0 && i === (leap + 1) && !isLeap) {
+                --i; isLeap = true; temp = leapDays(year);
+            } else {
+                temp = monthDays(year, i);
+            }
+            if (isLeap && i === (leap + 1)) isLeap = false;
+            offset -= temp;
+        }
+        if (offset === 0 && leap > 0 && i === leap + 1) {
+            if (isLeap) { isLeap = false; } else { isLeap = true; --i; }
+        }
+        if (offset < 0) { offset += temp; --i; }
+        var month = i;
+        var day = offset + 1;
+
+        return {
+            month: (isLeap ? '閏' : '') + LUNAR_MONTHS[month - 1],
+            day: LUNAR_DAYS[day - 1],
+            year: year
+        };
+    }
+
+    // ── World time zone settings ──
+    var ZONES = [
+        { city: 'Taipei',   tz: 'Asia/Taipei' },
+        { city: 'Tokyo',    tz: 'Asia/Tokyo' },
+        { city: 'London',   tz: 'Europe/London' },
+        { city: 'New York', tz: 'America/New_York' },
+        { city: 'UTC',      tz: 'UTC' }
+    ];
+
+    function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function fmtZone(date, tz) {
+        try {
+            return new Intl.DateTimeFormat('en-GB', {
+                timeZone: tz, hour: '2-digit', minute: '2-digit',
+                second: '2-digit', hour12: false
+            }).format(date);
+        } catch (e) {
+            return '--:--:--';
+        }
+    }
+
+    // ── Build the time zone cards ──
+    (function buildZones() {
+        var wrap = document.getElementById('mesClockZones');
+        if (!wrap) return;
+        var frag = document.createDocumentFragment();
+        ZONES.forEach(function (z) {
+            var el = document.createElement('div');
+            el.className = 'zone';
+            var city = document.createElement('span');
+            city.className = 'city';
+            city.textContent = z.city;
+            var time = document.createElement('span');
+            time.className = 'time';
+            time.textContent = '--:--:--';
+            time.dataset.tz = z.tz;
+            el.appendChild(city);
+            el.appendChild(time);
+            frag.appendChild(el);
+        });
+        wrap.appendChild(frag);
+    })();
+
+    var elHms = document.getElementById('mesClockHms');
+    var elSec = document.getElementById('mesClockSec');
+    var elYmd = document.getElementById('mesClockDate');
+    var elWeekday = document.getElementById('mesClockWeekday');
+    var elLunar = document.getElementById('mesClockLunar');
+    var handHour = document.getElementById('mesClockHandHour');
+    var handMin = document.getElementById('mesClockHandMin');
+    var handSec = document.getElementById('mesClockHandSec');
+    var zoneEls = Array.prototype.slice.call(root.querySelectorAll('.zone .time'));
+
+    var rafId = null;
+    var lastDate = '';
+
+    function render() {
+        var now = new Date();
+        var h = now.getHours();
+        var m = now.getMinutes();
+        var s = now.getSeconds();
+        var ms = now.getMilliseconds();
+
+        // Digital
+        elHms.innerHTML = pad2(h) + '<span class="colon">:</span>' + pad2(m);
+        elSec.textContent = pad2(s);
+
+        // Analog (smooth sweeping second hand)
+        var secAngle = (s + ms / 1000) * 6;
+        var minAngle = (m + s / 60) * 6;
+        var hourAngle = ((h % 12) + m / 60) * 30;
+        handSec.style.transform = 'rotate(' + secAngle + 'deg)';
+        handMin.style.transform = 'rotate(' + minAngle + 'deg)';
+        handHour.style.transform = 'rotate(' + hourAngle + 'deg)';
+
+        // Date (updated once per day)
+        var dateKey = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+        if (dateKey !== lastDate) {
+            lastDate = dateKey;
+            elYmd.textContent = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+            elWeekday.textContent = WEEKDAYS[now.getDay()];
+            var lu = solarToLunar(now);
+            elLunar.textContent = '農曆 ' + lu.month + lu.day;
+        }
+
+        // World clocks (updated every second)
+        for (var i = 0; i < zoneEls.length; i++) {
+            zoneEls[i].textContent = fmtZone(now, zoneEls[i].dataset.tz);
+        }
+
+        rafId = requestAnimationFrame(render);
+    }
+
+    // Run only while the modal is visible.
+    function start() {
+        if (rafId !== null) return;
+        lastDate = '';  // force the date row to refresh on open
+        rafId = requestAnimationFrame(render);
+    }
+
+    function stop() {
+        if (rafId === null) return;
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+
+    root.addEventListener('shown.bs.modal', start);
+    root.addEventListener('hidden.bs.modal', stop);
+
+    // ── Navbar mini clock ──
+    // Time only (no date), ticking next to the clock icon in the top bar.
+    // A 1s interval is plenty for whole-second resolution, so this does not
+    // need the animation-frame loop the modal clock uses.
+    var navTimeEl = document.getElementById('mesClockNavTime');
+    if (navTimeEl) {
+        var navFmt = new Intl.DateTimeFormat('en-GB', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        });
+        var tickNav = function () {
+            navTimeEl.textContent = navFmt.format(new Date());
+        };
+        tickNav();
+        setInterval(tickNav, 1000);
+    }
+})();
+</script>

@@ -329,6 +329,7 @@
         </div>
         <div class="ms-auto d-flex align-items-center gap-1">
             {% if user.is_authenticated %}
+                <button type="button" class="btn nav-link px-2 border-0 bg-transparent d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#mesClockModal" title="Clock" aria-label="Clock"><i class="bi bi-clock"></i><span id="mesClockNavTime" class="mes-clock-nav-time">--:--:--</span></button>
                 <a class="nav-link px-2" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
                 <a class="nav-link px-2" href="{% url 'profile' %}"><i class="bi bi-person-vcard me-1"></i>Profile</a>
                 <span class="nav-link d-none d-md-inline"><i class="bi bi-person-circle me-1 text-primary"></i>{{ user.username }}</span>
@@ -478,5 +479,9 @@
         return result ? result.url : canvas.toDataURL('image/jpeg', 0.3);
     }
     </script>
+
+    {% if user.is_authenticated %}
+    {% include "orgnization/_clock_modal.html" %}
+    {% endif %}
 </body>
 </html>

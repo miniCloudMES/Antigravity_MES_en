@@ -70,3 +70,52 @@ class SidebarNavTestCase(RoleAccessTestCase):
             with self.subTest(url_name=url_name):
                 response = self.client.get(reverse(url_name))
                 self.assertEqual(response.status_code, 200)
+
+
+class NavbarClockTestCase(RoleAccessTestCase):
+    """Navbar clock: the icon in the top navbar opens a modal holding the clock."""
+
+    def test_dashboard_navbar_has_clock_button_and_modal(self):
+        self._login(self.user_mgr)
+        response = self.client.get(reverse('dashboard'))
+        self.assertEqual(response.status_code, 200)
+        # The button must target the modal, and the modal must exist on the page.
+        self.assertContains(response, 'data-bs-target="#mesClockModal"')
+        self.assertContains(response, 'id="mesClockModal"')
+
+    def test_clock_modal_carries_the_clock(self):
+        """The modal must render the same clock parts as the standalone clock page."""
+        self._login(self.user_mgr)
+        response = self.client.get(reverse('dashboard'))
+        for element_id in ('mesClockHms', 'mesClockHandSec', 'mesClockDate',
+                           'mesClockLunar', 'mesClockZones'):
+            with self.subTest(element_id=element_id):
+                self.assertContains(response, 'id="%s"' % element_id)
+
+    def test_clock_modal_is_rendered_once(self):
+        """Element ids must stay unique, so the modal is included exactly once."""
+        self._login(self.user_mgr)
+        body = self.client.get(reverse('dashboard')).content.decode()
+        self.assertEqual(body.count('id="mesClockModal"'), 1)
+
+    def test_clock_modal_absent_for_anonymous_user(self):
+        """The sign-in page extends the base template but must not ship the clock."""
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'mesClockModal')
+
+    def test_navbar_shows_live_time_next_to_the_icon(self):
+        """After the icon the navbar carries a small time-only readout."""
+        self._login(self.user_mgr)
+        response = self.client.get(reverse('dashboard'))
+        self.assertContains(response, 'id="mesClockNavTime"')
+        # Placeholder shown until the first tick runs, then replaced each second.
+        self.assertContains(response, '--:--:--')
+        # Time only: the navbar readout must not carry a date element.
+        self.assertNotContains(response, 'mesClockNavDate')
+
+    def test_anonymous_login_page_has_no_navbar_clock(self):
+        """The navbar readout is inside the authenticated block, like the button."""
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'mesClockNavTime')
