@@ -283,4 +283,4 @@ uwsgi --ini uwsgi.ini
 - GitHub: [miniCloudMES/Antigravity_MES](https://github.com/miniCloudMES/Antigravity_MES)
 
 # Demo Site
-Demo site: [miniMES English Demo](https://graphs-grams-radiation-smart.trycloudflare.com/)
+Demo site: [miniMES English Demo](https://mes.taile4acb3.ts.net/)
