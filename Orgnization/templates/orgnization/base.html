@@ -481,6 +481,54 @@
     </script>
 
     {% if user.is_authenticated %}
+    <script>
+    // ── Client-side Inactivity Auto-Logout (10 min timeout) ──
+    (function () {
+        const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+        const STORAGE_KEY = 'mes_last_activity';
+
+        function updateActivity() {
+            localStorage.setItem(STORAGE_KEY, Date.now().toString());
+        }
+
+        function checkTimeout() {
+            const lastActive = parseInt(localStorage.getItem(STORAGE_KEY) || Date.now(), 10);
+            if (Date.now() - lastActive >= TIMEOUT_MS) {
+                // Submit logout form or redirect to logout
+                const logoutUrl = "{% url 'logout' %}";
+                const logoutForm = document.querySelector('form[action="' + logoutUrl + '"]');
+                if (logoutForm) {
+                    logoutForm.submit();
+                } else {
+                    window.location.href = logoutUrl;
+                }
+            }
+        }
+
+        updateActivity();
+        const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+        let throttleTimer = null;
+        events.forEach(event => {
+            window.addEventListener(event, () => {
+                if (!throttleTimer) {
+                    throttleTimer = setTimeout(() => {
+                        updateActivity();
+                        throttleTimer = null;
+                    }, 1000);
+                }
+            }, { passive: true });
+        });
+
+        // Check inactivity every 10 seconds and on tab refocus
+        setInterval(checkTimeout, 10000);
+        window.addEventListener('focus', checkTimeout);
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY) {
+                checkTimeout();
+            }
+        });
+    })();
+    </script>
     {% include "orgnization/_clock_modal.html" %}
     {% endif %}
 </body>
